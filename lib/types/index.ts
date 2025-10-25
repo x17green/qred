@@ -150,6 +150,7 @@ export type AuthStackParamList = {
     email?: string | null;
     name?: string;
   };
+  Test: undefined;
 };
 
 export type MainTabParamList = {

@@ -2,6 +2,7 @@ import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
 import LoginScreen from "@/components/screens/auth/LoginScreen";
 import OTPScreen from "@/components/screens/auth/OTPScreen";
+import AuthTestScreen from "../screens/test/AuthTestScreen";
 import { AuthStackParamList } from "@/types";
 
 const Stack = createStackNavigator<AuthStackParamList>();
@@ -27,6 +28,14 @@ export default function AuthStack() {
         component={OTPScreen}
         options={{
           title: "Verify OTP",
+          gestureDirection: "horizontal", // Standard horizontal gesture
+        }}
+      />
+      <Stack.Screen
+        name="Test"
+        component={AuthTestScreen}
+        options={{
+          title: "Test Authentication",
           gestureDirection: "horizontal", // Standard horizontal gesture
         }}
       />

@@ -46,7 +46,7 @@ A modern debt management application built with React Native, Expo, and Supabase
 1. **Clone the repository**
    ```bash
    git clone <repository-url>
-   cd debt-collector
+   cd qred
    ```
 
 2. **Install dependencies**

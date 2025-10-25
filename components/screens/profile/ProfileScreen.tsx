@@ -129,7 +129,7 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
               onPress={() => {
                 Alert.alert(
                   "About",
-                  "Debt Collector v1.0.0\n\nA simple debt management application",
+                  "Qred v1.0.0\nYour credit, simplified\n\nA modern debt management application",
                 );
               }}
             />

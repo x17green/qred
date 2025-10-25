@@ -1,8 +1,8 @@
 # Zed Editor Project Configuration
-# This file contains project-specific settings for the debt-collector React Native app
+# This file contains project-specific settings for the Qred React Native app
 
 # Project identification
-project_name="Debt Collector"
+project_name="Qred"
 project_type="react-native"
 framework="expo"
 
@@ -43,8 +43,9 @@ watch_medium_priority="lib/services/*.ts lib/types/*.ts"
 
 # Development notes
 notes="
+- Qred: Your credit, simplified - Modern debt management app
 - Using Zustand v5 with useShallow patterns for object destructuring
-- React Native with Expo framework
+- React Native with Expo framework and Supabase backend
 - TypeScript strict mode enabled
 - ESLint + Prettier for code formatting
 - Husky for git hooks (needs v10 update)

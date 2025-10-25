@@ -389,7 +389,7 @@ class AuthService {
     const cleanPhone = phoneNumber.replace(/[\s\-\(\)]/g, "");
 
     // Check Nigerian phone number format
-    const nigerianPhoneRegex = /^(\+234|234|0)?[7-9][0-1]\d{8}$/;
+    const nigerianPhoneRegex = /^(\+234|234|0)?[7-9][0-9]\d{8}$/;
 
     return nigerianPhoneRegex.test(cleanPhone);
   }

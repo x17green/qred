@@ -103,7 +103,7 @@ export interface SendOTPResponse {
 }
 
 export interface VerifyOTPRequest {
-  phoneNumber: string | null;
+  phoneNumber: string;
   otp: string;
   googleProfile?: {
     email: string;

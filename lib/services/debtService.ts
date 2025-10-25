@@ -1,4 +1,5 @@
 import { supabase, handleSupabaseError, getCurrentUser } from "./supabase";
+import * as Crypto from "expo-crypto";
 import {
   DebtRow,
   DebtInsert,
@@ -289,7 +290,7 @@ class DebtService {
       // For now, we'll return a mock response
       // In production, this should be handled by an Edge Function
 
-      const reference = `qred_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const reference = `qred_${Date.now()}_${Crypto.randomUUID().replace(/-/g, "").substring(0, 9)}`;
 
       // Create payment record
       const paymentData: PaymentInsert = {

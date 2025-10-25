@@ -140,7 +140,7 @@ export const subscribeToUserDebts = (
         event: "*",
         schema: "public",
         table: "Debt",
-        filter: `lenderId=eq.${userId},debtorId=eq.${userId}`,
+        filter: `or(lenderId.eq.${userId},debtorId.eq.${userId})`,
       },
       callback,
     )

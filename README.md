@@ -62,7 +62,7 @@ A modern debt management application built with React Native, Expo, and Supabase
    Update the `.env` file with your Supabase configuration:
    ```env
    EXPO_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-   EXPO_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+   EXPO_PUBLIC_SUPABASE_KEY=your-supabase-anon-key
    EXPO_PUBLIC_PAYSTACK_TEST_KEY=your_paystack_test_key
    EXPO_PUBLIC_FLUTTERWAVE_TEST_KEY=your_flutterwave_test_key
    ```

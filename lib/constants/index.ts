@@ -240,12 +240,12 @@ export const FEATURE_FLAGS = {
 
 // Regex Patterns
 export const REGEX_PATTERNS = {
-  PHONE: /^(\+234|0)[7-9][0-1]\d{8}$/,
+  PHONE: /^(\+234|0)[7-9][0-9]\d{8}$/,
   EMAIL: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
   OTP: /^\d{6}$/,
   AMOUNT: /^\d+(\.\d{1,2})?$/,
   INTEREST_RATE: /^(100(\.0{1,2})?|\d{1,2}(\.\d{1,2})?)$/,
-  NIGERIAN_PHONE: /^((\+234)|0)[7-9][0-1]\d{8}$/,
+  NIGERIAN_PHONE: /^((\+234)|0)[7-9][0-9]\d{8}$/,
   INTERNATIONAL_PHONE: /^\+[1-9]\d{1,14}$/,
 };
 

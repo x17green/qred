@@ -26,7 +26,7 @@ const queryClient = new QueryClient({
 });
 
 export default function App() {
-  const { setAuthUser, setToken, reset } = useAuthStore();
+  const { setAuthUser, setToken, setUser, reset } = useAuthStore();
 
   React.useEffect(() => {
     // Initialize auth service on app start
@@ -46,6 +46,7 @@ export default function App() {
         try {
           const userProfile = await authService.getStoredUser();
           if (userProfile) {
+            setUser(userProfile);
             console.log("Qred: User profile loaded");
           }
         } catch (error) {

@@ -2,9 +2,27 @@ import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { useShallow } from "zustand/react/shallow";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { User, AuthState, AuthActions } from "@/lib/types";
-import { authService } from "@/lib/services/authService";
-import { STORAGE_KEYS } from "@/lib/constants";
+import { User } from "@supabase/supabase-js";
+import { UserRow } from "../types/database";
+import { authService, AuthResponse } from "../services/authService";
+
+interface AuthState {
+  user: UserRow | null;
+  authUser: User | null;
+  token: string | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  error: string | null;
+}
+
+interface AuthActions {
+  setUser: (user: UserRow) => void;
+  setAuthUser: (user: User) => void;
+  setToken: (token: string) => void;
+  signOut: () => Promise<void>;
+  setLoading: (loading: boolean) => void;
+  setError: (error: string | null) => void;
+}
 
 interface AuthStore extends AuthState, AuthActions {
   // Additional auth actions
@@ -12,11 +30,14 @@ interface AuthStore extends AuthState, AuthActions {
     phoneNumber: string,
     otp: string,
     googleProfile?: { email: string; name: string },
-  ) => Promise<any>;
+  ) => Promise<AuthResponse>;
   sendOTP: (phoneNumber: string) => Promise<any>;
-  googleSignIn: (googleToken: string) => Promise<any>;
-  updateProfile: (data: Partial<User>) => Promise<User>;
-  refreshUser: () => Promise<User>;
+  googleSignIn: (tokens: {
+    idToken: string;
+    accessToken: string;
+  }) => Promise<any>;
+  updateProfile: (data: Partial<UserRow>) => Promise<UserRow>;
+  refreshUser: () => Promise<UserRow | null>;
   checkAuthStatus: () => Promise<boolean>;
   clearError: () => void;
   reset: () => void;
@@ -27,19 +48,23 @@ export const useAuthStore = create<AuthStore>()(
     (set, get) => ({
       // State
       user: null,
+      authUser: null,
       token: null,
       isAuthenticated: false,
       isLoading: false,
       error: null,
 
       // Actions
-      setUser: (user: User) => {
+      setUser: (user: UserRow) => {
         set({ user, isAuthenticated: true, error: null });
+      },
+
+      setAuthUser: (user: User) => {
+        set({ authUser: user, error: null });
       },
 
       setToken: (token: string) => {
         set({ token, error: null });
-        authService.initialize();
       },
 
       signOut: async () => {
@@ -50,6 +75,7 @@ export const useAuthStore = create<AuthStore>()(
 
           set({
             user: null,
+            authUser: null,
             token: null,
             isAuthenticated: false,
             isLoading: false,
@@ -86,9 +112,13 @@ export const useAuthStore = create<AuthStore>()(
             googleProfile,
           });
 
+          // Get user profile after successful auth
+          const userProfile = await authService.getStoredUser();
+
           set({
-            user: response.user,
-            token: response.token,
+            user: userProfile,
+            authUser: response.user,
+            token: response.session?.access_token || null,
             isAuthenticated: true,
             isLoading: false,
             error: null,
@@ -123,11 +153,14 @@ export const useAuthStore = create<AuthStore>()(
         }
       },
 
-      googleSignIn: async (googleToken: string) => {
+      googleSignIn: async (tokens: {
+        idToken: string;
+        accessToken: string;
+      }) => {
         try {
           set({ isLoading: true, error: null });
 
-          const response = await authService.googleSignIn({ googleToken });
+          const response = await authService.googleSignIn(tokens);
 
           set({ isLoading: false });
           return response;
@@ -139,7 +172,7 @@ export const useAuthStore = create<AuthStore>()(
         }
       },
 
-      updateProfile: async (data: Partial<User>) => {
+      updateProfile: async (data: Partial<UserRow>) => {
         try {
           set({ isLoading: true, error: null });
 
@@ -164,15 +197,15 @@ export const useAuthStore = create<AuthStore>()(
         try {
           set({ isLoading: true, error: null });
 
-          const user = await authService.getCurrentUser();
+          const userProfile = await authService.getStoredUser();
 
           set({
-            user,
+            user: userProfile,
             isLoading: false,
             error: null,
           });
 
-          return user;
+          return userProfile;
         } catch (error) {
           const errorMessage =
             error instanceof Error
@@ -190,15 +223,17 @@ export const useAuthStore = create<AuthStore>()(
           const isAuthenticated = await authService.isAuthenticated();
 
           if (isAuthenticated) {
-            const [token, user] = await Promise.all([
+            const [token, userProfile, authUser] = await Promise.all([
               authService.getAuthToken(),
               authService.getStoredUser(),
+              authService.getCurrentUser(),
             ]);
 
-            if (token && user) {
+            if (token && userProfile && authUser) {
               set({
                 token,
-                user,
+                user: userProfile,
+                authUser,
                 isAuthenticated: true,
                 isLoading: false,
                 error: null,
@@ -209,6 +244,7 @@ export const useAuthStore = create<AuthStore>()(
 
           set({
             user: null,
+            authUser: null,
             token: null,
             isAuthenticated: false,
             isLoading: false,
@@ -237,6 +273,7 @@ export const useAuthStore = create<AuthStore>()(
       reset: () => {
         set({
           user: null,
+          authUser: null,
           token: null,
           isAuthenticated: false,
           isLoading: false,
@@ -245,10 +282,11 @@ export const useAuthStore = create<AuthStore>()(
       },
     }),
     {
-      name: "auth-store",
+      name: "qred-auth-store",
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({
         user: state.user,
+        authUser: state.authUser,
         token: state.token,
         isAuthenticated: state.isAuthenticated,
       }),
@@ -261,6 +299,7 @@ export const useAuth = () =>
   useAuthStore(
     useShallow((state) => ({
       user: state.user,
+      authUser: state.authUser,
       token: state.token,
       isAuthenticated: state.isAuthenticated,
       isLoading: state.isLoading,
@@ -272,6 +311,7 @@ export const useAuthActions = () =>
   useAuthStore(
     useShallow((state) => ({
       setUser: state.setUser,
+      setAuthUser: state.setAuthUser,
       setToken: state.setToken,
       signOut: state.signOut,
       signIn: state.signIn,

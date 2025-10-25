@@ -1,6 +1,6 @@
-# Debt Collector
+# Qred: Your credit, simplified
 
-A modern debt management application built with React Native and Expo, designed to help users track and manage personal debts efficiently.
+A modern debt management application built with React Native, Expo, and Supabase, designed to help users track and manage personal debts efficiently with a simplified, user-friendly approach.
 
 ## 📱 Features
 
@@ -24,13 +24,14 @@ A modern debt management application built with React Native and Expo, designed 
 - **TanStack Query** for data fetching and caching
 - **React Hook Form** for form handling
 
-### Backend (API)
-- **Node.js** with **Express.js**
-- **TypeScript**
-- **Prisma** ORM with **PostgreSQL**
-- **JWT** authentication
-- **Paystack/Flutterwave** for payments
-- **Termii/Twilio** for SMS OTP
+### Backend (Supabase)
+- **Supabase** - Backend-as-a-Service platform
+- **PostgreSQL** - Supabase managed database
+- **Prisma** - Schema management and type generation
+- **Supabase Auth** - Authentication with phone OTP and Google Sign-In
+- **Row Level Security (RLS)** - Database-level security policies
+- **Supabase Edge Functions** - Serverless functions for secure operations
+- **Paystack/Flutterwave** - Payment processing via webhooks
 
 ## 📋 Prerequisites
 
@@ -58,9 +59,10 @@ A modern debt management application built with React Native and Expo, designed 
    cp .env.example .env
    ```
    
-   Update the `.env` file with your configuration:
+   Update the `.env` file with your Supabase configuration:
    ```env
-   EXPO_PUBLIC_API_URL=http://localhost:3000/api/v1
+   EXPO_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+   EXPO_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
    EXPO_PUBLIC_PAYSTACK_TEST_KEY=your_paystack_test_key
    EXPO_PUBLIC_FLUTTERWAVE_TEST_KEY=your_flutterwave_test_key
    ```
@@ -78,7 +80,7 @@ A modern debt management application built with React Native and Expo, designed 
 ## 📁 Project Structure
 
 ```
-debt-collector/
+qred/
 ├── assets/                  # Static assets (fonts, images, icons)
 ├── components/              # All UI and screen components
 │   ├── ui/                  # Gluestack UI base components
@@ -97,15 +99,20 @@ debt-collector/
 ├── lib/                     # Core application logic
 │   ├── constants/           # App-wide constants
 │   ├── hooks/               # Custom React hooks
-│   ├── services/            # API communication layer
-│   │   ├── api.ts           # Base API configuration
-│   │   ├── authService.ts   # Authentication service
-│   │   └── debtService.ts   # Debt management service
-│   ├── store/               # State management (Zustand)
+│   ├── services/            # Supabase integration layer
+│   │   ├── supabase.ts      # Supabase client configuration
+│   │   ├── authService.ts   # Supabase Auth service
+│   │   └── debtService.ts   # Debt management with RLS
+│   ├── store/               # State management (Zustand v5)
 │   │   ├── authStore.ts     # Authentication state
 │   │   └── debtStore.ts     # Debt management state
 │   ├── types/               # TypeScript type definitions
 │   └── utils/               # Utility functions
+├── supabase/                # Supabase configuration
+│   ├── functions/           # Edge Functions
+│   └── migrations/          # Database migrations
+├── docs/                    # Documentation
+│   └── supabase-implementation.md # Supabase setup guide
 └── App.tsx                  # Root component
 ```
 
@@ -187,8 +194,9 @@ docs: update README with setup instructions
 ### Required Environment Variables
 
 ```env
-# API Configuration
-EXPO_PUBLIC_API_URL=http://localhost:3000/api/v1
+# Supabase Configuration
+EXPO_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+EXPO_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 # Payment Gateways
 EXPO_PUBLIC_PAYSTACK_TEST_KEY=pk_test_xxxxx
@@ -244,27 +252,33 @@ expo build:ios --type simulator
 5. Push to the branch (`git push origin feat/amazing-feature`)
 6. Open a Pull Request
 
-## 📄 API Documentation
+## 📄 Supabase Integration
 
-The backend API follows RESTful conventions:
+Qred uses Supabase as a Backend-as-a-Service platform, providing:
 
-### Authentication Endpoints
-- `POST /api/v1/auth/google-signin` - Google OAuth sign-in
-- `POST /api/v1/auth/send-otp` - Send OTP to phone
-- `POST /api/v1/auth/verify-otp` - Verify OTP and authenticate
+### Authentication
+- **Phone OTP Authentication** - Secure SMS-based sign-in
+- **Google OAuth Integration** - One-tap Google sign-in
+- **Session Management** - Automatic token refresh and storage
+- **User Profiles** - Custom user data linked to auth.users
 
-### Debt Management Endpoints
-- `GET /api/v1/debts/lending` - Get debts where user is lender
-- `GET /api/v1/debts/owing` - Get debts where user is debtor
-- `POST /api/v1/debts` - Create new debt
-- `PATCH /api/v1/debts/:id` - Update debt
-- `DELETE /api/v1/debts/:id` - Delete debt
+### Database Operations (via Supabase Client)
+- **Automatic API Generation** - REST endpoints from database schema
+- **Row Level Security (RLS)** - Database-level permission enforcement
+- **Real-time Subscriptions** - Live data updates
+- **Type-safe Operations** - Generated TypeScript types
 
-### Payment Endpoints
-- `POST /api/v1/payments/initialize` - Initialize payment
-- `POST /api/v1/payments/webhook` - Payment gateway webhook
+### Security Features
+- **RLS Policies** - Users can only access their own debts
+- **JWT-based Authentication** - Secure token-based auth
+- **Automatic API Security** - No manual permission checking needed
 
-For detailed API documentation, see [Backend Documentation](./docs/debt-collector.md).
+### Edge Functions (Serverless)
+- **Payment Webhooks** - Secure payment processing
+- **Email Notifications** - Automated debt reminders
+- **Data Aggregation** - Complex calculations server-side
+
+For detailed Supabase setup, see [Supabase Implementation Guide](./docs/supabase-implementation.md).
 
 ## 🔧 TypeScript Path Configuration
 
@@ -335,4 +349,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Built with ❤️ for efficient debt management**
+**Qred: Your credit, simplified** - Built with ❤️ for modern debt management

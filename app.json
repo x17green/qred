@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "debt-collector",
-    "slug": "debt-collector",
+    "name": "Qred: Your credit, simplified",
+    "slug": "qred",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",

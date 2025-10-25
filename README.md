@@ -80,32 +80,32 @@ A modern debt management application built with React Native and Expo, designed 
 ```
 debt-collector/
 ├── assets/                  # Static assets (fonts, images, icons)
-├── components/              # Reusable UI components
-│   ├── ui/                  # Gluestack UI components
-│   ├── core/                # Core building blocks
-│   ├── domain/              # Business-specific components
-│   └── layout/              # Layout components
-├── constants/               # App-wide constants
-├── hooks/                   # Custom React hooks
-├── lib/                     # Utility libraries
-├── navigation/              # Navigation setup
-│   ├── AppNavigator.tsx     # Root navigator
-│   ├── AuthStack.tsx        # Authentication screens
-│   └── MainTabNavigator.tsx # Main app navigation
-├── screens/                 # Screen components
-│   ├── auth/                # Authentication screens
-│   ├── dashboard/           # Dashboard screens
-│   ├── debts/               # Debt management screens
-│   └── profile/             # Profile screens
-├── services/                # API services
-│   ├── api.ts               # Base API configuration
-│   ├── authService.ts       # Authentication service
-│   └── debtService.ts       # Debt management service
-├── store/                   # State management (Zustand)
-│   ├── authStore.ts         # Authentication state
-│   └── debtStore.ts         # Debt management state
-├── types/                   # TypeScript type definitions
-├── utils/                   # Utility functions
+├── components/              # All UI and screen components
+│   ├── ui/                  # Gluestack UI base components
+│   ├── core/                # App-specific component wrappers
+│   ├── domain/              # Business logic components (DebtCard, etc.)
+│   ├── layout/              # Layout and structure components
+│   ├── navigation/          # Navigation setup
+│   │   ├── AppNavigator.tsx # Root navigator
+│   │   ├── AuthStack.tsx    # Authentication navigation
+│   │   └── MainTabNavigator.tsx # Main app navigation
+│   └── screens/             # Screen components
+│       ├── auth/            # Authentication screens
+│       ├── dashboard/       # Dashboard screens
+│       ├── debts/           # Debt management screens
+│       └── profile/         # Profile screens
+├── lib/                     # Core application logic
+│   ├── constants/           # App-wide constants
+│   ├── hooks/               # Custom React hooks
+│   ├── services/            # API communication layer
+│   │   ├── api.ts           # Base API configuration
+│   │   ├── authService.ts   # Authentication service
+│   │   └── debtService.ts   # Debt management service
+│   ├── store/               # State management (Zustand)
+│   │   ├── authStore.ts     # Authentication state
+│   │   └── debtStore.ts     # Debt management state
+│   ├── types/               # TypeScript type definitions
+│   └── utils/               # Utility functions
 └── App.tsx                  # Root component
 ```
 
@@ -170,6 +170,17 @@ docs: update README with setup instructions
 2. **Core Components** (`components/core/`): App-specific wrappers around UI components
 3. **Domain Components** (`components/domain/`): Business logic components (DebtCard, etc.)
 4. **Layout Components** (`components/layout/`): Page layout and structure components
+5. **Screen Components** (`components/screens/`): Top-level screen components organized by feature
+6. **Navigation Components** (`components/navigation/`): All navigation-related components
+
+### Library Organization (`lib/`)
+
+- **services/**: API communication and external integrations
+- **store/**: Global state management with Zustand
+- **hooks/**: Custom React hooks for shared logic
+- **types/**: TypeScript type definitions and interfaces
+- **constants/**: App-wide constants and configuration
+- **utils/**: Helper functions and utilities
 
 ## 🔐 Environment Configuration
 
@@ -254,6 +265,25 @@ The backend API follows RESTful conventions:
 - `POST /api/v1/payments/webhook` - Payment gateway webhook
 
 For detailed API documentation, see [Backend Documentation](./docs/debt-collector.md).
+
+## 🔧 TypeScript Path Configuration
+
+The project uses TypeScript path mapping for clean imports:
+
+```typescript
+// Instead of: import { useAuth } from "../../../lib/store/authStore"
+import { useAuth } from "@/store/authStore";
+
+// Available path aliases:
+// @/components/* - Component files
+// @/lib/* - Library files
+// @/store/* - State management
+// @/services/* - API services
+// @/types/* - Type definitions
+// @/constants/* - Constants
+// @/hooks/* - Custom hooks
+// @/utils/* - Utility functions
+```
 
 ## 🐛 Troubleshooting
 

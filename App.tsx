@@ -2,8 +2,8 @@ import React from "react";
 import { StatusBar } from "expo-status-bar";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import AppNavigator from "@/navigation/AppNavigator";
-import { authService } from "@/services/authService";
+import AppNavigator from "@/components/navigation/AppNavigator";
+import { authService } from "@/lib/services/authService";
 import "./global.css";
 
 // Create a client for React Query

@@ -3,12 +3,18 @@
   "compilerOptions": {
     "strict": true,
     "paths": {
-      "@/*": [
-        "./*"
-      ],
-      "tailwind.config": [
-        "./tailwind.config.js"
-      ]
+      "@/*": ["./*"],
+      "@/components/*": ["./components/*"],
+      "@/screens/*": ["./components/screens/*"],
+      "@/lib/*": ["./lib/*"],
+      "@/assets/*": ["./assets/*"],
+      "@/store/*": ["./lib/store/*"],
+      "@/services/*": ["./lib/services/*"],
+      "@/types": ["./lib/types/index.ts"],
+      "@/constants": ["./lib/constants/index.ts"],
+      "@/hooks/*": ["./lib/hooks/*"],
+      "@/utils/*": ["./lib/utils/*"],
+      "tailwind.config": ["./tailwind.config.js"]
     }
   }
 }

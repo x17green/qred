@@ -1,10 +1,10 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
-import DashboardScreen from '@/screens/dashboard/DashboardScreen';
-import ProfileScreen from '@/screens/profile/ProfileScreen';
-import { MainTabParamList, DebtStackParamList } from '@/types';
-import { COLORS } from '@/constants';
+import DashboardScreen from '@/components/screens/dashboard/DashboardScreen';
+import ProfileScreen from '@/components/screens/profile/ProfileScreen';
+import { MainTabParamList, DebtStackParamList } from '@/lib/types';
+import { COLORS } from '@/lib/constants';
 import { Text } from '@/components/ui/text';
 
 // Placeholder screens - these would be implemented based on the full requirements
@@ -32,9 +32,9 @@ function DebtStackNavigator() {
         headerStyle: {
           backgroundColor: COLORS.PRIMARY[600],
         },
-        headerTintColor: 'white',
+        headerTintColor: "white",
         headerTitleStyle: {
-          fontWeight: 'bold',
+          fontWeight: "bold",
         },
       }}
     >
@@ -42,28 +42,28 @@ function DebtStackNavigator() {
         name="DebtsList"
         component={DebtListScreen}
         options={{
-          title: 'My Debts',
+          title: "My Debts",
         }}
       />
       <DebtStack.Screen
         name="DebtDetail"
         component={DebtDetailScreen}
         options={{
-          title: 'Debt Details',
+          title: "Debt Details",
         }}
       />
       <DebtStack.Screen
         name="AddDebt"
         component={AddDebtScreen}
         options={{
-          title: 'Add New Debt',
+          title: "Add New Debt",
         }}
       />
       <DebtStack.Screen
         name="EditDebt"
         component={AddDebtScreen}
         options={{
-          title: 'Edit Debt',
+          title: "Edit Debt",
         }}
       />
     </DebtStack.Navigator>
@@ -82,7 +82,7 @@ export default function MainTabNavigator() {
         tabBarActiveTintColor: COLORS.PRIMARY[600],
         tabBarInactiveTintColor: COLORS.GRAY[500],
         tabBarStyle: {
-          backgroundColor: 'white',
+          backgroundColor: "white",
           borderTopWidth: 1,
           borderTopColor: COLORS.GRAY[200],
           paddingVertical: 5,
@@ -90,7 +90,7 @@ export default function MainTabNavigator() {
         },
         tabBarLabelStyle: {
           fontSize: 12,
-          fontWeight: '600',
+          fontWeight: "600",
           marginBottom: 5,
         },
         tabBarIconStyle: {
@@ -102,7 +102,7 @@ export default function MainTabNavigator() {
         name="Dashboard"
         component={DashboardScreen}
         options={{
-          title: 'Dashboard',
+          title: "Dashboard",
           tabBarIcon: ({ color, size }) => (
             <Text style={{ color, fontSize: size }}>🏠</Text>
           ),
@@ -112,7 +112,7 @@ export default function MainTabNavigator() {
         name="Debts"
         component={DebtStackNavigator}
         options={{
-          title: 'Debts',
+          title: "Debts",
           tabBarIcon: ({ color, size }) => (
             <Text style={{ color, fontSize: size }}>💳</Text>
           ),
@@ -122,7 +122,7 @@ export default function MainTabNavigator() {
         name="Profile"
         component={ProfileScreen}
         options={{
-          title: 'Profile',
+          title: "Profile",
           tabBarIcon: ({ color, size }) => (
             <Text style={{ color, fontSize: size }}>👤</Text>
           ),

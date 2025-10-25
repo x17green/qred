@@ -16,20 +16,20 @@ interface LoginScreenProps {
 }
 
 export default function LoginScreen({ navigation }: LoginScreenProps) {
-  const [phoneNumber, setPhoneNumber] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState<{[key: string]: string}>({});
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   const { sendOTP, googleSignIn } = useAuthActions();
 
   const validatePhoneNumber = (phone: string): boolean => {
     if (!phone.trim()) {
-      setErrors({ phone: 'Phone number is required' });
+      setErrors({ phone: "Phone number is required" });
       return false;
     }
 
     if (!authService.validatePhoneNumber(phone)) {
-      setErrors({ phone: 'Please enter a valid Nigerian phone number' });
+      setErrors({ phone: "Please enter a valid Nigerian phone number" });
       return false;
     }
 
@@ -49,13 +49,15 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
       await sendOTP(formattedPhone);
 
       // Navigate to OTP screen
-      navigation.navigate('OTP', {
-        phoneNumber: formattedPhone
+      navigation.navigate("OTP", {
+        phoneNumber: formattedPhone,
       });
     } catch (error) {
       Alert.alert(
-        'Error',
-        error instanceof Error ? error.message : 'Failed to send OTP. Please try again.'
+        "Error",
+        error instanceof Error
+          ? error.message
+          : "Failed to send OTP. Please try again.",
       );
     } finally {
       setIsLoading(false);
@@ -69,14 +71,13 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
       // This would integrate with @react-native-google-signin/google-signin
       // For now, we'll show a placeholder
       Alert.alert(
-        'Google Sign In',
-        'Google Sign In integration will be implemented here'
+        "Google Sign In",
+        "Google Sign In integration will be implemented here",
       );
-
     } catch (error) {
       Alert.alert(
-        'Error',
-        error instanceof Error ? error.message : 'Google sign in failed'
+        "Error",
+        error instanceof Error ? error.message : "Google sign in failed",
       );
     } finally {
       setIsLoading(false);
@@ -89,7 +90,10 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
         <VStack space="xl" className="flex-1 justify-center">
           {/* Header */}
           <VStack space="md" className="items-center mb-8">
-            <Text size="3xl" className="font-bold text-typography-900 text-center">
+            <Text
+              size="3xl"
+              className="font-bold text-typography-900 text-center"
+            >
               Welcome Back
             </Text>
             <Text size="lg" className="text-typography-500 text-center">
@@ -135,7 +139,7 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
             isDisabled={isLoading}
           >
             <ButtonText className="font-semibold">
-              {isLoading ? 'Sending OTP...' : 'Send OTP'}
+              {isLoading ? "Sending OTP..." : "Send OTP"}
             </ButtonText>
           </Button>
 
@@ -164,7 +168,8 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
           {/* Footer */}
           <VStack space="sm" className="items-center mt-8">
             <Text size="sm" className="text-typography-500 text-center">
-              By continuing, you agree to our Terms of Service and Privacy Policy
+              By continuing, you agree to our Terms of Service and Privacy
+              Policy
             </Text>
           </VStack>
         </VStack>

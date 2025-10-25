@@ -292,75 +292,78 @@ This documentation aligns with your provided file structure and `package.json`, 
 
 ### 1. Project Structure (Enhanced for Scalability)
 
-Based on your current structure, here is a recommended scalable layout.
+Based on the current scalable structure, here is the organized layout:
 
 ```
 debt-collector/
-├── assets/                  # Fonts, images, icons
-├── components/              # Reusable, stateless UI components
-│   ├── core/                # Core building blocks (Button, Input, Card) using gluestack-ui
-│   ├── domain/              # Business-specific components (DebtCard, ProfileHeader)
-│   └── layout/              # Screen layout wrappers (Container, Header)
-├── navigation/              # All React Navigation setup
-│   ├── AppNavigator.tsx     # Main navigator (switches between Auth and Main stacks)
-│   ├── AuthStack.tsx        # Screens for login, signup, OTP
-│   └── MainTabNavigator.tsx # Bottom tab navigator for the main app
-├── screens/                 # Top-level screen components
-│   ├── auth/                # Authentication screens
-│   │   ├── LoginScreen.tsx
-│   │   └── OTPScreen.tsx
-│   ├── dashboard/           # Main dashboard/home screen
-│   │   └── DashboardScreen.tsx
-│   ├── debts/               # Screens related to debt management
-│   │   ├── MyDebtsScreen.tsx
-│   │   ├── DebtDetailScreen.tsx
-│   │   └── AddDebtScreen.tsx
-│   └── profile/             # User profile and settings
-│       └── ProfileScreen.tsx
-├── services/                # API communication layer
-│   ├── api.ts               # Axios or fetch instance setup (base URL, headers)
-│   ├── authService.ts       # Auth-related API calls
-│   └── debtService.ts       # Debt-related API calls
-├── store/                   # State management (e.g., Zustand, Redux Toolkit)
-│   ├── authStore.ts         # Handles user session, token
-│   └── debtStore.ts         # Caches debts, manages loading states
-├── hooks/                   # Custom React hooks
-│   ├── useAuth.ts           # Hook to access auth state and actions
-│   └── useDebts.ts          # Hook to fetch and manage debt data
-├── utils/                   # Helper functions (date formatting, validation)
-├── constants/               # App-wide constants (colors, API URLs)
+├── assets/                  # Static assets (fonts, images, icons)
+├── components/              # All UI and screen components
+│   ├── ui/                  # Gluestack UI base components
+│   ├── core/                # App-specific component wrappers
+│   ├── domain/              # Business logic components (DebtCard, ProfileHeader)
+│   ├── layout/              # Layout and structure components
+│   ├── navigation/          # All React Navigation setup
+│   │   ├── AppNavigator.tsx # Main navigator (switches between Auth and Main stacks)
+│   │   ├── AuthStack.tsx    # Screens for login, signup, OTP
+│   │   └── MainTabNavigator.tsx # Bottom tab navigator for the main app
+│   └── screens/             # Top-level screen components
+│       ├── auth/            # Authentication screens
+│       │   ├── LoginScreen.tsx
+│       │   └── OTPScreen.tsx
+│       ├── dashboard/       # Main dashboard/home screen
+│       │   └── DashboardScreen.tsx
+│       ├── debts/           # Screens related to debt management
+│       │   ├── MyDebtsScreen.tsx
+│       │   ├── DebtDetailScreen.tsx
+│       │   └── AddDebtScreen.tsx
+│       └── profile/         # User profile and settings
+│           └── ProfileScreen.tsx
+├── lib/                     # Core application logic
+│   ├── constants/           # App-wide constants (colors, API URLs)
+│   ├── hooks/               # Custom React hooks
+│   │   ├── useAuth.ts       # Hook to access auth state and actions
+│   │   └── useDebts.ts      # Hook to fetch and manage debt data
+│   ├── services/            # API communication layer
+│   │   ├── api.ts           # Axios or fetch instance setup (base URL, headers)
+│   │   ├── authService.ts   # Auth-related API calls
+│   │   └── debtService.ts   # Debt-related API calls
+│   ├── store/               # State management (Zustand)
+│   │   ├── authStore.ts     # Handles user session, token
+│   │   └── debtStore.ts     # Caches debts, manages loading states
+│   ├── types/               # TypeScript type definitions
+│   └── utils/               # Helper functions (date formatting, validation)
 └── App.tsx                  # Root component, entry point
 ```
 
 ### 2. Core Libraries & Their Roles
 
-*   **Expo Router (Recommended):** Your current setup is a bare Expo project. It is highly recommended to use **Expo Router** for file-based routing. It simplifies navigation immensely and fits this scalable structure perfectly.
-*   **gluestack-ui:** Your primary component library. Create wrappers in `components/core/` to standardize them for your app (e.g., `<PrimaryButton>`, `<FormInput>`). This makes future design system changes easy.
+*   **React Navigation:** Used for navigation between screens with stack and tab navigators located in `components/navigation/`.
+*   **gluestack-ui:** Primary component library with base components in `components/ui/` and custom wrappers in `components/core/` (e.g., `<PrimaryButton>`, `<FormInput>`). This makes future design system changes easy.
 *   **NativeWind / Tailwind:** Used for styling custom components and making fine-grained adjustments to gluestack-ui components where needed.
-*   **Zustand (Recommended for State Management):** It's a lightweight, simple, and powerful state management library, perfect for managing global state like user authentication and fetched data without the boilerplate of Redux.
-*   **TanStack Query (React Query) (Recommended for Data Fetching):** An excellent library for managing server state. It handles caching, background refetching, and loading/error states for your API calls, simplifying your code in `screens/` and `hooks/`.
+*   **Zustand:** Lightweight state management library in `lib/store/` for managing global state like user authentication and debt data without Redux boilerplate.
+*   **TanStack Query (React Query):** Manages server state with caching, background refetching, and loading/error states. Hooks are located in `lib/hooks/` and services in `lib/services/`.
 
 ### 3. Frontend Logic & Flow
 
 #### Step 1: Authentication Flow
 
-1.  **App Entry (`App.tsx`):** The app starts and checks for a stored JWT (using a `useAuth` hook from your `authStore`).
-2.  **Navigator (`AppNavigator.tsx`):**
+1.  **App Entry (`App.tsx`):** The app starts and checks for a stored JWT (using a `useAuth` hook from `lib/store/authStore`).
+2.  **Navigator (`components/navigation/AppNavigator.tsx`):**
     *   If a token exists and is valid, it renders the `MainTabNavigator`.
     *   If no token exists, it renders the `AuthStack`.
-3.  **Login Screen (`LoginScreen.tsx`):**
+3.  **Login Screen (`components/screens/auth/LoginScreen.tsx`):**
     *   UI: Provides "Sign in with Google" button.
-    *   Logic: Uses `expo-auth-session` to initiate Google login. On success, calls `authService.googleSignin()`.
+    *   Logic: Uses `expo-auth-session` to initiate Google login. On success, calls `lib/services/authService.googleSignin()`.
     *   On a successful response from the backend, it navigates to the `OTPScreen`, passing the user's phone number.
-4.  **OTP Screen (`OTPScreen.tsx`):**
+4.  **OTP Screen (`components/screens/auth/OTPScreen.tsx`):**
     *   UI: An input field for the OTP.
-    *   Logic: On submit, calls `authService.verifyOtp()`. On success, the `authStore` saves the JWT, and the `AppNavigator` will automatically switch to the `MainTabNavigator`.
+    *   Logic: On submit, calls `lib/services/authService.verifyOtp()`. On success, the `lib/store/authStore` saves the JWT, and the `AppNavigator` will automatically switch to the `MainTabNavigator`.
 
 #### Step 2: Displaying Debts
 
-1.  **Dashboard Screen (`DashboardScreen.tsx`):**
+1.  **Dashboard Screen (`components/screens/dashboard/DashboardScreen.tsx`):**
     *   UI: A summary view showing "Total I'm Owed" and "Total I Owe". A list of active debts.
-    *   Logic: Uses a `useDebts` hook (which internally uses TanStack Query and `debtService`) to fetch data from both `/debts/lending` and `/debts/owing` endpoints.
+    *   Logic: Uses a `useDebts` hook from `lib/hooks/` (which internally uses TanStack Query and `lib/services/debtService`) to fetch data from both `/debts/lending` and `/debts/owing` endpoints.
     *   It renders `DebtCard` components for each item.
 2.  **DebtCard Component (`components/domain/DebtCard.tsx`):**
     *   A reusable component that takes a `debt` object as a prop.
@@ -369,14 +372,14 @@ debt-collector/
 
 #### Step 3: Creating a Debt
 
-1.  **Add Debt Screen (`AddDebtScreen.tsx`):**
-    *   UI: A form built with your custom `FormInput` components. Fields for debtor's phone, amount, interest, due date, etc. A switch to toggle `isExternal`.
+1.  **Add Debt Screen (`components/screens/debts/AddDebtScreen.tsx`):**
+    *   UI: A form built with custom `FormInput` components from `components/core/`. Fields for debtor's phone, amount, interest, due date, etc. A switch to toggle `isExternal`.
     *   State Management: Uses `useState` or a form library like `react-hook-form` to manage form state.
-    *   Logic: On submit, it calls `debtService.createDebt()`. It leverages TanStack Query's mutation capabilities to automatically refetch the debt list on success, updating the UI seamlessly.
+    *   Logic: On submit, it calls `lib/services/debtService.createDebt()`. It leverages TanStack Query's mutation capabilities to automatically refetch the debt list on success, updating the UI seamlessly.
 
 ### 4. Code Example: A Service and a Hook
 
-**`services/debtService.ts`**
+**`lib/services/debtService.ts`**
 
 ```typescript
 import { api } from './api'; // Your configured Axios instance
@@ -408,7 +411,7 @@ export const debtService = {
 };
 ```
 
-**`hooks/useDebts.ts` (with TanStack Query)**
+**`lib/hooks/useDebts.ts` (with TanStack Query)**
 
 ```typescript
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';

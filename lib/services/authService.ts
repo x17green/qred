@@ -8,8 +8,8 @@ import {
   SendOTPResponse,
   VerifyOTPRequest,
   User
-} from '@/types';
-import { STORAGE_KEYS } from '@/constants';
+} from '@/lib/types';
+import { STORAGE_KEYS } from '@/lib/constants';
 
 class AuthService {
   /**

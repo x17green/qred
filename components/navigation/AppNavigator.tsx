@@ -6,7 +6,7 @@ import MainTabNavigator from "./MainTabNavigator";
 import { useAuth, useAuthActions } from "@/store/authStore";
 import { Box } from "@/components/ui/box";
 import { Text } from "@/components/ui/text";
-import { RootStackParamList } from "@/types";
+import { RootStackParamList } from "@/lib/types";
 
 const Stack = createStackNavigator<RootStackParamList>();
 

@@ -9,7 +9,7 @@ import { Button, ButtonText } from '@/components/ui/button';
 import { useAuth } from '@/store/authStore';
 import { useDebts, useDebtActions, useDebtComputed } from '@/store/debtStore';
 import { debtService } from '@/services/debtService';
-import { Debt } from '@/types';
+import { Debt } from '@/lib/types';
 
 interface DashboardScreenProps {
   navigation: any;
@@ -32,8 +32,10 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps) {
       await fetchAllDebts();
     } catch (error) {
       Alert.alert(
-        'Error',
-        error instanceof Error ? error.message : 'Failed to load dashboard data'
+        "Error",
+        error instanceof Error
+          ? error.message
+          : "Failed to load dashboard data",
       );
     }
   };
@@ -53,16 +55,19 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps) {
 
   const getGreeting = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return 'Good morning';
-    if (hour < 17) return 'Good afternoon';
-    return 'Good evening';
+    if (hour < 12) return "Good morning";
+    if (hour < 17) return "Good afternoon";
+    return "Good evening";
   };
 
   const totalLending = getTotalLending();
   const totalOwing = getTotalOwing();
   const overdueDebts = getOverdueDebts();
   const recentDebts = [...lendingDebts, ...owingDebts]
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    )
     .slice(0, 5);
 
   return (
@@ -81,7 +86,7 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps) {
                 {getGreeting()},
               </Text>
               <Text size="2xl" className="font-bold text-typography-900">
-                {user?.name || 'User'}
+                {user?.name || "User"}
               </Text>
             </VStack>
 
@@ -102,7 +107,8 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps) {
                       {formatCurrency(totalLending)}
                     </Text>
                     <Text size="xs" className="text-success-600">
-                      {lendingDebts.length} debt{lendingDebts.length !== 1 ? 's' : ''}
+                      {lendingDebts.length} debt
+                      {lendingDebts.length !== 1 ? "s" : ""}
                     </Text>
                   </VStack>
                 </Box>
@@ -117,7 +123,8 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps) {
                       {formatCurrency(totalOwing)}
                     </Text>
                     <Text size="xs" className="text-warning-600">
-                      {owingDebts.length} debt{owingDebts.length !== 1 ? 's' : ''}
+                      {owingDebts.length} debt
+                      {owingDebts.length !== 1 ? "s" : ""}
                     </Text>
                   </VStack>
                 </Box>
@@ -132,14 +139,17 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps) {
                         Overdue Debts
                       </Text>
                       <Text size="xs" className="text-error-600">
-                        {overdueDebts.length} debt{overdueDebts.length !== 1 ? 's are' : ' is'} overdue
+                        {overdueDebts.length} debt
+                        {overdueDebts.length !== 1 ? "s are" : " is"} overdue
                       </Text>
                     </Box>
                     <Button
                       size="sm"
                       action="negative"
                       variant="outline"
-                      onPress={() => navigation.navigate('Debts', { filter: 'overdue' })}
+                      onPress={() =>
+                        navigation.navigate("Debts", { filter: "overdue" })
+                      }
                     >
                       <ButtonText>View</ButtonText>
                     </Button>
@@ -157,7 +167,9 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps) {
               <HStack space="md">
                 <Button
                   className="flex-1 bg-primary-600 hover:bg-primary-700"
-                  onPress={() => navigation.navigate('Debts', { screen: 'AddDebt' })}
+                  onPress={() =>
+                    navigation.navigate("Debts", { screen: "AddDebt" })
+                  }
                 >
                   <ButtonText>Add Debt</ButtonText>
                 </Button>
@@ -165,7 +177,7 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps) {
                 <Button
                   variant="outline"
                   className="flex-1 border-primary-600"
-                  onPress={() => navigation.navigate('Debts')}
+                  onPress={() => navigation.navigate("Debts")}
                 >
                   <ButtonText className="text-primary-600">View All</ButtonText>
                 </Button>
@@ -181,7 +193,7 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps) {
                 <Button
                   variant="link"
                   size="sm"
-                  onPress={() => navigation.navigate('Debts')}
+                  onPress={() => navigation.navigate("Debts")}
                 >
                   <ButtonText className="text-primary-600">View All</ButtonText>
                 </Button>
@@ -193,10 +205,12 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps) {
                     <DebtCard
                       key={debt.id}
                       debt={debt}
-                      onPress={() => navigation.navigate('Debts', {
-                        screen: 'DebtDetail',
-                        params: { debtId: debt.id }
-                      })}
+                      onPress={() =>
+                        navigation.navigate("Debts", {
+                          screen: "DebtDetail",
+                          params: { debtId: debt.id },
+                        })
+                      }
                     />
                   ))}
                 </VStack>
@@ -205,7 +219,10 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps) {
                   <Text size="sm" className="text-typography-500 text-center">
                     No recent activity
                   </Text>
-                  <Text size="xs" className="text-typography-400 text-center mt-1">
+                  <Text
+                    size="xs"
+                    className="text-typography-400 text-center mt-1"
+                  >
                     Add your first debt to get started
                   </Text>
                 </Box>
@@ -231,13 +248,12 @@ function DebtCard({ debt, onPress }: { debt: Debt; onPress: () => void }) {
       <HStack className="items-center justify-between">
         <VStack className="flex-1">
           <Text size="sm" className="font-medium text-typography-900">
-            {isLender ?
-              (debt.debtor?.name || `${debt.debtorPhoneNumber}`) :
-              (debt.externalLenderName || debt.lender.name)
-            }
+            {isLender
+              ? debt.debtor?.name || `${debt.debtorPhoneNumber}`
+              : debt.externalLenderName || debt.lender.name}
           </Text>
           <Text size="xs" className="text-typography-500">
-            {isLender ? 'owes you' : 'you owe'}
+            {isLender ? "owes you" : "you owe"}
           </Text>
         </VStack>
 
@@ -247,7 +263,7 @@ function DebtCard({ debt, onPress }: { debt: Debt; onPress: () => void }) {
           </Text>
           <Box
             className="px-2 py-1 rounded"
-            style={{ backgroundColor: statusColor + '20' }}
+            style={{ backgroundColor: statusColor + "20" }}
           >
             <Text size="xs" style={{ color: statusColor }}>
               {debtService.getDebtStatusText(debt.status)}

@@ -1,9 +1,9 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { User, AuthState, AuthActions } from "@/types";
-import { authService } from "@/services/authService";
-import { STORAGE_KEYS } from "@/constants";
+import { User, AuthState, AuthActions } from "@/lib/types";
+import { authService } from "@/lib/services/authService";
+import { STORAGE_KEYS } from "@/lib/constants";
 
 interface AuthStore extends AuthState, AuthActions {
   // Additional auth actions

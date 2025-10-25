@@ -1,7 +1,7 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { API_CONFIG, STORAGE_KEYS, ERROR_CODES } from '@/constants';
-import { ApiError } from '@/types';
+import { API_CONFIG, STORAGE_KEYS, ERROR_CODES } from '@/lib/constants';
+import { ApiError } from '@/lib/types';
 
 class ApiService {
   private instance: AxiosInstance;

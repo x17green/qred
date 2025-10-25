@@ -1,0 +1,53 @@
+import React from 'react';
+import { View, ViewProps } from 'react-native';
+import { cva, type VariantProps } from 'class-variance-authority';
+import { cn } from '@/lib/utils';
+
+const vstackVariants = cva(
+  "flex-col",
+  {
+    variants: {
+      space: {
+        xs: "gap-1",
+        sm: "gap-2",
+        md: "gap-3",
+        lg: "gap-4",
+        xl: "gap-5",
+        "2xl": "gap-6",
+        "3xl": "gap-7",
+        "4xl": "gap-8",
+      },
+      reversed: {
+        true: "flex-col-reverse",
+      },
+    },
+    defaultVariants: {
+      space: "md",
+      reversed: false,
+    },
+  }
+);
+
+interface VStackProps extends ViewProps, VariantProps<typeof vstackVariants> {
+  className?: string;
+}
+
+const VStack = React.forwardRef<View, VStackProps>(
+  ({ className, space, reversed, ...props }, ref) => {
+    return (
+      <View
+        ref={ref}
+        className={cn(
+          "flex flex-col relative z-0 box-border border-0 list-none min-w-0 min-h-0 bg-transparent items-stretch m-0 p-0",
+          vstackVariants({ space, reversed }),
+          className
+        )}
+        {...props}
+      />
+    );
+  }
+);
+
+VStack.displayName = 'VStack';
+
+export { VStack, vstackVariants };

@@ -1,0 +1,60 @@
+# Zed Editor Project Configuration
+# This file contains project-specific settings for the debt-collector React Native app
+
+# Project identification
+project_name="Debt Collector"
+project_type="react-native"
+framework="expo"
+
+# Development environment
+node_version="18+"
+package_manager="npm"
+typescript=true
+
+# Key directories to focus on
+source_dirs="components lib"
+store_dirs="lib/store"
+types_dir="lib/types"
+
+# Common file patterns for this project
+state_files="**/*store*.ts **/*Store*.ts"
+component_files="components/**/*.tsx"
+service_files="lib/services/*.ts"
+type_files="lib/types/*.ts"
+
+# Debugging context
+framework_versions="zustand@5.0.8 react-native@0.74.5"
+known_issues="zustand_v5_infinite_loops"
+
+# Assistant context hints
+debugging_focus="state_management react_native zustand_v5"
+code_style="typescript react_hooks functional_components"
+
+# Quick commands for this project
+alias dev="npm start"
+alias build="npm run build"
+alias type-check="npm run type-check"
+alias lint="npm run lint"
+alias test="npm test"
+
+# File watching priorities
+watch_high_priority="lib/store/*.ts components/screens/**/*.tsx"
+watch_medium_priority="lib/services/*.ts lib/types/*.ts"
+
+# Development notes
+notes="
+- Using Zustand v5 with useShallow patterns for object destructuring
+- React Native with Expo framework
+- TypeScript strict mode enabled
+- ESLint + Prettier for code formatting
+- Husky for git hooks (needs v10 update)
+"
+
+# Common debugging commands
+debug_zustand="grep -r 'useStore.*=> ({' --include='*.ts' --include='*.tsx' ."
+find_stores="find . -name '*store*.ts' -o -name '*Store*.ts'"
+check_types="npm run type-check"
+
+# Environment setup
+export EDITOR="zed --wait"
+export REACT_NATIVE_PACKAGER_HOSTNAME="0.0.0.0"

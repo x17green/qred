@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import * as Google from "expo-auth-session/providers/google";
 import * as WebBrowser from "expo-web-browser";
-import { makeRedirectUri } from "expo-auth-session";
+import * as Linking from "expo-linking";
 import { Platform } from "react-native";
 import { authService } from "../services/authService";
 import { useAuthStore } from "../store/authStore";
@@ -29,6 +29,9 @@ export const useGoogleAuth = (
   const [error, setError] = useState<string | null>(null);
   const { setLoading, setError: setAuthError } = useAuthStore();
 
+  // Generate dynamic redirect URI using Linking.createURL()
+  const redirectUri = Linking.createURL("auth/google");
+
   // Configure Google OAuth
   const [request, response, promptAsync] = Google.useAuthRequest({
     iosClientId:
@@ -38,10 +41,7 @@ export const useGoogleAuth = (
       process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID,
     webClientId:
       config?.webClientId || process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
-    redirectUri: makeRedirectUri({
-      scheme: "qred",
-      path: "auth/google",
-    }),
+    redirectUri: redirectUri,
     scopes: ["openid", "profile", "email"],
     responseType: "id_token",
   });
@@ -96,6 +96,9 @@ export const useGoogleAuth = (
       if (!request) {
         throw new Error("Google OAuth not configured properly");
       }
+
+      // Log the redirect URI for debugging
+      console.log("Qred: Using redirect URI:", redirectUri);
 
       // Check if Google Play Services are available (Android)
       if (Platform.OS === "android") {

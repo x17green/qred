@@ -11,7 +11,7 @@ const Stack = createStackNavigator<AuthStackParamList>();
 export default function AuthStack() {
   return (
     <Stack.Navigator
-      initialRouteName="Debug"
+      initialRouteName="Login" // Change to "Debug" for testing
       screenOptions={{
         headerShown: true,
         cardStyle: { backgroundColor: "white" },

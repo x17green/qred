@@ -1,16 +1,16 @@
 // User types
 export interface User {
   id: string;
-  email?: string;
+  email: string | null;
   name: string;
-  phoneNumber: string;
-  avatarUrl?: string;
+  phoneNumber: string | null;
+  avatarUrl?: string | null;
   createdAt: string;
   updatedAt: string;
 }
 
 // Debt types
-export type DebtStatus = 'PENDING' | 'PAID' | 'OVERDUE' | 'DEFAULTED';
+export type DebtStatus = "PENDING" | "PAID" | "OVERDUE" | "DEFAULTED";
 
 export interface Debt {
   id: string;
@@ -21,21 +21,21 @@ export interface Debt {
   outstandingBalance: number;
   dueDate: string;
   status: DebtStatus;
-  notes?: string;
+  notes?: string | null;
   createdAt: string;
   updatedAt: string;
-  paidAt?: string;
+  paidAt?: string | null;
 
   // Relationships
   lenderId: string;
   lender: User;
-  debtorId?: string;
-  debtor?: User;
+  debtorId?: string | null;
+  debtor?: User | null;
   debtorPhoneNumber: string;
 
   // External debt fields
   isExternal: boolean;
-  externalLenderName?: string;
+  externalLenderName?: string | null;
 
   // Related data
   payments?: Payment[];
@@ -43,7 +43,7 @@ export interface Debt {
 }
 
 // Payment types
-export type PaymentStatus = 'PENDING' | 'SUCCESSFUL' | 'FAILED';
+export type PaymentStatus = "PENDING" | "SUCCESSFUL" | "FAILED";
 
 export interface Payment {
   id: string;
@@ -60,12 +60,12 @@ export interface Payment {
 
 // Notification types
 export type NotificationType =
-  | 'DEBT_CREATED'
-  | 'PAYMENT_SUCCESS'
-  | 'PAYMENT_FAILED'
-  | 'DUE_DATE_REMINDER'
-  | 'DEBT_OVERDUE'
-  | 'DEBT_PAID_OFF';
+  | "DEBT_CREATED"
+  | "PAYMENT_SUCCESS"
+  | "PAYMENT_FAILED"
+  | "DUE_DATE_REMINDER"
+  | "DEBT_OVERDUE"
+  | "DEBT_PAID_OFF";
 
 export interface Notification {
   id: string;
@@ -147,9 +147,10 @@ export type AuthStackParamList = {
   Login: undefined;
   OTP: {
     phoneNumber: string;
-    email?: string;
+    email?: string | null;
     name?: string;
   };
+  Test: undefined;
 };
 
 export type MainTabParamList = {
@@ -233,7 +234,7 @@ export interface SummaryCardProps {
   title: string;
   amount: number;
   count: number;
-  variant?: 'lending' | 'owing';
+  variant?: "lending" | "owing";
 }
 
 export interface EmptyStateProps {
@@ -264,14 +265,14 @@ export interface OTPForm {
 
 // Constants
 export const DEBT_STATUS_COLORS: Record<DebtStatus, string> = {
-  PENDING: '#f59e0b',
-  PAID: '#10b981',
-  OVERDUE: '#ef4444',
-  DEFAULTED: '#991b1b',
+  PENDING: "#f59e0b",
+  PAID: "#10b981",
+  OVERDUE: "#ef4444",
+  DEFAULTED: "#991b1b",
 };
 
 export const PAYMENT_STATUS_COLORS: Record<PaymentStatus, string> = {
-  PENDING: '#f59e0b',
-  SUCCESSFUL: '#10b981',
-  FAILED: '#ef4444',
+  PENDING: "#f59e0b",
+  SUCCESSFUL: "#10b981",
+  FAILED: "#ef4444",
 };

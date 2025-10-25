@@ -1,0 +1,180 @@
+{
+  "assistant": {
+    "default_model": {
+      "provider": "anthropic",
+      "model": "claude-3-5-sonnet-20241022"
+    },
+    "button": true,
+    "dock": "right",
+    "default_width": 480,
+    "default_height": 320
+  },
+  "ui_font_size": 16,
+  "buffer_font_size": 14,
+  "theme": {
+    "mode": "system",
+    "light": "One Light",
+    "dark": "One Dark"
+  },
+  "vim_mode": false,
+  "relative_line_numbers": false,
+  "show_whitespaces": "none",
+  "show_wrap_guides": true,
+  "wrap_guides": [80, 120],
+  "soft_wrap": "editor_width",
+  "tab_size": 2,
+  "hard_tabs": false,
+  "auto_install_extensions": {
+    "html": true,
+    "css": true,
+    "javascript": true,
+    "typescript": true,
+    "json": true,
+    "markdown": true
+  },
+  "file_scan_exclusions": [
+    "**/.git",
+    "**/node_modules",
+    "**/target",
+    "**/.next",
+    "**/dist",
+    "**/build",
+    "**/.zed/assistant-*.md"
+  ],
+  "diagnostics": {
+    "include_warnings": true
+  },
+  "lsp": {
+    "typescript-language-server": {
+      "initialization_options": {
+        "preferences": {
+          "includeInlayParameterNameHints": "all",
+          "includeInlayVariableTypeHints": true,
+          "includeInlayFunctionParameterTypeHints": true,
+          "includeInlayPropertyDeclarationTypeHints": true
+        }
+      }
+    },
+    "eslint": {
+      "settings": {
+        "codeActionOnSave": {
+          "rules": [
+            "import/order",
+            "import/first",
+            "import/newline-after-import"
+          ]
+        }
+      }
+    }
+  },
+  "terminal": {
+    "copy_on_select": false,
+    "dock": "bottom",
+    "default_width": 640,
+    "default_height": 320,
+    "shell": {
+      "program": "zsh",
+      "args": ["-l"]
+    },
+    "env": {
+      "EDITOR": "zed --wait"
+    }
+  },
+  "project_panel": {
+    "button": true,
+    "dock": "left",
+    "git_status": true,
+    "default_width": 240
+  },
+  "collaboration_panel": {
+    "dock": "left"
+  },
+  "notification_panel": {
+    "dock": "right"
+  },
+  "git": {
+    "git_gutter": "tracked_files",
+    "inline_blame": {
+      "enabled": true,
+      "delay_ms": 600
+    }
+  },
+  "outline_panel": {
+    "dock": "right"
+  },
+  "languages": {
+    "TypeScript": {
+      "code_actions_on_format": {
+        "source.organizeImports": true,
+        "source.fixAll.eslint": true
+      },
+      "format_on_save": true,
+      "formatter": "language_server",
+      "tab_size": 2
+    },
+    "TSX": {
+      "code_actions_on_format": {
+        "source.organizeImports": true,
+        "source.fixAll.eslint": true
+      },
+      "format_on_save": true,
+      "formatter": "language_server",
+      "tab_size": 2
+    },
+    "JavaScript": {
+      "code_actions_on_format": {
+        "source.organizeImports": true,
+        "source.fixAll.eslint": true
+      },
+      "format_on_save": true,
+      "formatter": "language_server",
+      "tab_size": 2
+    },
+    "JSON": {
+      "format_on_save": true,
+      "formatter": "language_server",
+      "tab_size": 2
+    },
+    "Markdown": {
+      "format_on_save": false,
+      "soft_wrap": "editor_width",
+      "tab_size": 2
+    }
+  },
+  "formatter": {
+    "external": {
+      "command": "prettier",
+      "arguments": ["--stdin-filepath", "{buffer_path}"]
+    }
+  },
+  "auto_save": "on_focus_change",
+  "autosave": 1000,
+  "format_on_save": "on",
+  "code_actions_on_format": {
+    "source.organizeImports": true,
+    "source.fixAll.eslint": true
+  },
+  "indent_guides": {
+    "enabled": true,
+    "line_width": 1,
+    "active_line_width": 2
+  },
+  "scrollbar": {
+    "show": "auto",
+    "git_diff": true,
+    "search_results": true,
+    "selected_symbol": true,
+    "diagnostics": true
+  },
+  "inlay_hints": {
+    "enabled": true,
+    "show_type_hints": true,
+    "show_parameter_hints": true,
+    "show_other_hints": true
+  },
+  "preview_tabs": {
+    "enabled": true,
+    "enable_preview_from_file_finder": true,
+    "enable_preview_from_code_navigation": true
+  }
+}

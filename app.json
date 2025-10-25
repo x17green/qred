@@ -1,12 +1,13 @@
 {
   "expo": {
-    "name": "debt-collector",
-    "slug": "debt-collector",
+    "name": "Qred: Your credit, simplified",
+    "slug": "qred",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
+    "scheme": "qred",
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -33,7 +34,7 @@
     },
     "extra": {
       "eas": {
-        "projectId": "2c8ab5be-8185-4dba-be48-3ec357b6d0af"
+        "projectId": "d4657e90-b1a6-4e6b-a12d-883a8a2d26e6"
       }
     }
   }

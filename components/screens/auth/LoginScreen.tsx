@@ -8,6 +8,7 @@ import { Text } from "@/components/ui/text";
 import { Button, ButtonText } from "@/components/ui/button";
 import { Input, InputField } from "@/components/ui/input";
 import { useAuthActions } from "@/lib/store/authStore";
+import { useGoogleAuth } from "@/lib/hooks/useGoogleAuth";
 import { REGEX_PATTERNS } from "@/constants";
 import { authService } from "@/lib/services/authService";
 
@@ -20,7 +21,13 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
-  const { sendOTP, googleSignIn } = useAuthActions();
+  const { sendOTP } = useAuthActions();
+  const {
+    signInWithGoogle,
+    isLoading: isGoogleLoading,
+    error: googleError,
+    clearError,
+  } = useGoogleAuth();
 
   const validatePhoneNumber = (phone: string): boolean => {
     if (!phone.trim()) {
@@ -66,21 +73,16 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
 
   const handleGoogleSignIn = async () => {
     try {
-      setIsLoading(true);
+      clearError(); // Clear any previous Google auth errors
+      await signInWithGoogle();
 
-      // This would integrate with @react-native-google-signin/google-signin
-      // For now, we'll show a placeholder
-      Alert.alert(
-        "Google Sign In",
-        "Google Sign In integration will be implemented here",
-      );
+      // If successful and no OTP required, navigation will be handled by auth state change
+      // If OTP required, the useGoogleAuth hook will set appropriate error state
     } catch (error) {
       Alert.alert(
         "Error",
         error instanceof Error ? error.message : "Google sign in failed",
       );
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -136,7 +138,7 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
             size="lg"
             className="w-full bg-primary-600 hover:bg-primary-700"
             onPress={handleSendOTP}
-            isDisabled={isLoading}
+            isDisabled={isLoading || isGoogleLoading}
           >
             <ButtonText className="font-semibold">
               {isLoading ? "Sending OTP..." : "Send OTP"}
@@ -158,12 +160,21 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
             size="lg"
             className="w-full border-background-300"
             onPress={handleGoogleSignIn}
-            isDisabled={isLoading}
+            isDisabled={isLoading || isGoogleLoading}
           >
-            <ButtonText className="font-semibold text-typography-700">
-              Continue with Google
+            <ButtonText className="font-medium text-typography-700">
+              {isGoogleLoading ? "Signing in..." : "Continue with Google"}
             </ButtonText>
           </Button>
+
+          {/* Error Display */}
+          {googleError && (
+            <Box className="bg-error-50 p-3 rounded-lg border border-error-200">
+              <Text size="sm" className="text-error-700 text-center">
+                {googleError}
+              </Text>
+            </Box>
+          )}
 
           {/* Footer */}
           <VStack space="sm" className="items-center mt-8">

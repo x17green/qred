@@ -1,322 +1,577 @@
-import { api } from './api';
+import { supabase, handleSupabaseError, getCurrentUser } from "./supabase";
+import * as Crypto from "expo-crypto";
 import {
-  Debt,
+  DebtRow,
+  DebtInsert,
+  DebtUpdate,
+  DebtWithRelations,
+  PaymentRow,
+  PaymentInsert,
   CreateDebtRequest,
   UpdateDebtStatusRequest,
   InitializePaymentRequest,
   InitializePaymentResponse,
-  Payment,
-  DebtStatus
-} from '@/lib/types';
+  DebtSummary,
+} from "../types/database";
 
 class DebtService {
-  /**
-   * Get all debts where current user is the lender
-   */
-  async getLendingDebts(): Promise<Debt[]> {
+  private static instance: DebtService;
+
+  public static getInstance(): DebtService {
+    if (!DebtService.instance) {
+      DebtService.instance = new DebtService();
+    }
+    return DebtService.instance;
+  }
+
+  // Get debts where current user is the lender
+  async getLendingDebts(): Promise<DebtWithRelations[]> {
     try {
-      const response = await api.get<Debt[]>('/debts/lending');
-      return response;
+      const user = await getCurrentUser();
+      if (!user) {
+        throw new Error("User not authenticated");
+      }
+
+      const { data, error } = await supabase
+        .from("Debt")
+        .select(
+          `
+          *,
+          lender:User!lenderId(*),
+          debtor:User!debtorId(*),
+          payments:Payment(*)
+        `,
+        )
+        .eq("lenderId", user.id)
+        .order("createdAt", { ascending: false });
+
+      if (error) handleSupabaseError(error);
+
+      return data as DebtWithRelations[];
     } catch (error) {
+      console.error("Qred DebtService: Get lending debts error:", error);
       throw error;
     }
   }
 
-  /**
-   * Get all debts where current user is the debtor
-   */
-  async getOwingDebts(): Promise<Debt[]> {
+  // Get debts where current user is the debtor
+  async getOwingDebts(): Promise<DebtWithRelations[]> {
     try {
-      const response = await api.get<Debt[]>('/debts/owing');
-      return response;
+      const user = await getCurrentUser();
+      if (!user) {
+        throw new Error("User not authenticated");
+      }
+
+      const { data, error } = await supabase
+        .from("Debt")
+        .select(
+          `
+          *,
+          lender:User!lenderId(*),
+          debtor:User!debtorId(*),
+          payments:Payment(*)
+        `,
+        )
+        .eq("debtorId", user.id)
+        .order("createdAt", { ascending: false });
+
+      if (error) handleSupabaseError(error);
+
+      return data as DebtWithRelations[];
     } catch (error) {
+      console.error("Qred DebtService: Get owing debts error:", error);
       throw error;
     }
   }
 
-  /**
-   * Get a specific debt by ID
-   */
-  async getDebtById(debtId: string): Promise<Debt> {
-    try {
-      const response = await api.get<Debt>(`/debts/${debtId}`);
-      return response;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  /**
-   * Create a new debt record
-   */
-  async createDebt(request: CreateDebtRequest): Promise<Debt> {
-    try {
-      const response = await api.post<Debt>('/debts', request);
-      return response;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  /**
-   * Update a debt record
-   */
-  async updateDebt(debtId: string, data: Partial<Debt>): Promise<Debt> {
-    try {
-      const response = await api.patch<Debt>(`/debts/${debtId}`, data);
-      return response;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  /**
-   * Update debt status (e.g., mark as paid)
-   */
-  async updateDebtStatus(
-    debtId: string,
-    request: UpdateDebtStatusRequest
-  ): Promise<Debt> {
-    try {
-      const response = await api.patch<Debt>(`/debts/${debtId}/status`, request);
-      return response;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  /**
-   * Delete a debt record
-   */
-  async deleteDebt(debtId: string): Promise<void> {
-    try {
-      await api.delete(`/debts/${debtId}`);
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  /**
-   * Get payment history for a debt
-   */
-  async getDebtPayments(debtId: string): Promise<Payment[]> {
-    try {
-      const response = await api.get<Payment[]>(`/debts/${debtId}/payments`);
-      return response;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  /**
-   * Initialize payment for a debt
-   */
-  async initializePayment(
-    request: InitializePaymentRequest
-  ): Promise<InitializePaymentResponse> {
-    try {
-      const response = await api.post<InitializePaymentResponse>(
-        '/payments/initialize',
-        request
-      );
-      return response;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  /**
-   * Verify payment status
-   */
-  async verifyPayment(reference: string): Promise<Payment> {
-    try {
-      const response = await api.get<Payment>(`/payments/verify/${reference}`);
-      return response;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  /**
-   * Get debt statistics/summary
-   */
-  async getDebtSummary(): Promise<{
-    totalLending: number;
-    totalOwing: number;
-    activeDebts: number;
-    overdueDebts: number;
-    paidDebts: number;
+  // Get all debts for the current user (both lending and owing)
+  async getAllDebts(): Promise<{
+    lendingDebts: DebtWithRelations[];
+    owingDebts: DebtWithRelations[];
   }> {
     try {
-      const response = await api.get('/debts/summary');
-      return response;
+      const [lendingDebts, owingDebts] = await Promise.all([
+        this.getLendingDebts(),
+        this.getOwingDebts(),
+      ]);
+
+      return {
+        lendingDebts,
+        owingDebts,
+      };
     } catch (error) {
+      console.error("Qred DebtService: Get all debts error:", error);
       throw error;
     }
   }
 
-  /**
-   * Send payment reminder for a debt
-   */
+  // Get specific debt by ID
+  async getDebtById(debtId: string): Promise<DebtWithRelations> {
+    try {
+      const { data, error } = await supabase
+        .from("Debt")
+        .select(
+          `
+          *,
+          lender:User!lenderId(*),
+          debtor:User!debtorId(*),
+          payments:Payment(*)
+        `,
+        )
+        .eq("id", debtId)
+        .single();
+
+      if (error) handleSupabaseError(error);
+
+      return data as DebtWithRelations;
+    } catch (error) {
+      console.error("Qred DebtService: Get debt by ID error:", error);
+      throw error;
+    }
+  }
+
+  // Create new debt
+  async createDebt(request: CreateDebtRequest): Promise<DebtRow> {
+    try {
+      const user = await getCurrentUser();
+      if (!user) {
+        throw new Error("User not authenticated");
+      }
+
+      // Calculate debt amounts
+      const principal = request.principal;
+      const interestRate = request.interestRate || 0;
+      const calculatedInterest = (principal * interestRate) / 100;
+      const totalAmount = principal + calculatedInterest;
+
+      // Check if debtor exists by phone number
+      let debtorId = null;
+      const { data: existingDebtor } = await supabase
+        .from("User")
+        .select("id")
+        .eq("phoneNumber", request.debtorPhoneNumber)
+        .single();
+
+      if (existingDebtor) {
+        debtorId = existingDebtor.id;
+      }
+
+      const debtData: DebtInsert = {
+        lenderId: user.id,
+        debtorId,
+        debtorPhoneNumber: request.debtorPhoneNumber,
+        principalAmount: principal,
+        interestRate,
+        calculatedInterest,
+        totalAmount,
+        outstandingBalance: totalAmount,
+        dueDate: request.dueDate,
+        notes: request.notes || null,
+        isExternal: request.isExternal || false,
+        externalLenderName: request.externalLenderName || null,
+        status: "PENDING",
+      };
+
+      const { data, error } = await supabase
+        .from("Debt")
+        .insert(debtData)
+        .select()
+        .single();
+
+      if (error) handleSupabaseError(error);
+
+      if (!data) {
+        throw new Error("Debt not found");
+      }
+      return data;
+    } catch (error) {
+      console.error("Qred DebtService: Create debt error:", error);
+      throw error;
+    }
+  }
+
+  // Update debt details
+  async updateDebt(
+    debtId: string,
+    updates: Partial<DebtUpdate>,
+  ): Promise<DebtRow> {
+    try {
+      const { data, error } = await supabase
+        .from("Debt")
+        .update(updates)
+        .eq("id", debtId)
+        .select()
+        .single();
+
+      if (error) handleSupabaseError(error);
+
+      if (!data) {
+        throw new Error("Debt not found");
+      }
+      return data;
+    } catch (error) {
+      console.error("Qred DebtService: Update debt error:", error);
+      throw error;
+    }
+  }
+
+  // Update debt status
+  async updateDebtStatus(
+    debtId: string,
+    request: UpdateDebtStatusRequest,
+  ): Promise<DebtRow> {
+    try {
+      const updates: Partial<DebtUpdate> = {
+        status: request.status,
+      };
+
+      if (request.status === "PAID") {
+        updates.paidAt = new Date().toISOString();
+        updates.outstandingBalance = 0;
+      }
+
+      return await this.updateDebt(debtId, updates);
+    } catch (error) {
+      console.error("Qred DebtService: Update debt status error:", error);
+      throw error;
+    }
+  }
+
+  // Delete debt
+  async deleteDebt(debtId: string): Promise<void> {
+    try {
+      const { error } = await supabase.from("Debt").delete().eq("id", debtId);
+
+      if (error) handleSupabaseError(error);
+    } catch (error) {
+      console.error("Qred DebtService: Delete debt error:", error);
+      throw error;
+    }
+  }
+
+  // Get user's debt summary
+  async getDebtSummary(): Promise<DebtSummary> {
+    try {
+      const user = await getCurrentUser();
+      if (!user) {
+        throw new Error("User not authenticated");
+      }
+
+      const { data, error } = await supabase
+        .rpc("get_user_debt_summary", {
+          user_id: user.id,
+        })
+        .single();
+
+      if (error) handleSupabaseError(error);
+
+      if (!data) {
+        throw new Error("Unable to get debt summary");
+      }
+      return data;
+    } catch (error) {
+      console.error("Qred DebtService: Get debt summary error:", error);
+      // Return default values if function doesn't exist yet
+      return {
+        total_lending: 0,
+        total_owing: 0,
+        overdue_count: 0,
+        pending_count: 0,
+      };
+    }
+  }
+
+  // Initialize payment
+  async initializePayment(
+    request: InitializePaymentRequest,
+  ): Promise<InitializePaymentResponse> {
+    try {
+      // Note: This would typically call a payment gateway API
+      // For now, we'll return a mock response
+      // In production, this should be handled by an Edge Function
+
+      const reference = `qred_${Date.now()}_${Crypto.randomUUID().replace(/-/g, "").substring(0, 9)}`;
+
+      // Create payment record
+      const paymentData: PaymentInsert = {
+        debtId: request.debtId,
+        amount: request.amount,
+        reference,
+        gateway: "paystack", // or "flutterwave"
+        status: "PENDING",
+        paidAt: new Date().toISOString(),
+      };
+
+      const { data: payment, error } = await supabase
+        .from("Payment")
+        .insert(paymentData)
+        .select()
+        .single();
+
+      if (error) handleSupabaseError(error);
+
+      // Mock response - in production, this would come from payment gateway
+      return {
+        authorization_url: `https://checkout.paystack.com/${reference}`,
+        access_code: `access_${reference}`,
+        reference,
+      };
+    } catch (error) {
+      console.error("Qred DebtService: Initialize payment error:", error);
+      throw error;
+    }
+  }
+
+  // Verify payment
+  async verifyPayment(reference: string): Promise<PaymentRow> {
+    try {
+      const { data, error } = await supabase
+        .from("Payment")
+        .select("*")
+        .eq("reference", reference)
+        .single();
+
+      if (error) handleSupabaseError(error);
+
+      if (!data) {
+        throw new Error("Payment not found");
+      }
+      return data;
+    } catch (error) {
+      console.error("Qred DebtService: Verify payment error:", error);
+      throw error;
+    }
+  }
+
+  // Send payment reminder (placeholder - would integrate with notification service)
   async sendPaymentReminder(debtId: string): Promise<void> {
     try {
-      await api.post(`/debts/${debtId}/remind`);
+      // Get debt details
+      const debt = await this.getDebtById(debtId);
+
+      // Note: In production, this would integrate with:
+      // - SMS service (Twilio, Termii)
+      // - Email service (SendGrid, Resend)
+      // - Push notifications (Expo Notifications)
+
+      console.log(`Qred: Payment reminder sent for debt ${debtId}`, {
+        amount: debt.outstandingBalance,
+        debtor: debt.debtor?.name || debt.debtorPhoneNumber,
+        dueDate: debt.dueDate,
+      });
+
+      // For now, we'll just log the reminder
+      // In production, implement actual notification sending
     } catch (error) {
+      console.error("Qred DebtService: Send payment reminder error:", error);
       throw error;
     }
   }
 
-  /**
-   * Calculate interest for a debt
-   */
-  calculateInterest(
-    principal: number,
-    interestRate: number,
-    startDate: Date,
-    endDate?: Date
-  ): number {
-    const end = endDate || new Date();
-    const timeDiff = end.getTime() - startDate.getTime();
-    const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+  // Search debts
+  async searchDebts(query: string): Promise<DebtWithRelations[]> {
+    try {
+      const user = await getCurrentUser();
+      if (!user) {
+        throw new Error("User not authenticated");
+      }
 
-    // Simple interest calculation: (Principal × Rate × Time) / 100
-    // Time is in days, so we divide by 365 for annual rate
-    const interest = (principal * interestRate * daysDiff) / (100 * 365);
+      const { data, error } = await supabase
+        .from("Debt")
+        .select(
+          `
+          *,
+          lender:User!lenderId(*),
+          debtor:User!debtorId(*),
+          payments:Payment(*)
+        `,
+        )
+        .or(
+          `
+          lenderId.eq.${user.id},
+          debtorId.eq.${user.id}
+        `,
+        )
+        .or(
+          `
+          notes.ilike.%${query}%,
+          debtorPhoneNumber.ilike.%${query}%,
+          externalLenderName.ilike.%${query}%
+        `,
+        )
+        .order("createdAt", { ascending: false });
 
-    return Math.round(interest * 100) / 100; // Round to 2 decimal places
+      if (error) handleSupabaseError(error);
+
+      return data as DebtWithRelations[];
+    } catch (error) {
+      console.error("Qred DebtService: Search debts error:", error);
+      throw error;
+    }
   }
 
-  /**
-   * Calculate total amount (principal + interest)
-   */
-  calculateTotalAmount(
-    principal: number,
-    interestRate: number,
-    startDate: Date,
-    endDate?: Date
-  ): number {
-    const interest = this.calculateInterest(principal, interestRate, startDate, endDate);
-    return principal + interest;
+  // Get overdue debts
+  async getOverdueDebts(): Promise<DebtWithRelations[]> {
+    try {
+      const user = await getCurrentUser();
+      if (!user) {
+        throw new Error("User not authenticated");
+      }
+
+      const now = new Date().toISOString();
+
+      const { data, error } = await supabase
+        .from("Debt")
+        .select(
+          `
+          *,
+          lender:User!lenderId(*),
+          debtor:User!debtorId(*),
+          payments:Payment(*)
+        `,
+        )
+        .or(
+          `
+          lenderId.eq.${user.id},
+          debtorId.eq.${user.id}
+        `,
+        )
+        .eq("status", "PENDING")
+        .lt("dueDate", now)
+        .order("dueDate", { ascending: true });
+
+      if (error) handleSupabaseError(error);
+
+      return data as DebtWithRelations[];
+    } catch (error) {
+      console.error("Qred DebtService: Get overdue debts error:", error);
+      throw error;
+    }
   }
 
-  /**
-   * Check if debt is overdue
-   */
+  // Get pending debts
+  async getPendingDebts(): Promise<DebtWithRelations[]> {
+    try {
+      const user = await getCurrentUser();
+      if (!user) {
+        throw new Error("User not authenticated");
+      }
+
+      const { data, error } = await supabase
+        .from("Debt")
+        .select(
+          `
+          *,
+          lender:User!lenderId(*),
+          debtor:User!debtorId(*),
+          payments:Payment(*)
+        `,
+        )
+        .or(
+          `
+          lenderId.eq.${user.id},
+          debtorId.eq.${user.id}
+        `,
+        )
+        .eq("status", "PENDING")
+        .order("dueDate", { ascending: true });
+
+      if (error) handleSupabaseError(error);
+
+      return data as DebtWithRelations[];
+    } catch (error) {
+      console.error("Qred DebtService: Get pending debts error:", error);
+      throw error;
+    }
+  }
+
+  // Subscribe to debt changes (real-time)
+  subscribeToDebtChanges(callback: (payload: any) => void) {
+    return supabase
+      .channel("debt-changes")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "Debt",
+        },
+        callback,
+      )
+      .subscribe();
+  }
+
+  // Subscribe to payment changes (real-time)
+  subscribeToPaymentChanges(callback: (payload: any) => void) {
+    return supabase
+      .channel("payment-changes")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "Payment",
+        },
+        callback,
+      )
+      .subscribe();
+  }
+
+  // Utility methods
+  formatCurrency(amount: number, currency: string = "NGN"): string {
+    return new Intl.NumberFormat("en-NG", {
+      style: "currency",
+      currency,
+      minimumFractionDigits: 2,
+    }).format(amount);
+  }
+
+  getDebtStatusColor(status: string): string {
+    switch (status) {
+      case "PENDING":
+        return "#f59e0b"; // amber-500
+      case "PAID":
+        return "#10b981"; // emerald-500
+      case "OVERDUE":
+        return "#ef4444"; // red-500
+      case "DEFAULTED":
+        return "#991b1b"; // red-800
+      default:
+        return "#6b7280"; // gray-500
+    }
+  }
+
+  getDebtStatusText(status: string): string {
+    switch (status) {
+      case "PENDING":
+        return "Pending";
+      case "PAID":
+        return "Paid";
+      case "OVERDUE":
+        return "Overdue";
+      case "DEFAULTED":
+        return "Defaulted";
+      default:
+        return "Unknown";
+    }
+  }
+
+  calculateInterest(principal: number, rate: number, days: number): number {
+    return ((principal * rate) / 100) * (days / 365);
+  }
+
   isDebtOverdue(dueDate: string): boolean {
-    const due = new Date(dueDate);
-    const now = new Date();
-    return now > due;
+    return new Date(dueDate) < new Date();
   }
 
-  /**
-   * Get days until due date
-   */
   getDaysUntilDue(dueDate: string): number {
     const due = new Date(dueDate);
     const now = new Date();
-    const timeDiff = due.getTime() - now.getTime();
-    return Math.ceil(timeDiff / (1000 * 3600 * 24));
-  }
-
-  /**
-   * Get days overdue
-   */
-  getDaysOverdue(dueDate: string): number {
-    const due = new Date(dueDate);
-    const now = new Date();
-    const timeDiff = now.getTime() - due.getTime();
-    return Math.ceil(timeDiff / (1000 * 3600 * 24));
-  }
-
-  /**
-   * Format currency amount
-   */
-  formatCurrency(amount: number, currency = '₦'): string {
-    return `${currency}${amount.toLocaleString('en-NG', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    })}`;
-  }
-
-  /**
-   * Validate debt amount
-   */
-  validateAmount(amount: string | number): boolean {
-    const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
-    return !isNaN(numAmount) && numAmount > 0 && numAmount <= 10000000; // Max 10M
-  }
-
-  /**
-   * Validate interest rate
-   */
-  validateInterestRate(rate: string | number): boolean {
-    const numRate = typeof rate === 'string' ? parseFloat(rate) : rate;
-    return !isNaN(numRate) && numRate >= 0 && numRate <= 100;
-  }
-
-  /**
-   * Validate due date
-   */
-  validateDueDate(dueDate: Date): boolean {
-    const now = new Date();
-    return dueDate > now;
-  }
-
-  /**
-   * Get debt status color
-   */
-  getDebtStatusColor(status: DebtStatus): string {
-    const colors = {
-      PENDING: '#f59e0b', // Yellow
-      PAID: '#10b981',    // Green
-      OVERDUE: '#ef4444', // Red
-      DEFAULTED: '#991b1b' // Dark red
-    };
-    return colors[status] || colors.PENDING;
-  }
-
-  /**
-   * Get debt status text
-   */
-  getDebtStatusText(status: DebtStatus): string {
-    const texts = {
-      PENDING: 'Pending',
-      PAID: 'Paid',
-      OVERDUE: 'Overdue',
-      DEFAULTED: 'Defaulted'
-    };
-    return texts[status] || 'Unknown';
-  }
-
-  /**
-   * Search debts by query
-   */
-  async searchDebts(query: string, type: 'lending' | 'owing' | 'all' = 'all'): Promise<Debt[]> {
-    try {
-      const response = await api.get<Debt[]>('/debts/search', {
-        params: { q: query, type }
-      });
-      return response;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  /**
-   * Export debts data
-   */
-  async exportDebts(format: 'csv' | 'pdf' = 'csv'): Promise<string> {
-    try {
-      const response = await api.get<{ downloadUrl: string }>('/debts/export', {
-        params: { format }
-      });
-      return response.downloadUrl;
-    } catch (error) {
-      throw error;
-    }
+    const diffTime = due.getTime() - now.getTime();
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   }
 }
 
-// Create and export singleton instance
-export const debtService = new DebtService();
+// Export singleton instance
+export const debtService = DebtService.getInstance();
 export default debtService;

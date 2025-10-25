@@ -3,7 +3,7 @@
 
 ## Part 1: Backend Documentation (TypeScript, Node.js, Prisma)
 
-This documentation outlines the architecture, API endpoints, and database structure for the Debt Collector application's backend.
+This documentation outlines the architecture, API endpoints, and database structure for the Qred: Your credit, simplified application's backend.
 
 ### 1. Technology Stack
 
@@ -295,7 +295,7 @@ This documentation aligns with your provided file structure and `package.json`, 
 Based on the current scalable structure, here is the organized layout:
 
 ```
-debt-collector/
+qred/
 ├── assets/                  # Static assets (fonts, images, icons)
 ├── components/              # All UI and screen components
 │   ├── ui/                  # Gluestack UI base components

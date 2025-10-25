@@ -10,17 +10,21 @@ import {
   CreateDebtRequest,
   Payment,
 } from "@/types";
+import { DebtWithRelations, DebtRow } from "@/lib/types/database";
 import { debtService } from "@/lib/services/debtService";
 
 interface DebtStore extends DebtState, DebtActions {
   // Additional debt actions
-  fetchLendingDebts: () => Promise<Debt[]>;
-  fetchOwingDebts: () => Promise<Debt[]>;
-  fetchAllDebts: () => Promise<{ lendingDebts: Debt[]; owingDebts: Debt[] }>;
-  fetchDebtById: (debtId: string) => Promise<Debt>;
-  createDebt: (request: CreateDebtRequest) => Promise<Debt>;
-  updateDebtDetails: (debtId: string, data: Partial<Debt>) => Promise<Debt>;
-  markDebtAsPaid: (debtId: string) => Promise<Debt>;
+  fetchLendingDebts: () => Promise<DebtWithRelations[]>;
+  fetchOwingDebts: () => Promise<DebtWithRelations[]>;
+  fetchAllDebts: () => Promise<{
+    lendingDebts: DebtWithRelations[];
+    owingDebts: DebtWithRelations[];
+  }>;
+  fetchDebtById: (debtId: string) => Promise<DebtWithRelations>;
+  createDebt: (request: CreateDebtRequest) => Promise<DebtRow>;
+  updateDebtDetails: (debtId: string, data: Partial<Debt>) => Promise<DebtRow>;
+  markDebtAsPaid: (debtId: string) => Promise<DebtRow>;
   deleteDebt: (debtId: string) => Promise<void>;
   initializePayment: (
     debtId: string,
@@ -47,21 +51,21 @@ export const useDebtStore = create<DebtStore>()(
 
       // Actions
       setLendingDebts: (debts: Debt[]) => {
-        set({ lendingDebts: debts, error: null });
+        set({ lendingDebts: debts as any, error: null });
       },
 
       setOwingDebts: (debts: Debt[]) => {
-        set({ owingDebts: debts, error: null });
+        set({ owingDebts: debts as any, error: null });
       },
 
       setCurrentDebt: (debt: Debt | null) => {
-        set({ currentDebt: debt, error: null });
+        set({ currentDebt: debt as any, error: null });
       },
 
       addDebt: (debt: Debt) => {
         const { lendingDebts } = get();
         set({
-          lendingDebts: [debt, ...lendingDebts],
+          lendingDebts: [debt as any, ...lendingDebts],
           error: null,
         });
       },
@@ -78,10 +82,12 @@ export const useDebtStore = create<DebtStore>()(
         );
 
         set({
-          lendingDebts: newLendingDebts,
-          owingDebts: newOwingDebts,
+          lendingDebts: newLendingDebts as any,
+          owingDebts: newOwingDebts as any,
           currentDebt:
-            currentDebt?.id === updatedDebt.id ? updatedDebt : currentDebt,
+            currentDebt?.id === updatedDebt.id
+              ? (updatedDebt as any)
+              : currentDebt,
           error: null,
         });
       },
@@ -95,8 +101,8 @@ export const useDebtStore = create<DebtStore>()(
         const newOwingDebts = owingDebts.filter((debt) => debt.id !== debtId);
 
         set({
-          lendingDebts: newLendingDebts,
-          owingDebts: newOwingDebts,
+          lendingDebts: newLendingDebts as any,
+          owingDebts: newOwingDebts as any,
           currentDebt: currentDebt?.id === debtId ? null : currentDebt,
           error: null,
         });
@@ -118,7 +124,7 @@ export const useDebtStore = create<DebtStore>()(
           const debts = await debtService.getLendingDebts();
 
           set({
-            lendingDebts: debts,
+            lendingDebts: debts as any,
             isLoading: false,
             error: null,
           });
@@ -141,7 +147,7 @@ export const useDebtStore = create<DebtStore>()(
           const debts = await debtService.getOwingDebts();
 
           set({
-            owingDebts: debts,
+            owingDebts: debts as any,
             isLoading: false,
             error: null,
           });
@@ -167,8 +173,8 @@ export const useDebtStore = create<DebtStore>()(
           ]);
 
           set({
-            lendingDebts,
-            owingDebts,
+            lendingDebts: lendingDebts as any,
+            owingDebts: owingDebts as any,
             isLoading: false,
             error: null,
           });
@@ -189,7 +195,7 @@ export const useDebtStore = create<DebtStore>()(
           const debt = await debtService.getDebtById(debtId);
 
           set({
-            currentDebt: debt,
+            currentDebt: debt as any,
             isLoading: false,
             error: null,
           });
@@ -213,7 +219,7 @@ export const useDebtStore = create<DebtStore>()(
 
           const { lendingDebts } = get();
           set({
-            lendingDebts: [newDebt, ...lendingDebts],
+            lendingDebts: [newDebt as any, ...lendingDebts],
             isLoading: false,
             error: null,
           });
@@ -245,9 +251,10 @@ export const useDebtStore = create<DebtStore>()(
           );
 
           set({
-            lendingDebts: newLendingDebts,
-            owingDebts: newOwingDebts,
-            currentDebt: currentDebt?.id === debtId ? updatedDebt : currentDebt,
+            lendingDebts: newLendingDebts as any,
+            owingDebts: newOwingDebts as any,
+            currentDebt:
+              currentDebt?.id === debtId ? (updatedDebt as any) : currentDebt,
             isLoading: false,
             error: null,
           });
@@ -281,9 +288,10 @@ export const useDebtStore = create<DebtStore>()(
           );
 
           set({
-            lendingDebts: newLendingDebts,
-            owingDebts: newOwingDebts,
-            currentDebt: currentDebt?.id === debtId ? updatedDebt : currentDebt,
+            lendingDebts: newLendingDebts as any,
+            owingDebts: newOwingDebts as any,
+            currentDebt:
+              currentDebt?.id === debtId ? (updatedDebt as any) : currentDebt,
             isLoading: false,
             error: null,
           });
@@ -314,8 +322,8 @@ export const useDebtStore = create<DebtStore>()(
           const newOwingDebts = owingDebts.filter((debt) => debt.id !== debtId);
 
           set({
-            lendingDebts: newLendingDebts,
-            owingDebts: newOwingDebts,
+            lendingDebts: newLendingDebts as any,
+            owingDebts: newOwingDebts as any,
             currentDebt: currentDebt?.id === debtId ? null : currentDebt,
             isLoading: false,
             error: null,
@@ -376,10 +384,12 @@ export const useDebtStore = create<DebtStore>()(
             );
 
             set({
-              lendingDebts: newLendingDebts,
-              owingDebts: newOwingDebts,
+              lendingDebts: newLendingDebts as any,
+              owingDebts: newOwingDebts as any,
               currentDebt:
-                currentDebt?.id === payment.debtId ? updatedDebt : currentDebt,
+                currentDebt?.id === payment.debtId
+                  ? (updatedDebt as any)
+                  : currentDebt,
               isLoading: false,
               error: null,
             });

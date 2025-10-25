@@ -5,6 +5,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import AppNavigator from "@/components/navigation/AppNavigator";
 import { authService } from "@/lib/services/authService";
+import { supabase } from "@/lib/services/supabase";
+import { useAuthStore } from "@/lib/store/authStore";
 import "./global.css";
 
 // Create a client for React Query
@@ -24,10 +26,40 @@ const queryClient = new QueryClient({
 });
 
 export default function App() {
+  const { setAuthUser, setToken, setUser, reset } = useAuthStore();
+
   React.useEffect(() => {
     // Initialize auth service on app start
     authService.initialize();
-  }, []);
+
+    // Set up auth state listener
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log("Qred Auth Event:", event, session?.user?.id);
+
+      if (event === "SIGNED_IN" && session) {
+        setAuthUser(session.user);
+        setToken(session.access_token);
+
+        // Get or create user profile
+        try {
+          const userProfile = await authService.getStoredUser();
+          if (userProfile) {
+            setUser(userProfile);
+            console.log("Qred: User profile loaded");
+          }
+        } catch (error) {
+          console.log("Qred: User profile not found or error loading");
+        }
+      } else if (event === "SIGNED_OUT") {
+        reset();
+        console.log("Qred: User signed out");
+      }
+    });
+
+    return () => subscription?.unsubscribe();
+  }, [setAuthUser, setToken, reset]);
 
   return (
     <SafeAreaProvider>

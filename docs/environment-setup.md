@@ -13,7 +13,7 @@ Create a `.env` file in your project root with the following variables:
 # SUPABASE CONFIGURATION
 # ==========================================
 EXPO_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
-EXPO_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+EXPO_PUBLIC_SUPABASE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 # ==========================================
 # PAYMENT GATEWAYS
@@ -66,7 +66,7 @@ EXPO_PUBLIC_LOG_LEVEL=debug
 1. In your Supabase dashboard, go to `Settings` → `API`
 2. Copy the following values to your `.env` file:
    - **Project URL** → `EXPO_PUBLIC_SUPABASE_URL`
-   - **Project API keys** → `anon public` key → `EXPO_PUBLIC_SUPABASE_ANON_KEY`
+   - **Project API keys** → `anon public` key → `EXPO_PUBLIC_SUPABASE_KEY`
 
 #### Step 3: Configure Authentication
 1. In Supabase dashboard, go to `Authentication` → `Settings`
@@ -401,7 +401,7 @@ EXPO_PUBLIC_DEBUG_MODE=false
 ### Common Issues
 
 **1. Supabase Connection Failed**
-- Check your `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_ANON_KEY`
+- Check your `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_KEY`
 - Verify project is not paused in Supabase dashboard
 
 **2. Authentication Not Working**
@@ -426,7 +426,7 @@ Create `scripts/validate-env.js`:
 ```javascript
 const requiredVars = [
   'EXPO_PUBLIC_SUPABASE_URL',
-  'EXPO_PUBLIC_SUPABASE_ANON_KEY',
+  'EXPO_PUBLIC_SUPABASE_KEY',
 ];
 
 const missingVars = requiredVars.filter(varName => !process.env[varName]);

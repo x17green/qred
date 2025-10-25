@@ -11,6 +11,7 @@ import { useGoogleAuth } from "@/lib/hooks/useGoogleAuth";
 import { authService } from "@/lib/services/authService";
 import { debtService } from "@/lib/services/debtService";
 import { supabase } from "@/lib/services/supabase";
+import { API_CONFIG, PAYMENT_CONFIG } from "@/lib/constants";
 
 interface AuthTestScreenProps {
   navigation?: any;
@@ -363,6 +364,27 @@ export default function AuthTestScreen({ navigation }: AuthTestScreenProps) {
             </Text>
             <Box className="bg-background-50 p-3 rounded-lg">
               <VStack space="xs">
+                <Text
+                  size="sm"
+                  className="font-medium text-typography-800 mb-2"
+                >
+                  Environment Variables Debug
+                </Text>
+                <Text size="xs" className="text-typography-600">
+                  API URL (from .env):{" "}
+                  {process.env.EXPO_PUBLIC_API_URL || "NOT SET"}
+                </Text>
+                <Text size="xs" className="text-typography-600">
+                  API Config BASE_URL: {API_CONFIG.BASE_URL}
+                </Text>
+                <Text size="xs" className="text-typography-600">
+                  Match:{" "}
+                  {API_CONFIG.BASE_URL ===
+                  (process.env.EXPO_PUBLIC_API_URL ||
+                    "http://localhost:3000/api/v1")
+                    ? "✅"
+                    : "❌"}
+                </Text>
                 <Text size="xs" className="text-typography-600">
                   Supabase URL:{" "}
                   {process.env.EXPO_PUBLIC_SUPABASE_URL?.substring(0, 30)}...
@@ -378,6 +400,10 @@ export default function AuthTestScreen({ navigation }: AuthTestScreenProps) {
                   {process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID
                     ? "✅ Set"
                     : "❌ Missing"}
+                </Text>
+                <Text size="xs" className="text-typography-600">
+                  Paystack Test Key:{" "}
+                  {PAYMENT_CONFIG.PAYSTACK.TEST_PUBLIC_KEY || "NOT SET"}
                 </Text>
               </VStack>
             </Box>

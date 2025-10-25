@@ -3,6 +3,7 @@ import { createStackNavigator } from "@react-navigation/stack";
 import LoginScreen from "@/components/screens/auth/LoginScreen";
 import OTPScreen from "@/components/screens/auth/OTPScreen";
 import AuthTestScreen from "../screens/test/AuthTestScreen";
+import DebugScreen from "../screens/debug/DebugScreen";
 import { AuthStackParamList } from "@/types";
 
 const Stack = createStackNavigator<AuthStackParamList>();
@@ -10,9 +11,9 @@ const Stack = createStackNavigator<AuthStackParamList>();
 export default function AuthStack() {
   return (
     <Stack.Navigator
-      initialRouteName="Login"
+      initialRouteName="Debug"
       screenOptions={{
-        headerShown: false,
+        headerShown: true,
         cardStyle: { backgroundColor: "white" },
       }}
     >
@@ -37,6 +38,14 @@ export default function AuthStack() {
         options={{
           title: "Test Authentication",
           gestureDirection: "horizontal", // Standard horizontal gesture
+        }}
+      />
+      <Stack.Screen
+        name="Debug"
+        component={DebugScreen}
+        options={{
+          title: "Debug Environment",
+          gestureDirection: "horizontal",
         }}
       />
     </Stack.Navigator>

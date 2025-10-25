@@ -151,6 +151,7 @@ export type AuthStackParamList = {
     name?: string;
   };
   Test: undefined;
+  Debug: undefined;
 };
 
 export type MainTabParamList = {

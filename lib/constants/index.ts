@@ -251,11 +251,29 @@ export const REGEX_PATTERNS = {
 
 // Development Configuration
 export const DEV_CONFIG = {
-  ENABLE_FLIPPER: __DEV__,
-  ENABLE_REACTOTRON: __DEV__,
-  LOG_LEVEL: __DEV__ ? "debug" : "error",
-  API_LOGGING: __DEV__,
-  REDUX_LOGGING: __DEV__,
+  ENABLE_FLIPPER:
+    typeof __DEV__ !== "undefined"
+      ? __DEV__
+      : process.env.NODE_ENV === "development",
+  ENABLE_REACTOTRON:
+    typeof __DEV__ !== "undefined"
+      ? __DEV__
+      : process.env.NODE_ENV === "development",
+  LOG_LEVEL: (
+    typeof __DEV__ !== "undefined"
+      ? __DEV__
+      : process.env.NODE_ENV === "development"
+  )
+    ? "debug"
+    : "error",
+  API_LOGGING:
+    typeof __DEV__ !== "undefined"
+      ? __DEV__
+      : process.env.NODE_ENV === "development",
+  REDUX_LOGGING:
+    typeof __DEV__ !== "undefined"
+      ? __DEV__
+      : process.env.NODE_ENV === "development",
 };
 
 // Error Codes

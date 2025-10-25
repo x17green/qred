@@ -22,7 +22,9 @@ interface UseGoogleAuthReturn {
   clearError: () => void;
 }
 
-export const useGoogleAuth = (config?: GoogleAuthConfig): UseGoogleAuthReturn => {
+export const useGoogleAuth = (
+  config?: GoogleAuthConfig,
+): UseGoogleAuthReturn => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { setLoading, setError: setAuthError } = useAuthStore();
@@ -30,14 +32,12 @@ export const useGoogleAuth = (config?: GoogleAuthConfig): UseGoogleAuthReturn =>
   // Configure Google OAuth
   const [request, response, promptAsync] = Google.useAuthRequest({
     iosClientId:
-      config?.iosClientId ||
-      process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
+      config?.iosClientId || process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
     androidClientId:
       config?.androidClientId ||
       process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID,
     webClientId:
-      config?.webClientId ||
-      process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+      config?.webClientId || process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
     redirectUri: makeRedirectUri({
       scheme: "qred",
       path: "auth/google",
@@ -49,7 +49,10 @@ export const useGoogleAuth = (config?: GoogleAuthConfig): UseGoogleAuthReturn =>
   // Handle OAuth response
   useEffect(() => {
     if (response?.type === "success") {
-      handleGoogleSignIn(response.params.id_token, response.params.access_token);
+      handleGoogleSignIn(
+        response.params.id_token,
+        response.params.access_token,
+      );
     } else if (response?.type === "error") {
       setError("Google sign-in was cancelled or failed");
       setIsLoading(false);

@@ -1,0 +1,102 @@
+{
+  "assistant": {
+    "version": "2",
+    "default_model": {
+      "provider": "anthropic",
+      "model": "claude-3-5-sonnet-20241022"
+    },
+    "custom_instructions": {
+      "file_path": ".zed/assistant-rules.md",
+      "enabled": true
+    },
+    "button": true,
+    "dock": "right",
+    "default_width": 480,
+    "default_height": 320
+  },
+  "context_servers": {
+    "state_management_debugging": {
+      "enabled": true,
+      "watch_patterns": [
+        "**/*store*.ts",
+        "**/*Store*.ts",
+        "**/store/**/*.ts",
+        "**/*Context*.tsx",
+        "**/*Provider*.tsx",
+        "package.json",
+        "package-lock.json",
+        "yarn.lock"
+      ],
+      "triggers": [
+        "getSnapshot should be cached",
+        "Maximum update depth exceeded",
+        "Cannot update a component while rendering",
+        "useSyncExternalStore",
+        "zustand",
+        "useStore",
+        "infinite loop"
+      ]
+    }
+  },
+  "diagnostics": {
+    "include_warnings": true,
+    "debounce_delay": 200
+  },
+  "lsp": {
+    "typescript": {
+      "diagnostics": {
+        "enable": true,
+        "include_warnings": true
+      }
+    }
+  },
+  "terminal": {
+    "copy_on_select": false,
+    "dock": "bottom",
+    "default_width": 640,
+    "default_height": 320,
+    "shell": {
+      "program": "zsh"
+    }
+  },
+  "project_panel": {
+    "button": true,
+    "dock": "left",
+    "git_status": true
+  },
+  "git": {
+    "git_gutter": "tracked_files",
+    "inline_blame": {
+      "enabled": true
+    }
+  },
+  "features": {
+    "inline_completion_provider": "copilot"
+  },
+  "languages": {
+    "TypeScript": {
+      "code_actions_on_format": {
+        "source.organizeImports": true,
+        "source.fixAll.eslint": true
+      },
+      "format_on_save": "on",
+      "formatter": "prettier"
+    },
+    "TSX": {
+      "code_actions_on_format": {
+        "source.organizeImports": true,
+        "source.fixAll.eslint": true
+      },
+      "format_on_save": "on",
+      "formatter": "prettier"
+    },
+    "JavaScript": {
+      "code_actions_on_format": {
+        "source.organizeImports": true,
+        "source.fixAll.eslint": true
+      },
+      "format_on_save": "on",
+      "formatter": "prettier"
+    }
+  }
+}

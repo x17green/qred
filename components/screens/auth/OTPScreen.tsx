@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Alert, TextInput } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+
 import { Box } from "@/components/ui/box";
 import { VStack } from "@/components/ui/vstack";
 import { HStack } from "@/components/ui/hstack";
 import { Text } from "@/components/ui/text";
 import { Button, ButtonText } from "@/components/ui/button";
 import { Input, InputField } from "@/components/ui/input";
-import { useAuthActions } from "@/store/authStore";
-import { authService } from "@/services/authService";
+import { useAuthActions } from "@/lib/store/authStore";
+import { authService } from "@/lib/services/authService";
 
 interface OTPScreenProps {
   navigation: any;
@@ -157,8 +157,8 @@ export default function OTPScreen({ navigation, route }: OTPScreenProps) {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-background-0">
-      <Box className="flex-1 px-6 py-8">
+    <Box className="flex-1 bg-background-0">
+      <Box className="flex-1 px-6 py-8 pt-16">
         <VStack space="xl" className="flex-1 justify-center">
           {/* Header */}
           <VStack space="md" className="items-center mb-8">
@@ -262,6 +262,6 @@ export default function OTPScreen({ navigation, route }: OTPScreenProps) {
           </Button>
         </VStack>
       </Box>
-    </SafeAreaView>
+    </Box>
   );
 }

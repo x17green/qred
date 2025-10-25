@@ -1,15 +1,15 @@
-import React, { useState } from 'react';
-import { Alert } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Box } from '@/components/ui/box';
-import { VStack } from '@/components/ui/vstack';
-import { HStack } from '@/components/ui/hstack';
-import { Text } from '@/components/ui/text';
-import { Button, ButtonText } from '@/components/ui/button';
-import { Input, InputField } from '@/components/ui/input';
-import { useAuthActions } from '@/store/authStore';
-import { REGEX_PATTERNS } from '@/constants';
-import { authService } from '@/services/authService';
+import React, { useState } from "react";
+import { Alert } from "react-native";
+
+import { Box } from "@/components/ui/box";
+import { VStack } from "@/components/ui/vstack";
+import { HStack } from "@/components/ui/hstack";
+import { Text } from "@/components/ui/text";
+import { Button, ButtonText } from "@/components/ui/button";
+import { Input, InputField } from "@/components/ui/input";
+import { useAuthActions } from "@/lib/store/authStore";
+import { REGEX_PATTERNS } from "@/constants";
+import { authService } from "@/lib/services/authService";
 
 interface LoginScreenProps {
   navigation: any;
@@ -85,8 +85,8 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-background-0">
-      <Box className="flex-1 px-6 py-8">
+    <Box className="flex-1 bg-background-0">
+      <Box className="flex-1 px-6 py-8 pt-16">
         <VStack space="xl" className="flex-1 justify-center">
           {/* Header */}
           <VStack space="md" className="items-center mb-8">
@@ -174,6 +174,6 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
           </VStack>
         </VStack>
       </Box>
-    </SafeAreaView>
+    </Box>
   );
 }

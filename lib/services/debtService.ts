@@ -7,7 +7,7 @@ import {
   InitializePaymentResponse,
   Payment,
   DebtStatus
-} from '@/types';
+} from '@/lib/types';
 
 class DebtService {
   /**

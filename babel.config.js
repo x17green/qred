@@ -15,7 +15,7 @@ module.exports = function (api) {
             "@/components": "./components",
             "@/lib": "./lib",
             "@/assets": "./assets",
-            "@/store": "./lib/store",
+            "@/store/*": "./lib/store/*",
             "@/services": "./lib/services",
             "@/types": "./lib/types",
             "@/constants": "./lib/constants",

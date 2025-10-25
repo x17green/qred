@@ -1,15 +1,20 @@
-import React, { useEffect, useState } from 'react';
-import { RefreshControl, ScrollView, Alert } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Box } from '@/components/ui/box';
-import { VStack } from '@/components/ui/vstack';
-import { HStack } from '@/components/ui/hstack';
-import { Text } from '@/components/ui/text';
-import { Button, ButtonText } from '@/components/ui/button';
-import { useAuth } from '@/store/authStore';
-import { useDebts, useDebtActions, useDebtComputed } from '@/store/debtStore';
-import { debtService } from '@/services/debtService';
-import { Debt } from '@/lib/types';
+import React, { useEffect, useState, useCallback, useMemo } from "react";
+import { RefreshControl, ScrollView, Alert } from "react-native";
+import { Box } from "@/components/ui/box";
+import { VStack } from "@/components/ui/vstack";
+import { HStack } from "@/components/ui/hstack";
+import { Text } from "@/components/ui/text";
+import { Button, ButtonText } from "@/components/ui/button";
+import { useAuth } from "@/lib/store/authStore";
+import {
+  useDebts,
+  useDebtActions,
+  useTotalLending,
+  useTotalOwing,
+  useOverdueDebts,
+} from "@/lib/store/debtStore";
+import { debtService } from "@/lib/services/debtService";
+import { Debt } from "@/lib/types";
 
 interface DashboardScreenProps {
   navigation: any;
@@ -19,15 +24,13 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps) {
   const { user } = useAuth();
   const { lendingDebts, owingDebts, isLoading } = useDebts();
   const { fetchAllDebts } = useDebtActions();
-  const { getTotalLending, getTotalOwing, getOverdueDebts } = useDebtComputed();
+  const totalLending = useTotalLending();
+  const totalOwing = useTotalOwing();
+  const overdueDebts = useOverdueDebts();
 
   const [refreshing, setRefreshing] = useState(false);
 
-  useEffect(() => {
-    loadDashboardData();
-  }, []);
-
-  const loadDashboardData = async () => {
+  const loadDashboardData = useCallback(async () => {
     try {
       await fetchAllDebts();
     } catch (error) {
@@ -38,47 +41,51 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps) {
           : "Failed to load dashboard data",
       );
     }
-  };
+  }, [fetchAllDebts]);
 
-  const handleRefresh = async () => {
+  useEffect(() => {
+    loadDashboardData();
+  }, [loadDashboardData]);
+
+  const handleRefresh = useCallback(async () => {
     setRefreshing(true);
     try {
       await loadDashboardData();
     } finally {
       setRefreshing(false);
     }
-  };
+  }, [loadDashboardData]);
 
-  const formatCurrency = (amount: number) => {
+  const formatCurrency = useCallback((amount: number) => {
     return debtService.formatCurrency(amount);
-  };
+  }, []);
 
-  const getGreeting = () => {
+  const getGreeting = useCallback(() => {
     const hour = new Date().getHours();
     if (hour < 12) return "Good morning";
     if (hour < 17) return "Good afternoon";
     return "Good evening";
-  };
+  }, []);
 
-  const totalLending = getTotalLending();
-  const totalOwing = getTotalOwing();
-  const overdueDebts = getOverdueDebts();
-  const recentDebts = [...lendingDebts, ...owingDebts]
-    .sort(
-      (a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-    )
-    .slice(0, 5);
+  const recentDebts = useMemo(() => {
+    return [...lendingDebts, ...owingDebts]
+      .sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      )
+      .slice(0, 5);
+  }, [lendingDebts, owingDebts]);
 
   return (
-    <SafeAreaView className="flex-1 bg-background-0">
+    <Box className="flex-1 bg-background-0">
       <ScrollView
         className="flex-1"
+        contentInsetAdjustmentBehavior="automatic"
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
         }
       >
-        <Box className="flex-1 px-6 py-4">
+        <Box className="flex-1 px-6 py-4 pt-12">
           <VStack space="lg">
             {/* Header */}
             <VStack space="sm">
@@ -231,46 +238,56 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps) {
           </VStack>
         </Box>
       </ScrollView>
-    </SafeAreaView>
+    </Box>
   );
 }
 
 // Simple Debt Card Component
-function DebtCard({ debt, onPress }: { debt: Debt; onPress: () => void }) {
-  const isLender = debt.lenderId === debt.lender.id; // This would need proper user context
-  const statusColor = debtService.getDebtStatusColor(debt.status);
+const DebtCard = React.memo(
+  ({ debt, onPress }: { debt: Debt; onPress: () => void }) => {
+    const { user } = useAuth();
+    const isLender = user?.id === debt.lenderId;
+    const statusColor = useMemo(
+      () => debtService.getDebtStatusColor(debt.status),
+      [debt.status],
+    );
 
-  return (
-    <Box
-      className="bg-background-0 p-4 rounded-lg border border-background-200 shadow-sm"
-      onTouchEnd={onPress}
-    >
-      <HStack className="items-center justify-between">
-        <VStack className="flex-1">
-          <Text size="sm" className="font-medium text-typography-900">
-            {isLender
-              ? debt.debtor?.name || `${debt.debtorPhoneNumber}`
-              : debt.externalLenderName || debt.lender.name}
-          </Text>
-          <Text size="xs" className="text-typography-500">
-            {isLender ? "owes you" : "you owe"}
-          </Text>
-        </VStack>
+    const handlePress = useCallback(() => {
+      onPress();
+    }, [onPress]);
 
-        <VStack className="items-end">
-          <Text size="sm" className="font-bold text-typography-900">
-            {debtService.formatCurrency(debt.outstandingBalance)}
-          </Text>
-          <Box
-            className="px-2 py-1 rounded"
-            style={{ backgroundColor: statusColor + "20" }}
-          >
-            <Text size="xs" style={{ color: statusColor }}>
-              {debtService.getDebtStatusText(debt.status)}
+    return (
+      <Box
+        className="bg-background-0 p-4 rounded-lg border border-background-200 shadow-sm"
+        onTouchEnd={handlePress}
+      >
+        <HStack className="items-center justify-between">
+          <VStack className="flex-1">
+            <Text size="sm" className="font-medium text-typography-900">
+              {isLender
+                ? debt.debtor?.name || `${debt.debtorPhoneNumber}`
+                : debt.externalLenderName || debt.lender.name}
             </Text>
-          </Box>
-        </VStack>
-      </HStack>
-    </Box>
-  );
-}
+            <Text size="xs" className="text-typography-500">
+              {isLender ? "owes you" : "you owe"}
+            </Text>
+          </VStack>
+
+          <VStack className="items-end">
+            <Text size="sm" className="font-bold text-typography-900">
+              {debtService.formatCurrency(debt.outstandingBalance)}
+            </Text>
+            <Box
+              className="px-2 py-1 rounded"
+              style={{ backgroundColor: statusColor + "20" }}
+            >
+              <Text size="xs" style={{ color: statusColor }}>
+                {debtService.getDebtStatusText(debt.status)}
+              </Text>
+            </Box>
+          </VStack>
+        </HStack>
+      </Box>
+    );
+  },
+);

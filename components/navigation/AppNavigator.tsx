@@ -3,7 +3,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import AuthStack from "./AuthStack";
 import MainTabNavigator from "./MainTabNavigator";
-import { useAuth, useAuthActions } from "@/store/authStore";
+import { useAuth, useAuthActions } from "@/lib/store/authStore";
 import { Box } from "@/components/ui/box";
 import { Text } from "@/components/ui/text";
 import { RootStackParamList } from "@/lib/types";
@@ -27,18 +27,26 @@ export default function AppNavigator() {
   const [isInitializing, setIsInitializing] = useState(true);
 
   useEffect(() => {
-    initializeApp();
-  }, []);
+    let isMounted = true;
 
-  const initializeApp = async () => {
-    try {
-      await checkAuthStatus();
-    } catch (error) {
-      console.error("App initialization error:", error);
-    } finally {
-      setIsInitializing(false);
-    }
-  };
+    const initializeApp = async () => {
+      try {
+        await checkAuthStatus();
+      } catch (error) {
+        console.error("App initialization error:", error);
+      } finally {
+        if (isMounted) {
+          setIsInitializing(false);
+        }
+      }
+    };
+
+    initializeApp();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // Show loading screen while initializing
   if (isInitializing || isLoading) {

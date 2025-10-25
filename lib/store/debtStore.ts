@@ -1,5 +1,7 @@
+import React from "react";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
+import { useShallow } from "zustand/react/shallow";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   Debt,
@@ -8,7 +10,7 @@ import {
   CreateDebtRequest,
   Payment,
 } from "@/types";
-import { debtService } from "@/services/debtService";
+import { debtService } from "@/lib/services/debtService";
 
 interface DebtStore extends DebtState, DebtActions {
   // Additional debt actions
@@ -29,11 +31,7 @@ interface DebtStore extends DebtState, DebtActions {
   sendPaymentReminder: (debtId: string) => Promise<void>;
   clearError: () => void;
   reset: () => void;
-  // Computed getters
-  getTotalLending: () => number;
-  getTotalOwing: () => number;
-  getOverdueDebts: () => Debt[];
-  getPendingDebts: () => Debt[];
+  // Search function
   searchDebts: (query: string) => Debt[];
 }
 
@@ -429,38 +427,7 @@ export const useDebtStore = create<DebtStore>()(
         });
       },
 
-      // Computed getters
-      getTotalLending: () => {
-        const { lendingDebts } = get();
-        return lendingDebts.reduce(
-          (total, debt) => total + debt.outstandingBalance,
-          0,
-        );
-      },
-
-      getTotalOwing: () => {
-        const { owingDebts } = get();
-        return owingDebts.reduce(
-          (total, debt) => total + debt.outstandingBalance,
-          0,
-        );
-      },
-
-      getOverdueDebts: () => {
-        const { lendingDebts, owingDebts } = get();
-        const allDebts = [...lendingDebts, ...owingDebts];
-        return allDebts.filter(
-          (debt) =>
-            debt.status !== "PAID" && debtService.isDebtOverdue(debt.dueDate),
-        );
-      },
-
-      getPendingDebts: () => {
-        const { lendingDebts, owingDebts } = get();
-        const allDebts = [...lendingDebts, ...owingDebts];
-        return allDebts.filter((debt) => debt.status === "PENDING");
-      },
-
+      // Search function (not computed)
       searchDebts: (query: string) => {
         const { lendingDebts, owingDebts } = get();
         const allDebts = [...lendingDebts, ...owingDebts];
@@ -490,46 +457,79 @@ export const useDebtStore = create<DebtStore>()(
 
 // Selectors for easier component usage
 export const useDebts = () =>
-  useDebtStore((state) => ({
-    lendingDebts: state.lendingDebts,
-    owingDebts: state.owingDebts,
-    currentDebt: state.currentDebt,
-    isLoading: state.isLoading,
-    error: state.error,
-  }));
+  useDebtStore(
+    useShallow((state) => ({
+      lendingDebts: state.lendingDebts,
+      owingDebts: state.owingDebts,
+      currentDebt: state.currentDebt,
+      isLoading: state.isLoading,
+      error: state.error,
+    })),
+  );
 
 export const useDebtActions = () =>
-  useDebtStore((state) => ({
-    setLendingDebts: state.setLendingDebts,
-    setOwingDebts: state.setOwingDebts,
-    setCurrentDebt: state.setCurrentDebt,
-    addDebt: state.addDebt,
-    updateDebt: state.updateDebt,
-    removeDebt: state.removeDebt,
-    fetchLendingDebts: state.fetchLendingDebts,
-    fetchOwingDebts: state.fetchOwingDebts,
-    fetchAllDebts: state.fetchAllDebts,
-    fetchDebtById: state.fetchDebtById,
-    createDebt: state.createDebt,
-    updateDebtDetails: state.updateDebtDetails,
-    markDebtAsPaid: state.markDebtAsPaid,
-    deleteDebt: state.deleteDebt,
-    initializePayment: state.initializePayment,
-    verifyPayment: state.verifyPayment,
-    sendPaymentReminder: state.sendPaymentReminder,
-    setLoading: state.setLoading,
-    setError: state.setError,
-    clearError: state.clearError,
-    reset: state.reset,
-  }));
+  useDebtStore(
+    useShallow((state) => ({
+      setLendingDebts: state.setLendingDebts,
+      setOwingDebts: state.setOwingDebts,
+      setCurrentDebt: state.setCurrentDebt,
+      addDebt: state.addDebt,
+      updateDebt: state.updateDebt,
+      removeDebt: state.removeDebt,
+      fetchLendingDebts: state.fetchLendingDebts,
+      fetchOwingDebts: state.fetchOwingDebts,
+      fetchAllDebts: state.fetchAllDebts,
+      fetchDebtById: state.fetchDebtById,
+      createDebt: state.createDebt,
+      updateDebtDetails: state.updateDebtDetails,
+      markDebtAsPaid: state.markDebtAsPaid,
+      deleteDebt: state.deleteDebt,
+      initializePayment: state.initializePayment,
+      verifyPayment: state.verifyPayment,
+      sendPaymentReminder: state.sendPaymentReminder,
+      setLoading: state.setLoading,
+      setError: state.setError,
+      clearError: state.clearError,
+      reset: state.reset,
+    })),
+  );
 
-export const useDebtComputed = () =>
-  useDebtStore((state) => ({
-    getTotalLending: state.getTotalLending,
-    getTotalOwing: state.getTotalOwing,
-    getOverdueDebts: state.getOverdueDebts,
-    getPendingDebts: state.getPendingDebts,
-    searchDebts: state.searchDebts,
-  }));
+// Individual computed selectors to avoid infinite loops
+export const useTotalLending = () =>
+  useDebtStore((state) => {
+    const total = state.lendingDebts.reduce(
+      (sum, debt) => sum + debt.outstandingBalance,
+      0,
+    );
+    return total;
+  });
+
+export const useTotalOwing = () =>
+  useDebtStore((state) => {
+    const total = state.owingDebts.reduce(
+      (sum, debt) => sum + debt.outstandingBalance,
+      0,
+    );
+    return total;
+  });
+
+export const useOverdueDebts = () =>
+  useDebtStore((state) => {
+    const allDebts = [...state.lendingDebts, ...state.owingDebts];
+    const today = new Date();
+
+    return allDebts.filter((debt) => {
+      const dueDate = new Date(debt.dueDate);
+      return debt.status === "PENDING" && dueDate < today;
+    });
+  });
+
+export const usePendingDebts = () =>
+  useDebtStore((state) => {
+    const allDebts = [...state.lendingDebts, ...state.owingDebts];
+    return allDebts.filter((debt) => debt.status === "PENDING");
+  });
+
+export const useSearchDebts = () => useDebtStore((state) => state.searchDebts);
 
 export default useDebtStore;

@@ -1,9 +1,9 @@
 // User types
 export interface User {
   id: string;
-  email?: string;
+  email: string | null;
   name: string;
-  phoneNumber: string;
+  phoneNumber: string | null;
   avatarUrl?: string | null;
   createdAt: string;
   updatedAt: string;

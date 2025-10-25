@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Alert, TextInput } from "react-native";
+import { StackScreenProps } from "@react-navigation/stack";
 
 import { Box } from "@/components/ui/box";
 import { VStack } from "@/components/ui/vstack";
@@ -9,17 +10,9 @@ import { Button, ButtonText } from "@/components/ui/button";
 import { Input, InputField } from "@/components/ui/input";
 import { useAuthActions } from "@/lib/store/authStore";
 import { authService } from "@/lib/services/authService";
+import { AuthStackParamList } from "@/types";
 
-interface OTPScreenProps {
-  navigation: any;
-  route: {
-    params: {
-      phoneNumber: string;
-      email?: string;
-      name?: string;
-    };
-  };
-}
+type OTPScreenProps = StackScreenProps<AuthStackParamList, "OTP">;
 
 export default function OTPScreen({ navigation, route }: OTPScreenProps) {
   const { phoneNumber, email, name } = route.params;

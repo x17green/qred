@@ -179,6 +179,9 @@ class DebtService {
 
       if (error) handleSupabaseError(error);
 
+      if (!data) {
+        throw new Error("Debt not found");
+      }
       return data;
     } catch (error) {
       console.error("Qred DebtService: Create debt error:", error);
@@ -201,6 +204,9 @@ class DebtService {
 
       if (error) handleSupabaseError(error);
 
+      if (!data) {
+        throw new Error("Debt not found");
+      }
       return data;
     } catch (error) {
       console.error("Qred DebtService: Update debt error:", error);
@@ -258,6 +264,9 @@ class DebtService {
 
       if (error) handleSupabaseError(error);
 
+      if (!data) {
+        throw new Error("Unable to get debt summary");
+      }
       return data;
     } catch (error) {
       console.error("Qred DebtService: Get debt summary error:", error);
@@ -323,6 +332,9 @@ class DebtService {
 
       if (error) handleSupabaseError(error);
 
+      if (!data) {
+        throw new Error("Payment not found");
+      }
       return data;
     } catch (error) {
       console.error("Qred DebtService: Verify payment error:", error);

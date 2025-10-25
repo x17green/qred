@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
+import { useShallow } from "zustand/react/shallow";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { User, AuthState, AuthActions } from "@/lib/types";
 import { authService } from "@/lib/services/authService";
@@ -257,29 +258,33 @@ export const useAuthStore = create<AuthStore>()(
 
 // Selectors for easier component usage
 export const useAuth = () =>
-  useAuthStore((state) => ({
-    user: state.user,
-    token: state.token,
-    isAuthenticated: state.isAuthenticated,
-    isLoading: state.isLoading,
-    error: state.error,
-  }));
+  useAuthStore(
+    useShallow((state) => ({
+      user: state.user,
+      token: state.token,
+      isAuthenticated: state.isAuthenticated,
+      isLoading: state.isLoading,
+      error: state.error,
+    })),
+  );
 
 export const useAuthActions = () =>
-  useAuthStore((state) => ({
-    setUser: state.setUser,
-    setToken: state.setToken,
-    signOut: state.signOut,
-    signIn: state.signIn,
-    sendOTP: state.sendOTP,
-    googleSignIn: state.googleSignIn,
-    updateProfile: state.updateProfile,
-    refreshUser: state.refreshUser,
-    checkAuthStatus: state.checkAuthStatus,
-    setLoading: state.setLoading,
-    setError: state.setError,
-    clearError: state.clearError,
-    reset: state.reset,
-  }));
+  useAuthStore(
+    useShallow((state) => ({
+      setUser: state.setUser,
+      setToken: state.setToken,
+      signOut: state.signOut,
+      signIn: state.signIn,
+      sendOTP: state.sendOTP,
+      googleSignIn: state.googleSignIn,
+      updateProfile: state.updateProfile,
+      refreshUser: state.refreshUser,
+      checkAuthStatus: state.checkAuthStatus,
+      setLoading: state.setLoading,
+      setError: state.setError,
+      clearError: state.clearError,
+      reset: state.reset,
+    })),
+  );
 
 export default useAuthStore;

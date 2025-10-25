@@ -6,13 +6,7 @@ import { HStack } from "@/components/ui/hstack";
 import { Text } from "@/components/ui/text";
 import { Button, ButtonText } from "@/components/ui/button";
 import { useAuth } from "@/lib/store/authStore";
-import {
-  useDebts,
-  useDebtActions,
-  useTotalLending,
-  useTotalOwing,
-  useOverdueDebts,
-} from "@/lib/store/debtStore";
+import { useDebts, useDebtActions } from "@/lib/store/debtStore";
 import { debtService } from "@/lib/services/debtService";
 import { Debt } from "@/lib/types";
 
@@ -24,9 +18,6 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps) {
   const { user } = useAuth();
   const { lendingDebts, owingDebts, isLoading } = useDebts();
   const { fetchAllDebts } = useDebtActions();
-  const totalLending = useTotalLending();
-  const totalOwing = useTotalOwing();
-  const overdueDebts = useOverdueDebts();
 
   const [refreshing, setRefreshing] = useState(false);
 
@@ -74,6 +65,25 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps) {
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
       )
       .slice(0, 5);
+  }, [lendingDebts, owingDebts]);
+
+  // Computed values using useMemo to avoid infinite loops
+  const totalLending = useMemo(() => {
+    return lendingDebts.reduce((sum, debt) => sum + debt.outstandingBalance, 0);
+  }, [lendingDebts]);
+
+  const totalOwing = useMemo(() => {
+    return owingDebts.reduce((sum, debt) => sum + debt.outstandingBalance, 0);
+  }, [owingDebts]);
+
+  const overdueDebts = useMemo(() => {
+    const allDebts = [...lendingDebts, ...owingDebts];
+    const today = new Date();
+
+    return allDebts.filter((debt) => {
+      const dueDate = new Date(debt.dueDate);
+      return debt.status === "PENDING" && dueDate < today;
+    });
   }, [lendingDebts, owingDebts]);
 
   return (

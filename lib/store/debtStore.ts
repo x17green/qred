@@ -494,42 +494,7 @@ export const useDebtActions = () =>
     })),
   );
 
-// Individual computed selectors to avoid infinite loops
-export const useTotalLending = () =>
-  useDebtStore((state) => {
-    const total = state.lendingDebts.reduce(
-      (sum, debt) => sum + debt.outstandingBalance,
-      0,
-    );
-    return total;
-  });
-
-export const useTotalOwing = () =>
-  useDebtStore((state) => {
-    const total = state.owingDebts.reduce(
-      (sum, debt) => sum + debt.outstandingBalance,
-      0,
-    );
-    return total;
-  });
-
-export const useOverdueDebts = () =>
-  useDebtStore((state) => {
-    const allDebts = [...state.lendingDebts, ...state.owingDebts];
-    const today = new Date();
-
-    return allDebts.filter((debt) => {
-      const dueDate = new Date(debt.dueDate);
-      return debt.status === "PENDING" && dueDate < today;
-    });
-  });
-
-export const usePendingDebts = () =>
-  useDebtStore((state) => {
-    const allDebts = [...state.lendingDebts, ...state.owingDebts];
-    return allDebts.filter((debt) => debt.status === "PENDING");
-  });
-
+// Export search function for components that need it
 export const useSearchDebts = () => useDebtStore((state) => state.searchDebts);
 
 export default useDebtStore;

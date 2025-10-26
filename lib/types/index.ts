@@ -145,6 +145,7 @@ export type RootStackParamList = {
 
 export type AuthStackParamList = {
   Login: undefined;
+  SignUp: undefined;
   OTP: {
     phoneNumber: string;
     email?: string | null;

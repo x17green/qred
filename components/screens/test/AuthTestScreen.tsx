@@ -19,7 +19,8 @@ interface AuthTestScreenProps {
 
 export default function AuthTestScreen({ navigation }: AuthTestScreenProps) {
   const { user, authUser, isAuthenticated, isLoading, error } = useAuth();
-  const { sendOTP, signIn } = useAuthActions();
+  const { sendOTP, signIn, signUpWithEmail, signInWithEmail } =
+    useAuthActions();
   const {
     signInWithGoogle,
     isLoading: isGoogleLoading,
@@ -28,6 +29,9 @@ export default function AuthTestScreen({ navigation }: AuthTestScreenProps) {
 
   const [phoneNumber, setPhoneNumber] = useState("");
   const [otp, setOtp] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
   const [testResults, setTestResults] = useState<string[]>([]);
   const [isRunningTests, setIsRunningTests] = useState(false);
 
@@ -90,6 +94,39 @@ export default function AuthTestScreen({ navigation }: AuthTestScreenProps) {
       addTestResult("✅ Google OAuth initiated!");
     } catch (err: any) {
       addTestResult(`❌ Google OAuth failed: ${err.message}`);
+    }
+  };
+
+  // Test Email Sign Up
+  const testEmailSignUp = async () => {
+    try {
+      addTestResult(`📧 Testing email sign up for ${email}...`);
+      const response = await signUpWithEmail({
+        email,
+        password,
+        name,
+        phoneNumber: phoneNumber || undefined,
+      });
+      addTestResult(`✅ Email sign up successful: ${response.message}`);
+      if (response.requiresEmailConfirmation) {
+        addTestResult("📬 Email confirmation required - check your inbox");
+      }
+    } catch (err: any) {
+      addTestResult(`❌ Email sign up failed: ${err.message}`);
+    }
+  };
+
+  // Test Email Sign In
+  const testEmailSignIn = async () => {
+    try {
+      addTestResult(`🔐 Testing email sign in for ${email}...`);
+      await signInWithEmail({
+        email,
+        password,
+      });
+      addTestResult("✅ Email sign in successful!");
+    } catch (err: any) {
+      addTestResult(`❌ Email sign in failed: ${err.message}`);
     }
   };
 
@@ -301,6 +338,56 @@ export default function AuthTestScreen({ navigation }: AuthTestScreenProps) {
                   Google Error: {googleError}
                 </Text>
               )}
+            </VStack>
+
+            {/* Email Authentication Test */}
+            <VStack space="sm">
+              <Text size="md" className="font-medium text-typography-800">
+                Email Authentication Test
+              </Text>
+              <Input variant="outline" size="md">
+                <InputField
+                  placeholder="Name"
+                  value={name}
+                  onChangeText={setName}
+                />
+              </Input>
+              <Input variant="outline" size="md">
+                <InputField
+                  placeholder="Email"
+                  value={email}
+                  onChangeText={setEmail}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                />
+              </Input>
+              <Input variant="outline" size="md">
+                <InputField
+                  placeholder="Password"
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry
+                />
+              </Input>
+              <HStack space="sm">
+                <Button
+                  size="sm"
+                  onPress={testEmailSignUp}
+                  isDisabled={isLoading}
+                  className="flex-1"
+                >
+                  <ButtonText>Sign Up</ButtonText>
+                </Button>
+                <Button
+                  size="sm"
+                  onPress={testEmailSignIn}
+                  isDisabled={isLoading}
+                  className="flex-1"
+                  variant="outline"
+                >
+                  <ButtonText>Sign In</ButtonText>
+                </Button>
+              </HStack>
             </VStack>
           </VStack>
 

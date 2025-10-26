@@ -92,8 +92,6 @@ export const useGoogleAuth = (
         throw new Error("Google OAuth not configured properly");
       }
 
-      console.log("Qred: Initiating Google OAuth flow");
-
       // Check if Google Play Services are available (Android)
       if (Platform.OS === "android") {
         // Note: You might want to add Google Play Services check here

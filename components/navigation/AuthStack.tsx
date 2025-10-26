@@ -1,6 +1,7 @@
 import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
 import LoginScreen from "@/components/screens/auth/LoginScreen";
+import SignUpScreen from "@/components/screens/auth/SignUpScreen";
 import OTPScreen from "@/components/screens/auth/OTPScreen";
 import AuthTestScreen from "../screens/test/AuthTestScreen";
 import DebugScreen from "../screens/debug/DebugScreen";
@@ -22,6 +23,14 @@ export default function AuthStack() {
         component={LoginScreen}
         options={{
           title: "Sign In",
+        }}
+      />
+      <Stack.Screen
+        name="SignUp"
+        component={SignUpScreen}
+        options={{
+          title: "Create Account",
+          gestureDirection: "horizontal",
         }}
       />
       <Stack.Screen

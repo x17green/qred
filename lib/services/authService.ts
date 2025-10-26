@@ -25,6 +25,29 @@ export interface GoogleSignInResponse {
   requiresOTP?: boolean;
 }
 
+export interface EmailSignUpRequest {
+  email: string;
+  password: string;
+  name: string;
+  phoneNumber?: string;
+}
+
+export interface EmailSignUpResponse {
+  message: string;
+  requiresEmailConfirmation?: boolean;
+  user?: User;
+}
+
+export interface EmailSignInRequest {
+  email: string;
+  password: string;
+}
+
+export interface EmailSignInResponse {
+  user: User;
+  session: any;
+}
+
 export interface SendOTPRequest {
   phoneNumber: string;
 }
@@ -334,6 +357,122 @@ class AuthService {
     }
   }
 
+  // Email Sign Up
+  async signUpWithEmail(
+    request: EmailSignUpRequest,
+  ): Promise<EmailSignUpResponse> {
+    try {
+      const { email, password, name, phoneNumber } = request;
+
+      // Validate email format
+      if (!this.validateEmail(email)) {
+        throw new Error("Invalid email format");
+      }
+
+      // Validate password strength
+      if (!this.validatePassword(password)) {
+        throw new Error("Password must be at least 8 characters long");
+      }
+
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            name,
+            phone_number: phoneNumber,
+          },
+        },
+      });
+
+      if (error) throw error;
+
+      if (data.user) {
+        // Check if email confirmation is required
+        const requiresConfirmation = !data.session;
+
+        if (data.session) {
+          // User is immediately signed in, create profile
+          const profileData: UserInsert = {
+            id: data.user.id,
+            name,
+            email,
+            phoneNumber: phoneNumber || null,
+            avatarUrl: null,
+          };
+
+          await createUserProfile(profileData);
+        }
+
+        return {
+          message: requiresConfirmation
+            ? "Please check your email to confirm your account"
+            : "Account created successfully",
+          requiresEmailConfirmation: requiresConfirmation,
+          user: data.user,
+        };
+      }
+
+      throw new Error("Sign up failed");
+    } catch (error: any) {
+      console.error("Qred Auth: Email sign up error:", error);
+      throw new Error(error.message || "Email sign up failed");
+    }
+  }
+
+  // Email Sign In
+  async signInWithEmail(
+    request: EmailSignInRequest,
+  ): Promise<EmailSignInResponse> {
+    try {
+      const { email, password } = request;
+
+      // Validate email format
+      if (!this.validateEmail(email)) {
+        throw new Error("Invalid email format");
+      }
+
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+
+      if (!data.user || !data.session) {
+        throw new Error("Sign in failed");
+      }
+
+      // Check if user profile exists, create if not
+      let userProfile: UserRow;
+      try {
+        userProfile = await getUserProfile(data.user.id);
+      } catch (profileError) {
+        // Create user profile if it doesn't exist
+        const profileData: UserInsert = {
+          id: data.user.id,
+          name:
+            data.user.user_metadata?.name ||
+            data.user.email?.split("@")[0] ||
+            "User",
+          email: data.user.email || email,
+          phoneNumber: data.user.user_metadata?.phone_number || null,
+          avatarUrl: data.user.user_metadata?.avatar_url || null,
+        };
+
+        userProfile = await createUserProfile(profileData);
+      }
+
+      return {
+        user: data.user,
+        session: data.session,
+      };
+    } catch (error: any) {
+      console.error("Qred Auth: Email sign in error:", error);
+      throw new Error(error.message || "Email sign in failed");
+    }
+  }
+
   // Reset password (for email users)
   async resetPassword(email: string): Promise<void> {
     try {
@@ -413,6 +552,15 @@ class AuthService {
 
   validateOTP(otp: string): boolean {
     return /^\d{6}$/.test(otp);
+  }
+
+  validateEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+
+  validatePassword(password: string): boolean {
+    return password.length >= 8;
   }
 }
 

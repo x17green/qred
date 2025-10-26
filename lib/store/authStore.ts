@@ -4,7 +4,14 @@ import { useShallow } from "zustand/react/shallow";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { User } from "@supabase/supabase-js";
 import { UserRow } from "../types/database";
-import { authService, AuthResponse } from "../services/authService";
+import {
+  authService,
+  AuthResponse,
+  EmailSignUpRequest,
+  EmailSignUpResponse,
+  EmailSignInRequest,
+  EmailSignInResponse,
+} from "../services/authService";
 
 interface AuthState {
   user: UserRow | null;
@@ -36,6 +43,12 @@ interface AuthStore extends AuthState, AuthActions {
     idToken: string;
     accessToken: string;
   }) => Promise<any>;
+  signUpWithEmail: (
+    request: EmailSignUpRequest,
+  ) => Promise<EmailSignUpResponse>;
+  signInWithEmail: (
+    request: EmailSignInRequest,
+  ) => Promise<EmailSignInResponse>;
   updateProfile: (data: Partial<UserRow>) => Promise<UserRow>;
   refreshUser: () => Promise<UserRow | null>;
   checkAuthStatus: () => Promise<boolean>;
@@ -168,6 +181,71 @@ export const useAuthStore = create<AuthStore>()(
           const errorMessage =
             error instanceof Error ? error.message : "Google sign in failed";
           set({ error: errorMessage, isLoading: false });
+          throw error;
+        }
+      },
+
+      signUpWithEmail: async (request: EmailSignUpRequest) => {
+        try {
+          set({ isLoading: true, error: null });
+
+          const response = await authService.signUpWithEmail(request);
+
+          // If sign up is successful and doesn't require confirmation,
+          // the user might be automatically signed in
+          if (response.user && !response.requiresEmailConfirmation) {
+            // Get user profile after successful auth
+            const userProfile = await authService.getStoredUser();
+            const token = await authService.getAuthToken();
+
+            set({
+              user: userProfile,
+              authUser: response.user,
+              token,
+              isAuthenticated: true,
+              isLoading: false,
+              error: null,
+            });
+          } else {
+            set({ isLoading: false });
+          }
+
+          return response;
+        } catch (error) {
+          const errorMessage =
+            error instanceof Error ? error.message : "Email sign up failed";
+          set({ error: errorMessage, isLoading: false });
+          throw error;
+        }
+      },
+
+      signInWithEmail: async (request: EmailSignInRequest) => {
+        try {
+          set({ isLoading: true, error: null });
+
+          const response = await authService.signInWithEmail(request);
+
+          // Get user profile after successful auth
+          const userProfile = await authService.getStoredUser();
+
+          set({
+            user: userProfile,
+            authUser: response.user,
+            token: response.session?.access_token || null,
+            isAuthenticated: true,
+            isLoading: false,
+            error: null,
+          });
+
+          return response;
+        } catch (error) {
+          const errorMessage =
+            error instanceof Error ? error.message : "Email sign in failed";
+          set({
+            error: errorMessage,
+            isLoading: false,
+            isAuthenticated: false,
+          });
           throw error;
         }
       },
@@ -317,6 +395,8 @@ export const useAuthActions = () =>
       signIn: state.signIn,
       sendOTP: state.sendOTP,
       googleSignIn: state.googleSignIn,
+      signUpWithEmail: state.signUpWithEmail,
+      signInWithEmail: state.signInWithEmail,
       updateProfile: state.updateProfile,
       refreshUser: state.refreshUser,
       checkAuthStatus: state.checkAuthStatus,

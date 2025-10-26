@@ -36,6 +36,10 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
+# Generated JS files from TypeScript
+lib/**/*.js
+scripts/**/*.js
+
 # generated native folders
 /ios
 /android

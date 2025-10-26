@@ -67,8 +67,8 @@ export default function EnvDebugComponent() {
                 EXPO_PUBLIC_SUPABASE_URL: {process.env.EXPO_PUBLIC_SUPABASE_URL || 'NOT SET'}
               </Text>
               <Text size="sm" className="text-typography-600">
-                EXPO_PUBLIC_SUPABASE_KEY: {process.env.EXPO_PUBLIC_SUPABASE_KEY ?
-                  `${process.env.EXPO_PUBLIC_SUPABASE_KEY.substring(0, 20)}...` : 'NOT SET'}
+                EXPO_PUBLIC_SUPABASE_ANON_KEY: {process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?
+                  `${process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY.substring(0, 20)}...` : 'NOT SET'}
               </Text>
               <Text size="sm" className="text-typography-600">
                 EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID: {process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID ?
@@ -100,7 +100,7 @@ export default function EnvDebugComponent() {
                 • Supabase URL loaded: {process.env.EXPO_PUBLIC_SUPABASE_URL ? '✅ YES' : '❌ NO'}
               </Text>
               <Text size="sm" className="text-info-700">
-                • Supabase Key loaded: {process.env.EXPO_PUBLIC_SUPABASE_KEY ? '✅ YES' : '❌ NO'}
+                • Supabase Key loaded: {process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ? '✅ YES' : '❌ NO'}
               </Text>
               <Text size="sm" className="text-info-700">
                 • Google Client ID loaded: {process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID ? '✅ YES' : '❌ NO'}

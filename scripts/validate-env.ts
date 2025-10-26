@@ -3,7 +3,7 @@ require("dotenv").config({
   quiet: true
 });
 
-const requiredVars = ["EXPO_PUBLIC_SUPABASE_URL", "EXPO_PUBLIC_SUPABASE_KEY"];
+const requiredVars = ["EXPO_PUBLIC_SUPABASE_URL", "EXPO_PUBLIC_SUPABASE_ANON_KEY"];
 
 console.log("🔍 Checking environment variables...");
 console.log("Current working directory:", process.cwd());

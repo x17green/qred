@@ -391,7 +391,7 @@ export default function AuthTestScreen({ navigation }: AuthTestScreenProps) {
                 </Text>
                 <Text size="xs" className="text-typography-600">
                   Supabase Key:{" "}
-                  {process.env.EXPO_PUBLIC_SUPABASE_KEY
+                  {process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY
                     ? "✅ Set"
                     : "❌ Missing"}
                 </Text>

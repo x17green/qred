@@ -30,7 +30,17 @@
       "package": "com.x17green.qred"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro",
+      "output": "static",
+      "build": {
+        "babel": {
+          "include": [
+            "@supabase/supabase-js",
+            "@react-native-async-storage/async-storage"
+          ]
+        }
+      }
     },
     "extra": {
       "eas": {

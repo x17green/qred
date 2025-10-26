@@ -85,8 +85,8 @@ export default function DebugScreen({ navigation }: DebugScreenProps) {
               </Text>
               <Text size="sm" className="text-primary-700">
                 <Text className="font-semibold">Key:</Text>{" "}
-                {process.env.EXPO_PUBLIC_SUPABASE_KEY
-                  ? `${process.env.EXPO_PUBLIC_SUPABASE_KEY.substring(0, 20)}...`
+                {process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY
+                  ? `${process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY.substring(0, 20)}...`
                   : "NOT SET"}
               </Text>
             </VStack>
@@ -198,7 +198,7 @@ export default function DebugScreen({ navigation }: DebugScreenProps) {
             <VStack space="sm">
               <Text size="sm" className="text-typography-600">
                 {process.env.EXPO_PUBLIC_SUPABASE_URL &&
-                process.env.EXPO_PUBLIC_SUPABASE_KEY
+                process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY
                   ? "✅ Supabase configuration looks good"
                   : "❌ Supabase configuration incomplete"}
               </Text>
@@ -238,13 +238,6 @@ export default function DebugScreen({ navigation }: DebugScreenProps) {
               </Text>
               <Text size="sm" className="text-info-700">
                 • This proves environment loading works in React Native
-              </Text>
-              <Text size="sm" className="text-info-700">
-                • OAuth redirect URI is generated dynamically with
-                Linking.createURL()
-              </Text>
-              <Text size="sm" className="text-info-700">
-                • Copy the OAuth URI above to Google Console for authentication
               </Text>
             </VStack>
           </Box>

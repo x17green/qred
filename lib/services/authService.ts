@@ -15,7 +15,7 @@ export interface AuthResponse {
 
 export interface GoogleSignInRequest {
   idToken: string;
-  accessToken: string;
+  accessToken?: string;
 }
 
 export interface GoogleSignInResponse {
@@ -67,7 +67,7 @@ class AuthService {
     }
   }
 
-  // Google Sign-In (Step 1)
+  // Google Sign-In (Step 1) - Updated to use signInWithIdToken per Supabase docs
   async googleSignIn(
     request: GoogleSignInRequest,
   ): Promise<GoogleSignInResponse> {
@@ -75,7 +75,6 @@ class AuthService {
       const { data, error } = await supabase.auth.signInWithIdToken({
         provider: "google",
         token: request.idToken,
-        access_token: request.accessToken,
       });
 
       if (error) throw error;

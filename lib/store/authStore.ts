@@ -146,7 +146,13 @@ export const useAuthStore = create<AuthStore>()(
           });
 
           // Get user profile after successful auth
-          const userProfile = await authService.getStoredUser();
+          let userProfile = null;
+          try {
+            userProfile = await authService.getStoredUser();
+          } catch (profileError) {
+            console.error("Failed to get user profile after sign in:", profileError);
+            // Continue with null profile - will trigger onboarding
+          }
 
           const needsOnboarding = !userProfile || !userProfile.name ||
             userProfile.name === "User" || userProfile.name === "Qred User";
@@ -219,8 +225,16 @@ export const useAuthStore = create<AuthStore>()(
           // the user might be automatically signed in
           if (response.user && !response.requiresEmailConfirmation) {
             // Get user profile after successful auth
-            const userProfile = await authService.getStoredUser();
-            const token = await authService.getAuthToken();
+            let userProfile = null;
+            let token = null;
+
+            try {
+              userProfile = await authService.getStoredUser();
+              token = await authService.getAuthToken();
+            } catch (profileError) {
+              console.error("Failed to get user profile after sign up:", profileError);
+              // Continue with null profile - will trigger onboarding
+            }
 
             const needsOnboarding = !userProfile || !userProfile.name ||
               userProfile.name === "User" || userProfile.name === "Qred User";
@@ -254,7 +268,13 @@ export const useAuthStore = create<AuthStore>()(
           const response = await authService.signInWithEmail(request);
 
           // Get user profile after successful auth
-          const userProfile = await authService.getStoredUser();
+          let userProfile = null;
+          try {
+            userProfile = await authService.getStoredUser();
+          } catch (profileError) {
+            console.error("Failed to get user profile after email sign in:", profileError);
+            // Continue with null profile - will trigger onboarding
+          }
 
           const needsOnboarding = !userProfile || !userProfile.name ||
             userProfile.name === "User" || userProfile.name === "Qred User";
@@ -336,26 +356,31 @@ export const useAuthStore = create<AuthStore>()(
           const isAuthenticated = await authService.isAuthenticated();
 
           if (isAuthenticated) {
-            const [token, userProfile, authUser] = await Promise.all([
-              authService.getAuthToken(),
-              authService.getStoredUser(),
-              authService.getCurrentUser(),
-            ]);
+            try {
+              const [token, userProfile, authUser] = await Promise.all([
+                authService.getAuthToken(),
+                authService.getStoredUser(),
+                authService.getCurrentUser(),
+              ]);
 
-            if (token && userProfile && authUser) {
-              const needsOnboarding = !userProfile || !userProfile.name ||
-                userProfile.name === "User" || userProfile.name === "Qred User";
+              if (token && authUser) {
+                const needsOnboarding = !userProfile || !userProfile.name ||
+                  userProfile.name === "User" || userProfile.name === "Qred User";
 
-              set({
-                token,
-                user: userProfile,
-                authUser,
-                isAuthenticated: true,
-                isLoading: false,
-                error: null,
-                needsOnboarding,
-              });
-              return true;
+                set({
+                  token,
+                  user: userProfile, // Can be null if profile doesn't exist
+                  authUser,
+                  isAuthenticated: true,
+                  isLoading: false,
+                  error: null,
+                  needsOnboarding,
+                });
+                return true;
+              }
+            } catch (profileError) {
+              console.error("Error during auth status check:", profileError);
+              // Continue to sign out logic below
             }
           }
 

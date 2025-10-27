@@ -1,10 +1,9 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { User } from "@supabase/supabase-js";
 import { UserInsert, UserRow } from "../types/database";
+import { profileService } from "./profileService";
 import {
-    createUserProfile,
     getCurrentUser,
-    getUserProfile,
     supabase,
 } from "./supabase";
 
@@ -104,8 +103,9 @@ class AuthService {
 
       if (data.user) {
         // Check if user profile exists
-        try {
-          await getUserProfile(data.user.id);
+        const profile = await profileService.getProfile(data.user.id);
+
+        if (profile && profileService.isProfileComplete(profile)) {
           // Profile exists, user is fully registered
           return {
             message: "Google sign-in successful",
@@ -115,7 +115,7 @@ class AuthService {
               data.user.user_metadata?.name ||
               "",
           };
-        } catch (profileError) {
+        } else {
           // Profile doesn't exist, needs phone verification
           return {
             message: "Google account linked, phone verification required",
@@ -182,28 +182,22 @@ class AuthService {
         throw new Error("Verification failed");
       }
 
-      // Check if user profile exists, create if not
-      let userProfile: UserRow;
-      try {
-        userProfile = await getUserProfile(data.user.id);
-      } catch (profileError) {
-        // Create user profile
-        const profileData: UserInsert = {
-          id: data.user.id,
-          name:
-            request.googleProfile?.name ||
-            data.user.user_metadata?.name ||
-            "Qred User",
-          email: request.googleProfile?.email || data.user.email || null,
-          phoneNumber: formattedPhone,
-          avatarUrl:
-            request.googleProfile?.avatar_url ||
-            data.user.user_metadata?.avatar_url ||
-            null,
-        };
+      // Ensure user profile exists
+      const profileData: UserInsert = {
+        id: data.user.id,
+        name:
+          request.googleProfile?.name ||
+          data.user.user_metadata?.name ||
+          "Qred User",
+        email: request.googleProfile?.email || data.user.email || null,
+        phoneNumber: formattedPhone,
+        avatarUrl:
+          request.googleProfile?.avatar_url ||
+          data.user.user_metadata?.avatar_url ||
+          null,
+      };
 
-        userProfile = await createUserProfile(profileData);
-      }
+      const userProfile = await profileService.createOrUpdateProfile(profileData);
 
       return {
         user: data.user,
@@ -247,10 +241,7 @@ class AuthService {
   // Get stored user profile
   async getStoredUser(): Promise<UserRow | null> {
     try {
-      const authUser = await getCurrentUser();
-      if (!authUser) return null;
-
-      return await getUserProfile(authUser.id);
+      return await profileService.ensureCurrentUserProfile();
     } catch (error) {
       console.error("Qred Auth: Get stored user error:", error);
       return null;
@@ -265,16 +256,7 @@ class AuthService {
         throw new Error("No authenticated user found");
       }
 
-      const { data, error } = await supabase
-        .from("User")
-        .update(updates)
-        .eq("id", user.id)
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      return data;
+      return await profileService.updateProfile(user.id, updates);
     } catch (error: any) {
       console.error("Qred Auth: Update profile error:", error);
       throw new Error(error.message || "Profile update failed");
@@ -392,7 +374,7 @@ class AuthService {
         const requiresConfirmation = !data.session;
 
         if (data.session) {
-          // User is immediately signed in, create profile
+          // User is immediately signed in, ensure profile exists
           const profileData: UserInsert = {
             id: data.user.id,
             name,
@@ -401,7 +383,7 @@ class AuthService {
             avatarUrl: null,
           };
 
-          await createUserProfile(profileData);
+          await profileService.createOrUpdateProfile(profileData);
         }
 
         return {
@@ -443,25 +425,19 @@ class AuthService {
         throw new Error("Sign in failed");
       }
 
-      // Check if user profile exists, create if not
-      let userProfile: UserRow;
-      try {
-        userProfile = await getUserProfile(data.user.id);
-      } catch (profileError) {
-        // Create user profile if it doesn't exist
-        const profileData: UserInsert = {
-          id: data.user.id,
-          name:
-            data.user.user_metadata?.name ||
-            data.user.email?.split("@")[0] ||
-            "User",
-          email: data.user.email || email,
-          phoneNumber: data.user.user_metadata?.phone_number || null,
-          avatarUrl: data.user.user_metadata?.avatar_url || null,
-        };
+      // Ensure user profile exists
+      const profileData: UserInsert = {
+        id: data.user.id,
+        name:
+          data.user.user_metadata?.name ||
+          data.user.email?.split("@")[0] ||
+          "User",
+        email: data.user.email || email,
+        phoneNumber: data.user.user_metadata?.phone_number || null,
+        avatarUrl: data.user.user_metadata?.avatar_url || null,
+      };
 
-        userProfile = await createUserProfile(profileData);
-      }
+      const userProfile = await profileService.createOrUpdateProfile(profileData);
 
       return {
         user: data.user,
@@ -523,12 +499,7 @@ class AuthService {
 
   // Check if user profile is complete
   isProfileComplete(user: UserRow | null): boolean {
-    if (!user) return false;
-
-    // Check if essential profile fields are completed
-    const hasName = user.name && user.name.trim() !== "" && user.name !== "User" && user.name !== "Qred User";
-
-    return !!hasName;
+    return profileService.isProfileComplete(user);
   }
 
   // Check if current user needs onboarding

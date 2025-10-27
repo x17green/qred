@@ -30,7 +30,7 @@ export interface Debt {
   lenderId: string;
   lender: User;
   debtorId: string | null;
-  debtor?: User | null;
+  debtor?: User | undefined;
   debtorPhoneNumber: string;
   debtorName: string | null;
 

@@ -1,8 +1,8 @@
-import "react-native-url-polyfill/auto";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createClient } from "@supabase/supabase-js";
-import { Database } from "../types/database";
 import { Platform } from "react-native";
+import "react-native-url-polyfill/auto";
+import { Database } from "../types/database";
 
 // Supabase configuration
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL!;
@@ -82,13 +82,14 @@ export const getUserProfile = async (userId?: string) => {
     .from("User")
     .select("*")
     .eq("id", targetUserId)
-    .single();
+    .maybeSingle();
 
   if (error) {
     console.error("Error fetching user profile:", error);
     throw error;
   }
 
+  // Return null if no profile found (instead of throwing error)
   return data;
 };
 
@@ -117,22 +118,63 @@ export const updateUserProfile = async (
   return data;
 };
 
-// Helper function to create user profile (called after auth)
+// Helper function to create or update user profile (handles duplicates gracefully)
 export const createUserProfile = async (
   profileData: Database["public"]["Tables"]["User"]["Insert"],
 ) => {
-  const { data, error } = await supabase
-    .from("User")
-    .insert(profileData)
-    .select()
-    .single();
+  try {
+    // First, try to get existing profile
+    const existingProfile = await getUserProfile(profileData.id);
 
-  if (error) {
-    console.error("Error creating user profile:", error);
+    if (existingProfile) {
+      // Profile exists, update it
+      console.log("Profile exists, updating...");
+      const { data, error } = await supabase
+        .from("User")
+        .update({
+          name: profileData.name,
+          email: profileData.email,
+          phoneNumber: profileData.phoneNumber,
+          avatarUrl: profileData.avatarUrl,
+        })
+        .eq("id", profileData.id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error("Error updating user profile:", error);
+        throw error;
+      }
+
+      return data;
+    } else {
+      // Profile doesn't exist, create it
+      console.log("Profile doesn't exist, creating...");
+      const { data, error } = await supabase
+        .from("User")
+        .insert(profileData)
+        .select()
+        .single();
+
+      if (error) {
+        // Handle duplicate key error (race condition)
+        if (error.code === "23505") {
+          console.log("Duplicate key detected during creation, fetching existing profile...");
+          const existingProfile = await getUserProfile(profileData.id);
+          if (existingProfile) {
+            return existingProfile;
+          }
+        }
+        console.error("Error creating user profile:", error);
+        throw error;
+      }
+
+      return data;
+    }
+  } catch (error) {
+    console.error("Error in createUserProfile:", error);
     throw error;
   }
-
-  return data;
 };
 
 // Real-time subscription helpers

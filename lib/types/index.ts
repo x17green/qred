@@ -4,7 +4,7 @@ export interface User {
   email: string | null;
   name: string;
   phoneNumber: string | null;
-  avatarUrl?: string | null;
+  avatarUrl: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -21,21 +21,22 @@ export interface Debt {
   outstandingBalance: number;
   dueDate: string;
   status: DebtStatus;
-  notes?: string | null;
+  notes: string | null;
   createdAt: string;
   updatedAt: string;
-  paidAt?: string | null;
+  paidAt: string | null;
 
   // Relationships
   lenderId: string;
   lender: User;
-  debtorId?: string | null;
+  debtorId: string | null;
   debtor?: User | null;
   debtorPhoneNumber: string;
+  debtorName: string | null;
 
   // External debt fields
   isExternal: boolean;
-  externalLenderName?: string | null;
+  externalLenderName: string | null;
 
   // Related data
   payments?: Payment[];
@@ -56,6 +57,7 @@ export interface Payment {
   paidAt: string;
   createdAt: string;
   updatedAt: string;
+  recordedBy: string | null;
 }
 
 // Notification types
@@ -113,6 +115,7 @@ export interface VerifyOTPRequest {
 
 export interface CreateDebtRequest {
   debtorPhoneNumber: string;
+  debtorName?: string;
   principal: number;
   interestRate: number;
   dueDate: string;
@@ -170,6 +173,9 @@ export type DebtStackParamList = {
   };
   AddDebt: undefined;
   EditDebt: {
+    debtId: string;
+  };
+  RecordPayment: {
     debtId: string;
   };
 };
@@ -251,6 +257,7 @@ export interface EmptyStateProps {
 // Form types
 export interface CreateDebtForm {
   debtorPhoneNumber: string;
+  debtorName: string;
   principal: string;
   interestRate: string;
   dueDate: Date;

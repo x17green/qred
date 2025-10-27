@@ -87,6 +87,7 @@ export default function DebtsListScreen({ navigation, route }: DebtsListScreenPr
     const query = searchQuery.toLowerCase();
     return debts.filter(debt => {
       const debtorName = debt.debtor?.name?.toLowerCase() || "";
+      const customDebtorName = debt.debtorName?.toLowerCase() || "";
       const lenderName = debt.lender?.name?.toLowerCase() || "";
       const phone = debt.debtorPhoneNumber.toLowerCase();
       const notes = debt.notes?.toLowerCase() || "";
@@ -94,6 +95,7 @@ export default function DebtsListScreen({ navigation, route }: DebtsListScreenPr
 
       return (
         debtorName.includes(query) ||
+        customDebtorName.includes(query) ||
         lenderName.includes(query) ||
         phone.includes(query) ||
         notes.includes(query) ||
@@ -311,6 +313,10 @@ const DebtCard = React.memo(
 
     const getPersonName = () => {
       if (isLender) {
+        // Prioritize custom debtor name, then registered user name, then phone
+        if (debt.debtorName && debt.debtorName.trim()) {
+          return debt.debtorName;
+        }
         return debt.debtor?.name || debt.debtorPhoneNumber;
       } else {
         return debt.externalLenderName || debt.lender?.name || "Unknown";
@@ -319,6 +325,9 @@ const DebtCard = React.memo(
 
     const getPersonSubtitle = () => {
       if (isLender) {
+        if (debt.debtorName && debt.debtorName.trim()) {
+          return debt.debtorPhoneNumber;
+        }
         return debt.debtor ? "Registered User" : debt.debtorPhoneNumber;
       } else {
         return debt.isExternal ? "External Lender" : "Qred User";

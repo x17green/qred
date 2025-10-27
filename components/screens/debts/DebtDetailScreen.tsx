@@ -7,6 +7,7 @@ import { VStack } from "@/components/ui/vstack";
 import { debtService } from "@/lib/services/debtService";
 import { useAuth } from "@/lib/store/authStore";
 import { useDebtActions, useDebts } from "@/lib/store/debtStore";
+import { PaymentRow } from "@/lib/types/database";
 import { Ionicons } from "@expo/vector-icons";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Alert, Linking, RefreshControl, ScrollView } from "react-native";
@@ -34,10 +35,14 @@ export default function DebtDetailScreen({ navigation, route }: DebtDetailScreen
 
   const [refreshing, setRefreshing] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [paymentHistory, setPaymentHistory] = useState<PaymentRow[]>([]);
 
   const loadDebtDetails = useCallback(async () => {
     try {
       await fetchDebtById(debtId);
+      // Load payment history
+      const payments = await debtService.getPaymentHistory(debtId);
+      setPaymentHistory(payments);
     } catch (error) {
       Alert.alert(
         "Error",
@@ -223,6 +228,10 @@ export default function DebtDetailScreen({ navigation, route }: DebtDetailScreen
     Linking.openURL(`tel:${phoneNumber}`);
   }, [currentDebt]);
 
+  const handleRecordPayment = useCallback(() => {
+    navigation.navigate("RecordPayment", { debtId });
+  }, [navigation, debtId]);
+
   if (isLoading && !currentDebt) {
     return (
       <Box className="flex-1 bg-background-0 items-center justify-center">
@@ -253,7 +262,7 @@ export default function DebtDetailScreen({ navigation, route }: DebtDetailScreen
 
   const getPersonName = () => {
     if (isLender) {
-      return currentDebt.debtor?.name || currentDebt.debtorPhoneNumber;
+      return debtService.getDebtorDisplayName(currentDebt);
     } else {
       return currentDebt.externalLenderName || currentDebt.lender?.name || "Unknown";
     }
@@ -261,6 +270,9 @@ export default function DebtDetailScreen({ navigation, route }: DebtDetailScreen
 
   const getPersonSubtitle = () => {
     if (isLender) {
+      if (currentDebt.debtorName && currentDebt.debtorName.trim()) {
+        return currentDebt.debtorPhoneNumber;
+      }
       return currentDebt.debtor ? "Registered User" : currentDebt.debtorPhoneNumber;
     } else {
       return currentDebt.isExternal ? "External Lender" : "Qred User";
@@ -442,6 +454,26 @@ export default function DebtDetailScreen({ navigation, route }: DebtDetailScreen
                 </VStack>
               )}
 
+              {/* Payment History */}
+              {paymentHistory.length > 0 && (
+                <VStack space="sm">
+                  <Text size="md" className="font-medium text-typography-700">
+                    Payment History
+                  </Text>
+                  <Box className="bg-background-50 rounded-lg border border-background-200">
+                    <VStack>
+                      {paymentHistory.map((payment, index) => (
+                        <PaymentHistoryRow
+                          key={payment.id}
+                          payment={payment}
+                          isLast={index === paymentHistory.length - 1}
+                        />
+                      ))}
+                    </VStack>
+                  </Box>
+                </VStack>
+              )}
+
               {/* Timestamps */}
               <Box className="bg-background-50 rounded-lg border border-background-200">
                 <VStack>
@@ -490,29 +522,42 @@ export default function DebtDetailScreen({ navigation, route }: DebtDetailScreen
                 {isLender && (
                   <VStack space="md">
                     <Button
-                      variant="outline"
                       size="lg"
-                      className="w-full border-primary-600"
-                      onPress={handlePaymentReminder}
-                      isDisabled={actionLoading === "reminder"}
+                      className="w-full bg-primary-600"
+                      onPress={handleRecordPayment}
                     >
-                      <Ionicons name="notifications" size={20} color="#4F46E5" />
-                      <ButtonText className="ml-2 text-primary-600 font-semibold">
-                        {actionLoading === "reminder" ? "Sending..." : "Send Reminder"}
+                      <Ionicons name="add-circle" size={20} color="white" />
+                      <ButtonText className="ml-2 text-white font-semibold">
+                        Record Payment
                       </ButtonText>
                     </Button>
 
-                    <Button
-                      size="lg"
-                      className="w-full bg-success-600"
-                      onPress={handleMarkAsPaid}
-                      isDisabled={actionLoading === "markPaid"}
-                    >
-                      <Ionicons name="checkmark-circle" size={20} color="white" />
-                      <ButtonText className="ml-2 text-white font-semibold">
-                        {actionLoading === "markPaid" ? "Processing..." : "Mark as Paid"}
-                      </ButtonText>
-                    </Button>
+                    <HStack space="md">
+                      <Button
+                        variant="outline"
+                        size="lg"
+                        className="flex-1 border-primary-600"
+                        onPress={handlePaymentReminder}
+                        isDisabled={actionLoading === "reminder"}
+                      >
+                        <Ionicons name="notifications" size={18} color="#4F46E5" />
+                        <ButtonText className="ml-1 text-primary-600 font-medium text-sm">
+                          {actionLoading === "reminder" ? "Sending..." : "Remind"}
+                        </ButtonText>
+                      </Button>
+
+                      <Button
+                        size="lg"
+                        className="flex-1 bg-success-600"
+                        onPress={handleMarkAsPaid}
+                        isDisabled={actionLoading === "markPaid"}
+                      >
+                        <Ionicons name="checkmark-circle" size={18} color="white" />
+                        <ButtonText className="ml-1 text-white font-medium text-sm">
+                          {actionLoading === "markPaid" ? "Processing..." : "Mark Paid"}
+                        </ButtonText>
+                      </Button>
+                    </HStack>
                   </VStack>
                 )}
 
@@ -561,6 +606,67 @@ export default function DebtDetailScreen({ navigation, route }: DebtDetailScreen
     </Box>
   );
 }
+
+// Payment History Row Component
+const PaymentHistoryRow = ({
+  payment,
+  isLast = false,
+}: {
+  payment: PaymentRow;
+  isLast?: boolean;
+}) => {
+  const getPaymentTypeIcon = () => {
+    if (payment.gateway === "manual") {
+      return "person"; // Manual entry by lender
+    }
+    return "card"; // Online payment
+  };
+
+  const getPaymentTypeText = () => {
+    if (payment.gateway === "manual") {
+      return "Manual Entry";
+    }
+    return "Online Payment";
+  };
+
+  const statusColor = payment.status === "SUCCESSFUL" ? "#10B981" :
+                     payment.status === "FAILED" ? "#EF4444" : "#F59E0B";
+
+  return (
+    <Box className={`px-4 py-3 ${!isLast ? "border-b border-background-300" : ""}`}>
+      <VStack space="sm">
+        <HStack className="items-center justify-between">
+          <HStack className="items-center">
+            <Ionicons
+              name={getPaymentTypeIcon() as any}
+              size={16}
+              color="#6B7280"
+            />
+            <Text size="sm" className="text-typography-700 ml-2 font-medium">
+              {debtService.formatCurrency(payment.amount)}
+            </Text>
+          </HStack>
+          <Box
+            className="px-2 py-1 rounded"
+            style={{ backgroundColor: statusColor + "20" }}
+          >
+            <Text size="xs" style={{ color: statusColor }}>
+              {payment.status}
+            </Text>
+          </Box>
+        </HStack>
+        <HStack className="items-center justify-between">
+          <Text size="xs" className="text-typography-500">
+            {getPaymentTypeText()} • {new Date(payment.paidAt).toLocaleDateString()}
+          </Text>
+          <Text size="xs" className="text-typography-400">
+            {payment.reference}
+          </Text>
+        </HStack>
+      </VStack>
+    </Box>
+  );
+};
 
 // Detail Row Component
 const DetailRow = ({

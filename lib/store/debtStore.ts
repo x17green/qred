@@ -1,17 +1,16 @@
-import React from "react";
+import { debtService } from "@/lib/services/debtService";
+import { DebtRow, DebtWithRelations } from "@/lib/types/database";
+import {
+    CreateDebtRequest,
+    Debt,
+    DebtActions,
+    DebtState,
+    Payment,
+} from "@/types";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { useShallow } from "zustand/react/shallow";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import {
-  Debt,
-  DebtState,
-  DebtActions,
-  CreateDebtRequest,
-  Payment,
-} from "@/types";
-import { DebtWithRelations, DebtRow } from "@/lib/types/database";
-import { debtService } from "@/lib/services/debtService";
 
 interface DebtStore extends DebtState, DebtActions {
   // Additional debt actions
@@ -26,6 +25,7 @@ interface DebtStore extends DebtState, DebtActions {
   updateDebtDetails: (debtId: string, data: Partial<Debt>) => Promise<DebtRow>;
   markDebtAsPaid: (debtId: string) => Promise<DebtRow>;
   deleteDebt: (debtId: string) => Promise<void>;
+  recordPayment: (debtId: string, amount: number, notes?: string) => Promise<Payment>;
   initializePayment: (
     debtId: string,
     amount: number,
@@ -423,6 +423,43 @@ export const useDebtStore = create<DebtStore>()(
         }
       },
 
+      recordPayment: async (debtId: string, amount: number, notes?: string) => {
+        try {
+          set({ isLoading: true, error: null });
+
+          const payment = await debtService.recordPayment(debtId, amount, notes);
+
+          // Refresh the debt data after recording payment
+          const updatedDebt = await debtService.getDebtById(debtId);
+
+          const { lendingDebts, owingDebts, currentDebt } = get();
+
+          const newLendingDebts = lendingDebts.map((debt) =>
+            debt.id === debtId ? updatedDebt : debt,
+          );
+
+          const newOwingDebts = owingDebts.map((debt) =>
+            debt.id === debtId ? updatedDebt : debt,
+          );
+
+          set({
+            lendingDebts: newLendingDebts as any,
+            owingDebts: newOwingDebts as any,
+            currentDebt:
+              currentDebt?.id === debtId ? (updatedDebt as any) : currentDebt,
+            isLoading: false,
+            error: null,
+          });
+
+          return payment;
+        } catch (error) {
+          const errorMessage =
+            error instanceof Error ? error.message : "Failed to record payment";
+          set({ error: errorMessage, isLoading: false });
+          throw error;
+        }
+      },
+
       clearError: () => {
         set({ error: null });
       },
@@ -497,6 +534,7 @@ export const useDebtActions = () =>
       initializePayment: state.initializePayment,
       verifyPayment: state.verifyPayment,
       sendPaymentReminder: state.sendPaymentReminder,
+      recordPayment: state.recordPayment,
       setLoading: state.setLoading,
       setError: state.setError,
       clearError: state.clearError,

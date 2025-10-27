@@ -17,6 +17,7 @@ interface AddDebtScreenProps {
 }
 
 interface DebtFormData {
+  debtorName: string;
   debtorPhoneNumber: string;
   principal: string;
   interestRate: string;
@@ -31,6 +32,7 @@ export default function AddDebtScreen({ navigation }: AddDebtScreenProps) {
 
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState<DebtFormData>({
+    debtorName: "",
     debtorPhoneNumber: "",
     principal: "",
     interestRate: "0",
@@ -43,6 +45,13 @@ export default function AddDebtScreen({ navigation }: AddDebtScreenProps) {
 
   const validateForm = (): boolean => {
     const newErrors: { [key: string]: string } = {};
+
+    // Validate debtor name
+    if (!formData.debtorName.trim()) {
+      newErrors.debtorName = "Debtor name is required";
+    } else if (formData.debtorName.trim().length < 2) {
+      newErrors.debtorName = "Name must be at least 2 characters";
+    }
 
     // Validate phone number
     if (!formData.debtorPhoneNumber.trim()) {
@@ -110,6 +119,7 @@ export default function AddDebtScreen({ navigation }: AddDebtScreenProps) {
         notes: formData.notes.trim() || undefined,
         isExternal: formData.isExternal,
         externalLenderName: formData.isExternal ? formData.externalLenderName.trim() : undefined,
+        debtorName: formData.debtorName.trim(),
       };
 
       const newDebt = await createDebt(createRequest);
@@ -129,6 +139,7 @@ export default function AddDebtScreen({ navigation }: AddDebtScreenProps) {
             onPress: () => {
               // Reset form
               setFormData({
+                debtorName: "",
                 debtorPhoneNumber: "",
                 principal: "",
                 interestRate: "0",
@@ -346,33 +357,69 @@ export default function AddDebtScreen({ navigation }: AddDebtScreenProps) {
               </VStack>
             )}
 
-            {/* Debtor Phone Number */}
-            <VStack space="sm">
-              <Text size="md" className="font-medium text-typography-700">
-                Debtor Phone Number *
+            {/* Debtor Information */}
+            <VStack space="lg">
+              <Text size="md" className="font-semibold text-typography-900">
+                Debtor Information
               </Text>
-              <Input
-                variant="outline"
-                size="lg"
-                isInvalid={!!errors.debtorPhoneNumber}
-                className="border-background-300"
-              >
-                <InputField
-                  placeholder="+234 801 234 5678"
-                  value={formData.debtorPhoneNumber}
-                  onChangeText={(text) => updateField("debtorPhoneNumber", text)}
-                  keyboardType="phone-pad"
-                  className="text-typography-900"
-                />
-              </Input>
-              {errors.debtorPhoneNumber && (
-                <Text size="sm" className="text-error-600">
-                  {errors.debtorPhoneNumber}
+
+              {/* Debtor Name */}
+              <VStack space="sm">
+                <Text size="md" className="font-medium text-typography-700">
+                  Debtor Name *
                 </Text>
-              )}
-              <Text size="sm" className="text-typography-500">
-                Phone number of the person who owes this money
-              </Text>
+                <Input
+                  variant="outline"
+                  size="lg"
+                  isInvalid={!!errors.debtorName}
+                  className="border-background-300"
+                >
+                  <InputField
+                    placeholder="Enter debtor's full name"
+                    value={formData.debtorName}
+                    onChangeText={(text) => updateField("debtorName", text)}
+                    className="text-typography-900"
+                    autoCapitalize="words"
+                  />
+                </Input>
+                {errors.debtorName && (
+                  <Text size="sm" className="text-error-600">
+                    {errors.debtorName}
+                  </Text>
+                )}
+                <Text size="sm" className="text-typography-500">
+                  Full name of the person who owes this money
+                </Text>
+              </VStack>
+
+              {/* Debtor Phone Number */}
+              <VStack space="sm">
+                <Text size="md" className="font-medium text-typography-700">
+                  Phone Number *
+                </Text>
+                <Input
+                  variant="outline"
+                  size="lg"
+                  isInvalid={!!errors.debtorPhoneNumber}
+                  className="border-background-300"
+                >
+                  <InputField
+                    placeholder="+234 801 234 5678"
+                    value={formData.debtorPhoneNumber}
+                    onChangeText={(text) => updateField("debtorPhoneNumber", text)}
+                    keyboardType="phone-pad"
+                    className="text-typography-900"
+                  />
+                </Input>
+                {errors.debtorPhoneNumber && (
+                  <Text size="sm" className="text-error-600">
+                    {errors.debtorPhoneNumber}
+                  </Text>
+                )}
+                <Text size="sm" className="text-typography-500">
+                  Contact number for {formData.debtorName || "the debtor"}
+                </Text>
+              </VStack>
             </VStack>
 
             {/* Amount Details */}

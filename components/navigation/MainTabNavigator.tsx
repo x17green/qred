@@ -3,6 +3,7 @@ import AddDebtScreen from '@/components/screens/debts/AddDebtScreen';
 import DebtDetailScreen from '@/components/screens/debts/DebtDetailScreen';
 import DebtsListScreen from '@/components/screens/debts/DebtsListScreen';
 import EditDebtScreen from '@/components/screens/debts/EditDebtScreen';
+import RecordPaymentScreen from '@/components/screens/debts/RecordPaymentScreen';
 import ProfileScreen from '@/components/screens/profile/ProfileScreen';
 import { COLORS } from '@/lib/constants';
 import { DebtStackParamList, MainTabParamList } from '@/lib/types';
@@ -37,6 +38,10 @@ function DebtStackNavigator() {
       <DebtStack.Screen
         name="EditDebt"
         component={EditDebtScreen}
+      />
+      <DebtStack.Screen
+        name="RecordPayment"
+        component={RecordPaymentScreen}
       />
     </DebtStack.Navigator>
   );

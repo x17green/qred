@@ -141,6 +141,7 @@ export interface InitializePaymentResponse {
 export type RootStackParamList = {
   Auth: undefined;
   Main: undefined;
+  Onboarding: undefined;
 };
 
 export type AuthStackParamList = {
@@ -151,6 +152,7 @@ export type AuthStackParamList = {
     email?: string | null;
     name?: string;
   };
+  Onboarding: undefined;
   Test: undefined;
   Debug: undefined;
 };

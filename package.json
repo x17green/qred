@@ -21,6 +21,8 @@
     "test:coverage": "jest --coverage",
     "test:supabase": "npx tsx scripts/test-supabase-connection.ts",
     "test:email-auth": "npx tsx scripts/test-email-auth-simple.ts",
+    "test:onboarding": "npx tsx scripts/test-onboarding.ts",
+    "init:storage": "npx tsx scripts/init-storage.ts",
     "prepare": "husky install"
   },
   "dependencies": {

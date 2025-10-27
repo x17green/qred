@@ -1,12 +1,12 @@
-import {
-  supabase,
-  getCurrentUser,
-  createUserProfile,
-  getUserProfile,
-} from "./supabase";
-import { AuthUser, UserInsert, UserRow } from "../types/database";
-import { User } from "@supabase/supabase-js";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { User } from "@supabase/supabase-js";
+import { UserInsert, UserRow } from "../types/database";
+import {
+    createUserProfile,
+    getCurrentUser,
+    getUserProfile,
+    supabase,
+} from "./supabase";
 
 export interface AuthResponse {
   user: User;
@@ -518,6 +518,27 @@ class AuthService {
     } catch (error: any) {
       console.error("Qred Auth: Delete account error:", error);
       throw new Error(error.message || "Account deletion failed");
+    }
+  }
+
+  // Check if user profile is complete
+  isProfileComplete(user: UserRow | null): boolean {
+    if (!user) return false;
+
+    // Check if essential profile fields are completed
+    const hasName = user.name && user.name.trim() !== "" && user.name !== "User" && user.name !== "Qred User";
+
+    return !!hasName;
+  }
+
+  // Check if current user needs onboarding
+  async needsOnboarding(): Promise<boolean> {
+    try {
+      const userProfile = await this.getStoredUser();
+      return !this.isProfileComplete(userProfile);
+    } catch (error) {
+      console.error("Qred Auth: Needs onboarding check error:", error);
+      return true; // If we can't check, assume onboarding is needed
     }
   }
 

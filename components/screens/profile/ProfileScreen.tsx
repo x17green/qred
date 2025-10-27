@@ -1,14 +1,19 @@
-import React, { useState, useEffect } from "react";
+import * as ImagePicker from "expo-image-picker";
+import React, { useEffect, useState } from "react";
 import { Alert, ScrollView } from "react-native";
 
 import { Box } from "@/components/ui/box";
-import { VStack } from "@/components/ui/vstack";
-import { HStack } from "@/components/ui/hstack";
-import { Text } from "@/components/ui/text";
 import { Button, ButtonText } from "@/components/ui/button";
+import { HStack } from "@/components/ui/hstack";
+import { Image } from "@/components/ui/image";
 import { Input, InputField } from "@/components/ui/input";
-import { useAuth, useAuthActions } from "@/lib/store/authStore";
+import { Pressable } from "@/components/ui/pressable";
+import { Text } from "@/components/ui/text";
+import { VStack } from "@/components/ui/vstack";
 import { authService } from "@/lib/services/authService";
+import { storageService } from "@/lib/services/storageService";
+import { useAuth, useAuthActions } from "@/lib/store/authStore";
+import { Ionicons } from "@expo/vector-icons";
 
 interface ProfileScreenProps {
   navigation: any;
@@ -21,10 +26,12 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
   // Edit mode state
   const [isEditing, setIsEditing] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [editData, setEditData] = useState({
     name: "",
     email: "",
     phoneNumber: "",
+    avatarUri: null as string | null,
   });
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
@@ -35,6 +42,7 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
         name: user.name || "",
         email: user.email || "",
         phoneNumber: user.phoneNumber || "",
+        avatarUri: null,
       });
     }
   }, [user]);
@@ -74,6 +82,28 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
     try {
       setIsUpdating(true);
 
+      let avatarUrl: string | null = user?.avatarUrl || null;
+
+      // Upload new avatar if selected
+      if (editData.avatarUri) {
+        setIsUploadingAvatar(true);
+        try {
+          const uploadResponse = await storageService.uploadAvatar({
+            userId: user!.id,
+            imageUri: editData.avatarUri,
+          });
+          avatarUrl = uploadResponse.publicUrl;
+        } catch (error) {
+          console.error("Avatar upload error:", error);
+          Alert.alert(
+            "Upload Error",
+            "Failed to upload profile picture. Your other changes will still be saved."
+          );
+        } finally {
+          setIsUploadingAvatar(false);
+        }
+      }
+
       const formattedPhone = editData.phoneNumber.trim()
         ? authService.formatPhoneNumber(editData.phoneNumber)
         : null;
@@ -82,6 +112,7 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
         name: editData.name.trim(),
         email: editData.email.trim(),
         phoneNumber: formattedPhone,
+        avatarUrl,
       });
 
       setIsEditing(false);
@@ -104,10 +135,93 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
         name: user.name || "",
         email: user.email || "",
         phoneNumber: user.phoneNumber || "",
+        avatarUri: null,
       });
     }
     setErrors({});
     setIsEditing(false);
+  };
+
+  const selectImage = async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets[0]) {
+        const asset = result.assets[0];
+
+        // Validate file size (5MB limit)
+        if (asset.fileSize && asset.fileSize > 5 * 1024 * 1024) {
+          Alert.alert("Error", "Image size must be less than 5MB");
+          return;
+        }
+
+        setEditData(prev => ({ ...prev, avatarUri: asset.uri }));
+      }
+    } catch (error) {
+      Alert.alert("Error", "Failed to select image. Please try again.");
+      console.error("Image selection error:", error);
+    }
+  };
+
+  const takePhoto = async () => {
+    try {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert(
+          "Permission Required",
+          "We need camera permissions to take a photo."
+        );
+        return;
+      }
+
+      const result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets[0]) {
+        const asset = result.assets[0];
+
+        // Validate file size (5MB limit)
+        if (asset.fileSize && asset.fileSize > 5 * 1024 * 1024) {
+          Alert.alert("Error", "Image size must be less than 5MB");
+          return;
+        }
+
+        setEditData(prev => ({ ...prev, avatarUri: asset.uri }));
+      }
+    } catch (error) {
+      Alert.alert("Error", "Failed to take photo. Please try again.");
+      console.error("Camera error:", error);
+    }
+  };
+
+  const showImagePicker = () => {
+    Alert.alert(
+      "Change Profile Picture",
+      "Choose how you'd like to update your profile picture",
+      [
+        {
+          text: "Camera",
+          onPress: takePhoto,
+        },
+        {
+          text: "Photo Library",
+          onPress: selectImage,
+        },
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+      ]
+    );
   };
 
   const handleSignOut = async () => {
@@ -141,11 +255,31 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
           <VStack space="xl">
             {/* Header */}
             <VStack space="md" className="items-center py-8">
-              <Box className="w-24 h-24 bg-primary-100 rounded-full items-center justify-center">
-                <Text size="2xl" className="font-bold text-primary-600">
-                  {user?.name?.charAt(0)?.toUpperCase() || "U"}
-                </Text>
-              </Box>
+              <Pressable onPress={isEditing ? showImagePicker : undefined}>
+                <Box className="w-24 h-24 rounded-full border-4 border-primary-200 overflow-hidden">
+                  {(editData.avatarUri || user?.avatarUrl) ? (
+                    <Image
+                      source={{ uri: editData.avatarUri || user?.avatarUrl || '' }}
+                      alt="Profile picture"
+                      style={{ width: '100%', height: '100%' }}
+                      resizeMode="cover"
+                    />
+                  ) : (
+                    <Box className="w-full h-full bg-primary-100 items-center justify-center">
+                      <Text size="2xl" className="font-bold text-primary-600">
+                        {user?.name?.charAt(0)?.toUpperCase() || "U"}
+                      </Text>
+                    </Box>
+                  )}
+
+                  {isEditing && (
+                    <Box className="absolute -bottom-2 -right-2 w-8 h-8 bg-primary-600 rounded-full items-center justify-center border-2 border-background-0">
+                      <Ionicons name="camera" size={16} color="white" />
+                    </Box>
+                  )}
+                </Box>
+              </Pressable>
+
               <VStack space="sm" className="items-center">
                 <Text size="xl" className="font-bold text-typography-900">
                   {user?.name || "User"}
@@ -270,7 +404,11 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
                     isDisabled={isUpdating}
                   >
                     <ButtonText className="text-white">
-                      {isUpdating ? "Saving..." : "Save Changes"}
+                      {isUpdating
+                        ? isUploadingAvatar
+                          ? "Uploading Picture..."
+                          : "Saving..."
+                        : "Save Changes"}
                     </ButtonText>
                   </Button>
                 </HStack>
@@ -283,7 +421,7 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
                 title="Edit Profile"
                 description="Update your personal information"
                 onPress={() => setIsEditing(true)}
-                disabled={isEditing}
+                disabled={isEditing || isUpdating}
               />
 
               <ProfileMenuItem
@@ -350,7 +488,7 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
                 size="lg"
                 className="w-full border-error-300"
                 onPress={handleSignOut}
-                isDisabled={isLoading || isUpdating}
+                isDisabled={isLoading || isUpdating || isUploadingAvatar}
               >
                 <ButtonText className="text-error-600 font-semibold">
                   {isLoading ? "Signing Out..." : "Sign Out"}

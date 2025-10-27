@@ -1,17 +1,17 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { User } from "@supabase/supabase-js";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { useShallow } from "zustand/react/shallow";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { User } from "@supabase/supabase-js";
-import { UserRow } from "../types/database";
 import {
-  authService,
-  AuthResponse,
-  EmailSignUpRequest,
-  EmailSignUpResponse,
-  EmailSignInRequest,
-  EmailSignInResponse,
+    AuthResponse,
+    authService,
+    EmailSignInRequest,
+    EmailSignInResponse,
+    EmailSignUpRequest,
+    EmailSignUpResponse,
 } from "../services/authService";
+import { UserRow } from "../types/database";
 
 interface AuthState {
   user: UserRow | null;
@@ -20,6 +20,7 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
+  needsOnboarding: boolean;
 }
 
 interface AuthActions {
@@ -29,6 +30,8 @@ interface AuthActions {
   signOut: () => Promise<void>;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
+  setNeedsOnboarding: (needsOnboarding: boolean) => void;
+  checkProfileCompletion: () => boolean;
 }
 
 interface AuthStore extends AuthState, AuthActions {
@@ -66,10 +69,12 @@ export const useAuthStore = create<AuthStore>()(
       isAuthenticated: false,
       isLoading: false,
       error: null,
+      needsOnboarding: false,
 
       // Actions
       setUser: (user: UserRow) => {
-        set({ user, isAuthenticated: true, error: null });
+        const needsOnboarding = !get().checkProfileCompletion();
+        set({ user, isAuthenticated: true, error: null, needsOnboarding });
       },
 
       setAuthUser: (user: User) => {
@@ -93,6 +98,7 @@ export const useAuthStore = create<AuthStore>()(
             isAuthenticated: false,
             isLoading: false,
             error: null,
+            needsOnboarding: false,
           });
         } catch (error) {
           const errorMessage =
@@ -108,6 +114,20 @@ export const useAuthStore = create<AuthStore>()(
 
       setError: (error: string | null) => {
         set({ error });
+      },
+
+      setNeedsOnboarding: (needsOnboarding: boolean) => {
+        set({ needsOnboarding });
+      },
+
+      checkProfileCompletion: () => {
+        const { user } = get();
+        if (!user) return false;
+
+        // Check if essential profile fields are completed
+        const hasName = user.name && user.name.trim() !== "" && user.name !== "User" && user.name !== "Qred User";
+
+        return !!hasName;
       },
 
       // Additional auth actions
@@ -128,6 +148,9 @@ export const useAuthStore = create<AuthStore>()(
           // Get user profile after successful auth
           const userProfile = await authService.getStoredUser();
 
+          const needsOnboarding = !userProfile || !userProfile.name ||
+            userProfile.name === "User" || userProfile.name === "Qred User";
+
           set({
             user: userProfile,
             authUser: response.user,
@@ -135,6 +158,7 @@ export const useAuthStore = create<AuthStore>()(
             isAuthenticated: true,
             isLoading: false,
             error: null,
+            needsOnboarding,
           });
 
           return response;
@@ -198,6 +222,9 @@ export const useAuthStore = create<AuthStore>()(
             const userProfile = await authService.getStoredUser();
             const token = await authService.getAuthToken();
 
+            const needsOnboarding = !userProfile || !userProfile.name ||
+              userProfile.name === "User" || userProfile.name === "Qred User";
+
             set({
               user: userProfile,
               authUser: response.user,
@@ -205,6 +232,7 @@ export const useAuthStore = create<AuthStore>()(
               isAuthenticated: true,
               isLoading: false,
               error: null,
+              needsOnboarding,
             });
           } else {
             set({ isLoading: false });
@@ -228,6 +256,9 @@ export const useAuthStore = create<AuthStore>()(
           // Get user profile after successful auth
           const userProfile = await authService.getStoredUser();
 
+          const needsOnboarding = !userProfile || !userProfile.name ||
+            userProfile.name === "User" || userProfile.name === "Qred User";
+
           set({
             user: userProfile,
             authUser: response.user,
@@ -235,6 +266,7 @@ export const useAuthStore = create<AuthStore>()(
             isAuthenticated: true,
             isLoading: false,
             error: null,
+            needsOnboarding,
           });
 
           return response;
@@ -256,10 +288,13 @@ export const useAuthStore = create<AuthStore>()(
 
           const updatedUser = await authService.updateProfile(data);
 
+          const needsOnboarding = !get().checkProfileCompletion();
+
           set({
             user: updatedUser,
             isLoading: false,
             error: null,
+            needsOnboarding,
           });
 
           return updatedUser;
@@ -308,6 +343,9 @@ export const useAuthStore = create<AuthStore>()(
             ]);
 
             if (token && userProfile && authUser) {
+              const needsOnboarding = !userProfile || !userProfile.name ||
+                userProfile.name === "User" || userProfile.name === "Qred User";
+
               set({
                 token,
                 user: userProfile,
@@ -315,6 +353,7 @@ export const useAuthStore = create<AuthStore>()(
                 isAuthenticated: true,
                 isLoading: false,
                 error: null,
+                needsOnboarding,
               });
               return true;
             }
@@ -327,6 +366,7 @@ export const useAuthStore = create<AuthStore>()(
             isAuthenticated: false,
             isLoading: false,
             error: null,
+            needsOnboarding: false,
           });
 
           return false;
@@ -356,6 +396,7 @@ export const useAuthStore = create<AuthStore>()(
           isAuthenticated: false,
           isLoading: false,
           error: null,
+          needsOnboarding: false,
         });
       },
     }),
@@ -367,6 +408,7 @@ export const useAuthStore = create<AuthStore>()(
         authUser: state.authUser,
         token: state.token,
         isAuthenticated: state.isAuthenticated,
+        needsOnboarding: state.needsOnboarding,
       }),
     },
   ),
@@ -382,6 +424,7 @@ export const useAuth = () =>
       isAuthenticated: state.isAuthenticated,
       isLoading: state.isLoading,
       error: state.error,
+      needsOnboarding: state.needsOnboarding,
     })),
   );
 
@@ -404,6 +447,8 @@ export const useAuthActions = () =>
       setError: state.setError,
       clearError: state.clearError,
       reset: state.reset,
+      setNeedsOnboarding: state.setNeedsOnboarding,
+      checkProfileCompletion: state.checkProfileCompletion,
     })),
   );
 

@@ -23,6 +23,7 @@
     "test:email-auth": "npx tsx scripts/test-email-auth-simple.ts",
     "test:onboarding": "npx tsx scripts/test-onboarding.ts",
     "init:storage": "npx tsx scripts/init-storage.ts",
+    "test:debt-management": "npx tsx scripts/test-debt-management.ts",
     "prepare": "husky install"
   },
   "dependencies": {

@@ -1,18 +1,18 @@
-import { supabase, handleSupabaseError, getCurrentUser } from "./supabase";
 import * as Crypto from "expo-crypto";
 import {
-  DebtRow,
-  DebtInsert,
-  DebtUpdate,
-  DebtWithRelations,
-  PaymentRow,
-  PaymentInsert,
-  CreateDebtRequest,
-  UpdateDebtStatusRequest,
-  InitializePaymentRequest,
-  InitializePaymentResponse,
-  DebtSummary,
+    CreateDebtRequest,
+    DebtInsert,
+    DebtRow,
+    DebtSummary,
+    DebtUpdate,
+    DebtWithRelations,
+    InitializePaymentRequest,
+    InitializePaymentResponse,
+    PaymentInsert,
+    PaymentRow,
+    UpdateDebtStatusRequest,
 } from "../types/database";
+import { getCurrentUser, handleSupabaseError, supabase } from "./supabase";
 
 class DebtService {
   private static instance: DebtService;
@@ -160,6 +160,7 @@ class DebtService {
         lenderId: user.id,
         debtorId,
         debtorPhoneNumber: request.debtorPhoneNumber,
+        debtorName: request.debtorName || null,
         principalAmount: principal,
         interestRate,
         calculatedInterest,
@@ -396,6 +397,7 @@ class DebtService {
           `
           notes.ilike.%${query}%,
           debtorPhoneNumber.ilike.%${query}%,
+          debtorName.ilike.%${query}%,
           externalLenderName.ilike.%${query}%
         `,
         )
@@ -515,6 +517,108 @@ class DebtService {
         callback,
       )
       .subscribe();
+  }
+
+  // Record payment for a debt (by lender)
+  async recordPayment(
+    debtId: string,
+    amount: number,
+    notes?: string
+  ): Promise<PaymentRow> {
+    try {
+      const user = await getCurrentUser();
+      if (!user) {
+        throw new Error("User not authenticated");
+      }
+
+      // Get current debt to validate
+      const debt = await this.getDebtById(debtId);
+      if (debt.status !== "PENDING") {
+        throw new Error("Can only record payments for pending debts");
+      }
+
+      if (debt.lenderId !== user.id) {
+        throw new Error("Only the lender can record payments for this debt");
+      }
+
+      if (amount <= 0) {
+        throw new Error("Payment amount must be positive");
+      }
+
+      if (amount > debt.outstandingBalance) {
+        throw new Error("Payment amount cannot exceed outstanding balance");
+      }
+
+      // Create payment record
+      const reference = `manual_${Date.now()}_${user.id.slice(-8)}`;
+      const paymentData: PaymentInsert = {
+        debtId,
+        amount,
+        reference,
+        gateway: "manual", // Indicates manual payment by lender
+        status: "SUCCESSFUL",
+        paidAt: new Date().toISOString(),
+        recordedBy: user.id,
+      };
+
+      const { data: payment, error: paymentError } = await supabase
+        .from("Payment")
+        .insert(paymentData)
+        .select()
+        .single();
+
+      if (paymentError || !payment) {
+        handleSupabaseError(paymentError || new Error("Payment creation failed"));
+      }
+
+      // Update debt balance
+      const newBalance = debt.outstandingBalance - amount;
+      const updateData: Partial<DebtUpdate> = {
+        outstandingBalance: newBalance,
+      };
+
+      // If fully paid, mark as paid
+      if (newBalance <= 0) {
+        updateData.status = "PAID";
+        updateData.paidAt = new Date().toISOString();
+      }
+
+      await this.updateDebt(debtId, updateData);
+
+      return payment!;
+    } catch (error) {
+      console.error("Qred DebtService: Record payment error:", error);
+      throw error;
+    }
+  }
+
+  // Get payment history for a debt
+  async getPaymentHistory(debtId: string): Promise<PaymentRow[]> {
+    try {
+      const { data, error } = await supabase
+        .from("Payment")
+        .select("*")
+        .eq("debtId", debtId)
+        .order("paidAt", { ascending: false });
+
+      if (error) handleSupabaseError(error);
+
+      return data || [];
+    } catch (error) {
+      console.error("Qred DebtService: Get payment history error:", error);
+      throw error;
+    }
+  }
+
+  // Get debtor display name (prioritizes debtorName over phone)
+  getDebtorDisplayName(debt: DebtWithRelations): string {
+    if (debt.debtorName && debt.debtorName.trim()) {
+      return debt.debtorName;
+    }
+    if (debt.debtor?.name) {
+      return debt.debtor.name;
+    }
+    return debt.debtorPhoneNumber;
   }
 
   // Utility methods

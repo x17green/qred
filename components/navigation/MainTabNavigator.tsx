@@ -1,24 +1,16 @@
-import React from 'react';
+import DashboardScreen from '@/components/screens/dashboard/DashboardScreen';
+import AddDebtScreen from '@/components/screens/debts/AddDebtScreen';
+import DebtDetailScreen from '@/components/screens/debts/DebtDetailScreen';
+import DebtsListScreen from '@/components/screens/debts/DebtsListScreen';
+import EditDebtScreen from '@/components/screens/debts/EditDebtScreen';
+import RecordPaymentScreen from '@/components/screens/debts/RecordPaymentScreen';
+import ProfileScreen from '@/components/screens/profile/ProfileScreen';
+import { COLORS } from '@/lib/constants';
+import { DebtStackParamList, MainTabParamList } from '@/lib/types';
+import { Ionicons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
-import DashboardScreen from '@/components/screens/dashboard/DashboardScreen';
-import ProfileScreen from '@/components/screens/profile/ProfileScreen';
-import { MainTabParamList, DebtStackParamList } from '@/lib/types';
-import { COLORS } from '@/lib/constants';
-import { Text } from '@/components/ui/text';
-
-// Placeholder screens - these would be implemented based on the full requirements
-const DebtListScreen = () => (
-  <Text className="flex-1 items-center justify-center">Debt List Screen</Text>
-);
-
-const DebtDetailScreen = () => (
-  <Text className="flex-1 items-center justify-center">Debt Detail Screen</Text>
-);
-
-const AddDebtScreen = () => (
-  <Text className="flex-1 items-center justify-center">Add Debt Screen</Text>
-);
+import React from 'react';
 
 // Create stack navigator for debt screens
 const DebtStack = createStackNavigator<DebtStackParamList>();
@@ -28,43 +20,28 @@ function DebtStackNavigator() {
     <DebtStack.Navigator
       initialRouteName="DebtsList"
       screenOptions={{
-        headerShown: true,
-        headerStyle: {
-          backgroundColor: COLORS.PRIMARY[600],
-        },
-        headerTintColor: "white",
-        headerTitleStyle: {
-          fontWeight: "bold",
-        },
+        headerShown: false,
       }}
     >
       <DebtStack.Screen
         name="DebtsList"
-        component={DebtListScreen}
-        options={{
-          title: "My Debts",
-        }}
+        component={DebtsListScreen}
       />
       <DebtStack.Screen
         name="DebtDetail"
         component={DebtDetailScreen}
-        options={{
-          title: "Debt Details",
-        }}
       />
       <DebtStack.Screen
         name="AddDebt"
         component={AddDebtScreen}
-        options={{
-          title: "Add New Debt",
-        }}
       />
       <DebtStack.Screen
         name="EditDebt"
-        component={AddDebtScreen}
-        options={{
-          title: "Edit Debt",
-        }}
+        component={EditDebtScreen}
+      />
+      <DebtStack.Screen
+        name="RecordPayment"
+        component={RecordPaymentScreen}
       />
     </DebtStack.Navigator>
   );
@@ -104,7 +81,7 @@ export default function MainTabNavigator() {
         options={{
           title: "Dashboard",
           tabBarIcon: ({ color, size }) => (
-            <Text style={{ color, fontSize: size }}>🏠</Text>
+            <Ionicons name="grid-outline" size={size} color={color} />
           ),
         }}
       />
@@ -114,7 +91,7 @@ export default function MainTabNavigator() {
         options={{
           title: "Debts",
           tabBarIcon: ({ color, size }) => (
-            <Text style={{ color, fontSize: size }}>💳</Text>
+            <Ionicons name="wallet-outline" size={size} color={color} />
           ),
         }}
       />
@@ -124,7 +101,7 @@ export default function MainTabNavigator() {
         options={{
           title: "Profile",
           tabBarIcon: ({ color, size }) => (
-            <Text style={{ color, fontSize: size }}>👤</Text>
+            <Ionicons name="person-outline" size={size} color={color} />
           ),
         }}
       />

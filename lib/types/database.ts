@@ -26,6 +26,7 @@ export type Database = {
           lenderId: string
           debtorId: string | null
           debtorPhoneNumber: string
+          debtorName: string | null
           isExternal: boolean
           externalLenderName: string | null
         }
@@ -45,6 +46,7 @@ export type Database = {
           lenderId: string
           debtorId?: string | null
           debtorPhoneNumber: string
+          debtorName?: string | null
           isExternal?: boolean
           externalLenderName?: string | null
         }
@@ -64,6 +66,7 @@ export type Database = {
           lenderId?: string
           debtorId?: string | null
           debtorPhoneNumber?: string
+          debtorName?: string | null
           isExternal?: boolean
           externalLenderName?: string | null
         }
@@ -95,6 +98,7 @@ export type Database = {
           paidAt: string
           createdAt: string
           updatedAt: string
+          recordedBy: string | null
         }
         Insert: {
           id?: string
@@ -106,6 +110,7 @@ export type Database = {
           paidAt: string
           createdAt?: string
           updatedAt?: string
+          recordedBy?: string | null
         }
         Update: {
           id?: string
@@ -117,6 +122,7 @@ export type Database = {
           paidAt?: string
           createdAt?: string
           updatedAt?: string
+          recordedBy?: string | null
         }
         Relationships: [
           {
@@ -313,6 +319,7 @@ export type UserWithDebts = UserRow & {
 // API request/response types
 export type CreateDebtRequest = {
   debtorPhoneNumber: string
+  debtorName?: string
   principal: number
   interestRate: number
   dueDate: string

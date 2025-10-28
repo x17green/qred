@@ -22,50 +22,48 @@ interface UseGoogleAuthReturn {
   clearError: () => void;
 }
 
-export const useGoogleAuth = (config?: GoogleAuthConfig): UseGoogleAuthReturn => {
+export const useGoogleAuth = (
+  config?: GoogleAuthConfig,
+): UseGoogleAuthReturn => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { setLoading, setError: setAuthError } = useAuthStore();
 
-  // Configure Google OAuth
+  // Configure Google OAuth for React Native
   const [request, response, promptAsync] = Google.useAuthRequest({
     iosClientId:
-      config?.iosClientId ||
-      process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
+      config?.iosClientId || process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
     androidClientId:
       config?.androidClientId ||
       process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID,
     webClientId:
-      config?.webClientId ||
-      process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
-    redirectUri: makeRedirectUri({
-      scheme: "qred",
-      path: "auth/google",
-    }),
+      config?.webClientId || process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
     scopes: ["openid", "profile", "email"],
     responseType: "id_token",
+    // For React Native, we don't need a custom redirect URI
+    // Expo handles this automatically
   });
 
   // Handle OAuth response
   useEffect(() => {
     if (response?.type === "success") {
-      handleGoogleSignIn(response.params.id_token, response.params.access_token);
+      handleGoogleSignIn(response.params.id_token);
     } else if (response?.type === "error") {
       setError("Google sign-in was cancelled or failed");
       setIsLoading(false);
     }
   }, [response]);
 
-  const handleGoogleSignIn = async (idToken: string, accessToken?: string) => {
+  const handleGoogleSignIn = async (idToken: string) => {
     try {
       setIsLoading(true);
       setError(null);
       setLoading(true);
       setAuthError(null);
 
+      // Use signInWithIdToken as per Supabase React Native docs
       const result = await authService.googleSignIn({
         idToken,
-        accessToken: accessToken || idToken,
       });
 
       if (result.requiresOTP) {

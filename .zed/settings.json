@@ -1,14 +1,4 @@
 {
-  "assistant": {
-    "default_model": {
-      "provider": "anthropic",
-      "model": "claude-3-5-sonnet-20241022"
-    },
-    "button": true,
-    "dock": "right",
-    "default_width": 480,
-    "default_height": 320
-  },
   "ui_font_size": 16,
   "buffer_font_size": 14,
   "theme": {
@@ -73,8 +63,7 @@
     "default_width": 640,
     "default_height": 320,
     "shell": {
-      "program": "zsh",
-      "args": ["-l"]
+      "program": "zsh"
     },
     "env": {
       "EDITOR": "zed --wait"
@@ -108,7 +97,7 @@
         "source.organizeImports": true,
         "source.fixAll.eslint": true
       },
-      "format_on_save": true,
+      "format_on_save": [],
       "formatter": "language_server",
       "tab_size": 2
     },
@@ -117,7 +106,7 @@
         "source.organizeImports": true,
         "source.fixAll.eslint": true
       },
-      "format_on_save": true,
+      "format_on_save": [],
       "formatter": "language_server",
       "tab_size": 2
     },
@@ -126,17 +115,17 @@
         "source.organizeImports": true,
         "source.fixAll.eslint": true
       },
-      "format_on_save": true,
+      "format_on_save": [],
       "formatter": "language_server",
       "tab_size": 2
     },
     "JSON": {
-      "format_on_save": true,
+      "format_on_save": [],
       "formatter": "language_server",
       "tab_size": 2
     },
     "Markdown": {
-      "format_on_save": false,
+      "format_on_save": [],
       "soft_wrap": "editor_width",
       "tab_size": 2
     }
@@ -147,8 +136,7 @@
       "arguments": ["--stdin-filepath", "{buffer_path}"]
     }
   },
-  "auto_save": "on_focus_change",
-  "autosave": 1000,
+  "autosave": "on_focus_change",
   "format_on_save": "on",
   "code_actions_on_format": {
     "source.organizeImports": true,
@@ -164,7 +152,7 @@
     "git_diff": true,
     "search_results": true,
     "selected_symbol": true,
-    "diagnostics": true
+    "diagnostics": "all"
   },
   "inlay_hints": {
     "enabled": true,

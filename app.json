@@ -17,7 +17,9 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.x17green.qred",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSCameraUsageDescription": "This app needs access to camera to take profile pictures.",
+        "NSPhotoLibraryUsageDescription": "This app needs access to photo library to select profile pictures."
       }
     },
     "android": {
@@ -27,15 +29,48 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.x17green.qred"
+      "package": "com.x17green.qred",
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ]
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro",
+      "output": "single",
+      "build": {
+        "babel": {
+          "include": [
+            "@supabase/supabase-js",
+            "@react-native-async-storage/async-storage"
+          ]
+        }
+      }
     },
     "extra": {
       "eas": {
         "projectId": "d4657e90-b1a6-4e6b-a12d-883a8a2d26e6"
       }
-    }
+    },
+    "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "minSdkVersion": 25
+          }
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "The app accesses your photos to let you select profile pictures.",
+          "cameraPermission": "The app accesses your camera to let you take profile pictures."
+        }
+      ]
+    ],
+    "owner": "x17green"
   }
 }

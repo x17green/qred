@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from "react";
-import { NavigationContainer } from "@react-navigation/native";
-import { createStackNavigator } from "@react-navigation/stack";
-import AuthStack from "./AuthStack";
-import MainTabNavigator from "./MainTabNavigator";
-import { useAuth, useAuthActions } from "@/lib/store/authStore";
+import OnboardingScreen from "@/components/screens/auth/OnboardingScreen";
 import { Box } from "@/components/ui/box";
 import { Text } from "@/components/ui/text";
+import { useAuth, useAuthActions } from "@/lib/store/authStore";
 import { RootStackParamList } from "@/lib/types";
+import { NavigationContainer } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
+import React, { useEffect, useState } from "react";
+import AuthStack from "./AuthStack";
+import MainTabNavigator from "./MainTabNavigator";
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -22,7 +23,7 @@ function LoadingScreen() {
 }
 
 export default function AppNavigator() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, needsOnboarding } = useAuth();
   const { checkAuthStatus } = useAuthActions();
   const [isInitializing, setIsInitializing] = useState(true);
 
@@ -61,13 +62,24 @@ export default function AppNavigator() {
         }}
       >
         {isAuthenticated ? (
-          <Stack.Screen
-            name="Main"
-            component={MainTabNavigator}
-            options={{
-              animationTypeForReplace: "push",
-            }}
-          />
+          needsOnboarding ? (
+            <Stack.Screen
+              name="Onboarding"
+              component={OnboardingScreen}
+              options={{
+                animationTypeForReplace: "push",
+                headerShown: false,
+              }}
+            />
+          ) : (
+            <Stack.Screen
+              name="Main"
+              component={MainTabNavigator}
+              options={{
+                animationTypeForReplace: "push",
+              }}
+            />
+          )
         ) : (
           <Stack.Screen
             name="Auth"

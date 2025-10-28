@@ -2,30 +2,38 @@ import "react-native-url-polyfill/auto";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createClient } from "@supabase/supabase-js";
 import { Database } from "../types/database";
+import { Platform } from "react-native";
 
 // Supabase configuration
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_KEY!;
+const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY!;
 
 // Check if environment variables are present
 if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error(
-    "Missing Supabase environment variables. Please check your .env file and ensure EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_KEY are set.",
+    "Missing Supabase environment variables. Please check your .env file and ensure EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_ANON_KEY are set.",
   );
 }
 
-// Create Supabase client with AsyncStorage for session persistence
+// Create Supabase client with platform-specific storage
+const storage =
+  Platform.OS === "web"
+    ? typeof window !== "undefined"
+      ? window.localStorage
+      : AsyncStorage
+    : AsyncStorage;
+
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
   auth: {
-    storage: AsyncStorage,
+    storage: storage,
     autoRefreshToken: true,
     persistSession: true,
-    detectSessionInUrl: false,
+    detectSessionInUrl: Platform.OS === "web",
     flowType: "pkce",
   },
   global: {
     headers: {
-      "X-Client-Info": "qred-mobile@1.0.0",
+      "X-Client-Info": `qred-${Platform.OS}@1.0.0`,
     },
   },
 });

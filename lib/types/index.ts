@@ -141,16 +141,20 @@ export interface InitializePaymentResponse {
 export type RootStackParamList = {
   Auth: undefined;
   Main: undefined;
+  Onboarding: undefined;
 };
 
 export type AuthStackParamList = {
   Login: undefined;
+  SignUp: undefined;
   OTP: {
     phoneNumber: string;
     email?: string | null;
     name?: string;
   };
+  Onboarding: undefined;
   Test: undefined;
+  Debug: undefined;
 };
 
 export type MainTabParamList = {

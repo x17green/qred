@@ -136,6 +136,63 @@ interface QuickActionProps {
   variant?: "primary" | "secondary";
 }
 
+interface RecentActivityItemProps {
+  debt: any;
+  userRole: 'LENDER' | 'BORROWER';
+  onPress?: () => void;
+}
+
+function RecentActivityItem({ debt, userRole, onPress }: RecentActivityItemProps) {
+  const isLender = userRole === 'LENDER';
+  const otherParty = isLender
+    ? (debt.debtor?.name || debt.debtorName || debt.debtorPhoneNumber)
+    : (debt.externalLenderName || debt.lender?.name || 'Unknown Lender');
+
+  const statusColor = debt.status === 'PAID' ? 'text-green-600'
+    : debt.status === 'OVERDUE' ? 'text-red-600'
+    : 'text-amber-600';
+
+  return (
+    <Card variant="outline" className="overflow-hidden">
+      <Pressable onPress={onPress} className="p-0">
+        <CardBody className="p-4">
+          <HStack space="md" className="items-center">
+            <Avatar size="sm" className={`${isLender ? 'bg-emerald-100' : 'bg-orange-100'}`}>
+              <AvatarFallbackText>{otherParty}</AvatarFallbackText>
+            </Avatar>
+
+            <VStack space="xs" className="flex-1">
+              <HStack className="items-center justify-between">
+                <Text size="sm" bold className="text-typography-900">
+                  {otherParty}
+                </Text>
+                <Badge
+                  action={debt.status === 'PAID' ? 'success' : debt.status === 'OVERDUE' ? 'error' : 'warning'}
+                  size="sm"
+                  variant="outline"
+                >
+                  <BadgeText>{debt.status}</BadgeText>
+                </Badge>
+              </HStack>
+
+              <HStack className="items-center justify-between">
+                <Text size="xs" className="text-typography-500">
+                  {isLender ? 'owes you' : 'you owe'} ₦{debt.outstandingBalance.toLocaleString()}
+                </Text>
+                <Text size="xs" className="text-typography-400">
+                  {new Date(debt.createdAt).toLocaleDateString()}
+                </Text>
+              </HStack>
+            </VStack>
+
+            <Icon as={ArrowUpRight} size="xs" className="text-typography-400" />
+          </HStack>
+        </CardBody>
+      </Pressable>
+    </Card>
+  );
+}
+
 function QuickAction({ title, description, icon, onPress, variant = "primary" }: QuickActionProps) {
   const isPrimary = variant === "primary";
 
@@ -202,6 +259,11 @@ export default function RoleBasedDashboard({ navigation }: DashboardProps) {
     totalLending: lendingDebts.reduce((sum, debt) => sum + debt.outstandingBalance, 0),
     totalOwing: owingDebts.reduce((sum, debt) => sum + debt.outstandingBalance, 0),
   };
+
+  // Get recent activities (recent debts from both lending and owing)
+  const recentActivities = [...lendingDebts, ...owingDebts]
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .slice(0, 5);
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -367,6 +429,48 @@ export default function RoleBasedDashboard({ navigation }: DashboardProps) {
         </HStack>
       </VStack>
 
+      {/* Recent Activities Section */}
+      <VStack space="lg">
+        <HStack className="items-center justify-between">
+          <Heading size="lg" className="text-typography-900">
+            Recent Activities
+          </Heading>
+          <Pressable onPress={() => navigation?.navigate('Debts')}>
+            <Text size="sm" className="text-primary-600 font-medium">
+              View All
+            </Text>
+          </Pressable>
+        </HStack>
+
+        {recentActivities.length > 0 ? (
+          <VStack space="sm">
+            {recentActivities.map((debt) => (
+              <RecentActivityItem
+                key={debt.id}
+                debt={debt}
+                userRole="LENDER"
+                onPress={() => navigation?.navigate('Debts', {
+                  screen: 'DebtDetail',
+                  params: { debtId: debt.id }
+                })}
+              />
+            ))}
+          </VStack>
+        ) : (
+          <Card variant="outline" className="bg-gray-50">
+            <CardBody className="p-6 items-center">
+              <Icon as={Clock} size="xl" className="text-gray-400 mb-2" />
+              <Text size="sm" className="text-gray-600 text-center">
+                No recent activities
+              </Text>
+              <Text size="xs" className="text-gray-500 text-center mt-1">
+                Your lending activities will appear here
+              </Text>
+            </CardBody>
+          </Card>
+        )}
+      </VStack>
+
       {/* Secondary Summary for Personal Debts */}
       {owingDebts.length > 0 && (
         <VStack space="md">
@@ -498,6 +602,48 @@ export default function RoleBasedDashboard({ navigation }: DashboardProps) {
             />
           </Box>
         </HStack>
+      </VStack>
+
+      {/* Recent Activities Section */}
+      <VStack space="lg">
+        <HStack className="items-center justify-between">
+          <Heading size="lg" className="text-typography-900">
+            Recent Activities
+          </Heading>
+          <Pressable onPress={() => navigation?.navigate('Debts')}>
+            <Text size="sm" className="text-primary-600 font-medium">
+              View All
+            </Text>
+          </Pressable>
+        </HStack>
+
+        {recentActivities.length > 0 ? (
+          <VStack space="sm">
+            {recentActivities.map((debt) => (
+              <RecentActivityItem
+                key={debt.id}
+                debt={debt}
+                userRole="BORROWER"
+                onPress={() => navigation?.navigate('Debts', {
+                  screen: 'DebtDetail',
+                  params: { debtId: debt.id }
+                })}
+              />
+            ))}
+          </VStack>
+        ) : (
+          <Card variant="outline" className="bg-gray-50">
+            <CardBody className="p-6 items-center">
+              <Icon as={Clock} size="xl" className="text-gray-400 mb-2" />
+              <Text size="sm" className="text-gray-600 text-center">
+                No recent activities
+              </Text>
+              <Text size="xs" className="text-gray-500 text-center mt-1">
+                Your debt activities will appear here
+              </Text>
+            </CardBody>
+          </Card>
+        )}
       </VStack>
 
       {/* Secondary Summary for Lending */}

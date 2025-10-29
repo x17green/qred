@@ -1,19 +1,18 @@
-import DashboardScreen from '@/components/screens/dashboard/DashboardScreen';
-import AddDebtScreen from '@/components/screens/debts/AddDebtScreen';
-import DebtDetailScreen from '@/components/screens/debts/DebtDetailScreen';
-import DebtsListScreen from '@/components/screens/debts/DebtsListScreen';
-import EditDebtScreen from '@/components/screens/debts/EditDebtScreen';
-import RecordPaymentScreen from '@/components/screens/debts/RecordPaymentScreen';
-import ProfileScreen from '@/components/screens/profile/ProfileScreen';
-import { COLORS } from '@/lib/constants';
-import { DebtStackParamList, MainTabParamList } from '@/lib/types';
-import { Ionicons } from '@expo/vector-icons';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createStackNavigator } from '@react-navigation/stack';
-import React from 'react';
+import DashboardScreen from "@/components/screens/dashboard/DashboardScreen"
+import AddDebtScreen from "@/components/screens/debts/AddDebtScreen"
+import DebtDetailScreen from "@/components/screens/debts/DebtDetailScreen"
+import DebtsListScreen from "@/components/screens/debts/DebtsListScreen"
+import EditDebtScreen from "@/components/screens/debts/EditDebtScreen"
+import RecordPaymentScreen from "@/components/screens/debts/RecordPaymentScreen"
+import ProfileScreen from "@/components/screens/profile/ProfileScreen"
+import { QredColors } from "@/lib/constants/colors"
+import type { DebtStackParamList, MainTabParamList } from "@/lib/types"
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs"
+import { createStackNavigator } from "@react-navigation/stack"
+import { Home, User, Wallet } from "lucide-react-native"
 
 // Create stack navigator for debt screens
-const DebtStack = createStackNavigator<DebtStackParamList>();
+const DebtStack = createStackNavigator<DebtStackParamList>()
 
 function DebtStackNavigator() {
   return (
@@ -23,32 +22,17 @@ function DebtStackNavigator() {
         headerShown: false,
       }}
     >
-      <DebtStack.Screen
-        name="DebtsList"
-        component={DebtsListScreen}
-      />
-      <DebtStack.Screen
-        name="DebtDetail"
-        component={DebtDetailScreen}
-      />
-      <DebtStack.Screen
-        name="AddDebt"
-        component={AddDebtScreen}
-      />
-      <DebtStack.Screen
-        name="EditDebt"
-        component={EditDebtScreen}
-      />
-      <DebtStack.Screen
-        name="RecordPayment"
-        component={RecordPaymentScreen}
-      />
+      <DebtStack.Screen name="DebtsList" component={DebtsListScreen} />
+      <DebtStack.Screen name="DebtDetail" component={DebtDetailScreen} />
+      <DebtStack.Screen name="AddDebt" component={AddDebtScreen} />
+      <DebtStack.Screen name="EditDebt" component={EditDebtScreen} />
+      <DebtStack.Screen name="RecordPayment" component={RecordPaymentScreen} />
     </DebtStack.Navigator>
-  );
+  )
 }
 
 // Create bottom tab navigator
-const Tab = createBottomTabNavigator<MainTabParamList>();
+const Tab = createBottomTabNavigator<MainTabParamList>()
 
 export default function MainTabNavigator() {
   return (
@@ -56,22 +40,27 @@ export default function MainTabNavigator() {
       initialRouteName="Dashboard"
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: COLORS.PRIMARY[600],
-        tabBarInactiveTintColor: COLORS.GRAY[500],
+        tabBarActiveTintColor: QredColors.brand.navy,
+        tabBarInactiveTintColor: QredColors.text.tertiary,
         tabBarStyle: {
           backgroundColor: "white",
-          borderTopWidth: 1,
-          borderTopColor: COLORS.GRAY[200],
-          paddingVertical: 5,
-          height: 60,
+          borderTopWidth: 0,
+          paddingVertical: 8,
+          paddingBottom: 12,
+          height: 70,
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: -4 },
+          shadowOpacity: 0.1,
+          shadowRadius: 12,
+          elevation: 8,
         },
         tabBarLabelStyle: {
           fontSize: 12,
-          fontWeight: "600",
-          marginBottom: 5,
+          fontWeight: "700",
+          marginTop: 4,
         },
         tabBarIconStyle: {
-          marginTop: 5,
+          marginTop: 4,
         },
       }}
     >
@@ -80,9 +69,7 @@ export default function MainTabNavigator() {
         component={DashboardScreen}
         options={{
           title: "Dashboard",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="grid-outline" size={size} color={color} />
-          ),
+          tabBarIcon: ({ color, size, focused }) => <Home size={size} color={color} strokeWidth={focused ? 2.5 : 2} />,
         }}
       />
       <Tab.Screen
@@ -90,8 +77,8 @@ export default function MainTabNavigator() {
         component={DebtStackNavigator}
         options={{
           title: "Debts",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="wallet-outline" size={size} color={color} />
+          tabBarIcon: ({ color, size, focused }) => (
+            <Wallet size={size} color={color} strokeWidth={focused ? 2.5 : 2} />
           ),
         }}
       />
@@ -100,11 +87,9 @@ export default function MainTabNavigator() {
         component={ProfileScreen}
         options={{
           title: "Profile",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person-outline" size={size} color={color} />
-          ),
+          tabBarIcon: ({ color, size, focused }) => <User size={size} color={color} strokeWidth={focused ? 2.5 : 2} />,
         }}
       />
     </Tab.Navigator>
-  );
+  )
 }

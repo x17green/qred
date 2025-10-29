@@ -1,98 +1,117 @@
-import { Avatar, AvatarFallbackText, AvatarImage } from "@/components/ui/avatar";
-import { Badge, BadgeIcon, BadgeText } from "@/components/ui/badge";
-import { Box } from "@/components/ui/box";
-import { Card, CardBody } from "@/components/ui/card";
-import { Heading } from "@/components/ui/heading";
-import { HStack } from "@/components/ui/hstack";
-import { Icon } from "@/components/ui/icon";
-import { Pressable } from "@/components/ui/pressable";
-import { Text } from "@/components/ui/text";
-import { VStack } from "@/components/ui/vstack";
-import { SemanticColors } from "@/lib/constants/colors";
-import { useAuth } from "@/lib/store/authStore";
-import { useDebtActions, useDebts } from "@/lib/store/debtStore";
-import { AlertCircle, ArrowDownLeft, ArrowUpRight, Clock, DollarSign, Plus, TrendingUp, Users } from "lucide-react-native";
-import React, { useEffect, useState } from "react";
-import { Alert, RefreshControl, ScrollView } from "react-native";
+"use client"
+import { Box } from "@/components/ui/box"
+import { Heading } from "@/components/ui/heading"
+import { HStack } from "@/components/ui/hstack"
+import { Icon } from "@/components/ui/icon"
+import { Pressable } from "@/components/ui/pressable"
+import { Text } from "@/components/ui/text"
+import { VStack } from "@/components/ui/vstack"
+import { QredColors, SemanticColors } from "@/lib/constants/colors"
+import { useAuth } from "@/lib/store/authStore"
+import { useDebtActions, useDebts } from "@/lib/store/debtStore"
+import { LinearGradient } from "expo-linear-gradient"
+import {
+    AlertCircle,
+    ArrowDownLeft,
+    ArrowUpRight,
+    Clock,
+    DollarSign,
+    Plus,
+    TrendingUp,
+    Users,
+} from "lucide-react-native"
+import type React from "react"
+import { useEffect, useState } from "react"
+import { Alert, Image, RefreshControl, ScrollView } from "react-native"
 
 interface DashboardProps {
-  navigation?: any;
+  navigation?: any
 }
 
 interface SummaryCardProps {
-  title: string;
-  amount: number;
-  count: number;
-  icon: React.ComponentType<any>;
-  variant: "primary" | "secondary" | "success" | "warning" | "lending" | "borrowing";
-  onPress?: () => void;
+  title: string
+  amount: number
+  count: number
+  icon: React.ComponentType<any>
+  variant: "primary" | "secondary" | "success" | "warning" | "lending" | "borrowing"
+  onPress?: () => void
   trend?: {
-    value: number;
-    isPositive: boolean;
-  };
+    value: number
+    isPositive: boolean
+  }
 }
 
 function SummaryCard({ title, amount, count, icon, variant, onPress, trend }: SummaryCardProps) {
   const variantStyles = {
     primary: {
-      card: "bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200",
-      iconBg: "bg-blue-500",
-      iconColor: "text-white",
-      titleColor: "text-blue-700",
-      amountColor: "text-blue-900",
-      shadow: "shadow-blue-100",
+      gradientColors: [QredColors.brand.navy, QredColors.brand.navyDark],
+      iconBg: QredColors.brand.navy,
+      titleColor: "text-white/80",
+      amountColor: "text-white",
+      countColor: "text-white/70",
     },
     secondary: {
-      card: "bg-gradient-to-br from-gray-50 to-gray-100 border-gray-200",
-      iconBg: "bg-gray-500",
-      iconColor: "text-white",
-      titleColor: "text-gray-700",
-      amountColor: "text-gray-900",
-      shadow: "shadow-gray-100",
+      gradientColors: [QredColors.surface.card, QredColors.surface.elevated],
+      iconBg: QredColors.text.tertiary,
+      titleColor: "text-typography-600",
+      amountColor: "text-typography-900",
+      countColor: "text-typography-500",
     },
     success: {
-      card: "bg-gradient-to-br from-green-50 to-emerald-100 border-green-200",
-      iconBg: "bg-green-500",
-      iconColor: "text-white",
-      titleColor: "text-green-700",
-      amountColor: "text-green-900",
-      shadow: "shadow-green-100",
+      gradientColors: [QredColors.accent.green, QredColors.accent.greenDark],
+      iconBg: QredColors.accent.green,
+      titleColor: "text-white/80",
+      amountColor: "text-white",
+      countColor: "text-white/70",
     },
     warning: {
-      card: "bg-gradient-to-br from-amber-50 to-yellow-100 border-amber-200",
-      iconBg: "bg-amber-500",
-      iconColor: "text-white",
-      titleColor: "text-amber-700",
-      amountColor: "text-amber-900",
-      shadow: "shadow-amber-100",
+      gradientColors: [QredColors.status.warning[500], QredColors.status.warning[600]],
+      iconBg: QredColors.status.warning[500],
+      titleColor: "text-white/80",
+      amountColor: "text-white",
+      countColor: "text-white/70",
     },
     lending: {
-      card: "bg-gradient-to-br from-emerald-50 to-green-100 border-emerald-200",
-      iconBg: "bg-emerald-600",
-      iconColor: "text-white",
-      titleColor: "text-emerald-700",
-      amountColor: "text-emerald-900",
-      shadow: "shadow-emerald-100",
+      gradientColors: [QredColors.accent.green, QredColors.accent.greenDark],
+      iconBg: QredColors.accent.green,
+      titleColor: "text-white/80",
+      amountColor: "text-white",
+      countColor: "text-white/70",
     },
     borrowing: {
-      card: "bg-gradient-to-br from-orange-50 to-amber-100 border-orange-200",
-      iconBg: "bg-orange-500",
-      iconColor: "text-white",
-      titleColor: "text-orange-700",
-      amountColor: "text-orange-900",
-      shadow: "shadow-orange-100",
+      gradientColors: [QredColors.status.warning[500], QredColors.status.warning[600]],
+      iconBg: QredColors.status.warning[500],
+      titleColor: "text-white/80",
+      amountColor: "text-white",
+      countColor: "text-white/70",
     },
-  };
+  }
 
-  const styles = variantStyles[variant];
+  const styles = variantStyles[variant]
 
   return (
-    <Card variant="elevated" className={`${styles.card} ${styles.shadow} border-l-4`}>
-      <Pressable onPress={onPress} className="p-0">
-        <CardBody className="p-4">
-          <HStack space="md" className="items-center">
-            <Box className={`w-14 h-14 rounded-2xl ${styles.iconBg} items-center justify-center shadow-md`}>
-              <Icon as={icon} size="lg" className={styles.iconColor} />
+    <Pressable onPress={onPress} className="rounded-2xl overflow-hidden">
+      <Box
+        style={{
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.1,
+          shadowRadius: 12,
+          elevation: 4,
+        }}
+      >
+        <LinearGradient
+          colors={styles.gradientColors as [string, string]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={{ borderRadius: 16, padding: 20 }}
+        >
+          <HStack space="md" className="items-start">
+            <Box
+              className="w-12 h-12 rounded-xl items-center justify-center"
+              style={{ backgroundColor: "rgba(255, 255, 255, 0.2)" }}
+            >
+              <Icon as={icon} size="lg" className="text-white" />
             </Box>
 
             <VStack space="xs" className="flex-1">
@@ -101,267 +120,278 @@ function SummaryCard({ title, amount, count, icon, variant, onPress, trend }: Su
                   {title}
                 </Text>
                 {trend && (
-                  <Badge action={trend.isPositive ? "success" : "error"} size="sm" variant="outline">
-                    <BadgeIcon as={TrendingUp} />
-                    <BadgeText>{trend.isPositive ? "+" : ""}{trend.value}%</BadgeText>
-                  </Badge>
+                  <Box
+                    className="px-2 py-1 rounded-md flex-row items-center gap-1"
+                    style={{ backgroundColor: "rgba(255, 255, 255, 0.2)" }}
+                  >
+                    <Icon
+                      as={TrendingUp}
+                      size="xs"
+                      className="text-white"
+                      style={{ transform: [{ rotate: trend.isPositive ? "0deg" : "180deg" }] }}
+                    />
+                    <Text size="xs" className="text-white font-semibold">
+                      {trend.isPositive ? "+" : ""}
+                      {trend.value}%
+                    </Text>
+                  </Box>
                 )}
               </HStack>
 
-              <Heading size="xl" className={styles.amountColor}>
+              <Heading size="2xl" className={`${styles.amountColor} font-bold`}>
                 ₦{amount.toLocaleString()}
               </Heading>
 
               <HStack space="xs" className="items-center">
-                <Text size="xs" className="text-typography-500">
-                  {count} {count === 1 ? 'debt' : 'debts'}
+                <Text size="xs" className={styles.countColor}>
+                  {count} {count === 1 ? "debt" : "debts"}
                 </Text>
-                {onPress && (
-                  <Icon as={ArrowUpRight} size="xs" className="text-typography-400" />
-                )}
+                {onPress && <Icon as={ArrowUpRight} size="xs" className="text-white/60" />}
               </HStack>
             </VStack>
           </HStack>
-        </CardBody>
-      </Pressable>
-    </Card>
-  );
+        </LinearGradient>
+      </Box>
+    </Pressable>
+  )
 }
 
 interface QuickActionProps {
-  title: string;
-  description: string;
-  icon: React.ComponentType<any>;
-  onPress: () => void;
-  variant?: "primary" | "secondary";
+  title: string
+  description: string
+  icon: React.ComponentType<any>
+  onPress: () => void
+  variant?: "primary" | "secondary"
 }
 
 interface RecentActivityItemProps {
-  debt: any;
-  userRole: 'LENDER' | 'BORROWER';
-  onPress?: () => void;
+  debt: any
+  userRole: "LENDER" | "BORROWER"
+  onPress?: () => void
 }
 
 function RecentActivityItem({ debt, userRole, onPress }: RecentActivityItemProps) {
-  const isLender = userRole === 'LENDER';
+  const isLender = userRole === "LENDER"
   const otherParty = isLender
-    ? (debt.debtor?.name || debt.debtorName || debt.debtorPhoneNumber)
-    : (debt.externalLenderName || debt.lender?.name || 'Unknown Lender');
+    ? debt.debtor?.name || debt.debtorName || debt.debtorPhoneNumber
+    : debt.externalLenderName || debt.lender?.name || "Unknown Lender"
 
-  const statusColor = debt.status === 'PAID' ? 'text-green-600'
-    : debt.status === 'OVERDUE' ? 'text-red-600'
-    : 'text-amber-600';
+  const statusConfig = {
+    PAID: { color: QredColors.status.success[600], bg: "bg-green-50", text: "text-green-700" },
+    OVERDUE: { color: QredColors.status.error[600], bg: "bg-red-50", text: "text-red-700" },
+    PENDING: { color: QredColors.status.warning[600], bg: "bg-amber-50", text: "text-amber-700" },
+  }
+
+  const config = statusConfig[debt.status as keyof typeof statusConfig] || statusConfig.PENDING
 
   return (
-    <Card variant="outline" className="overflow-hidden">
-      <Pressable onPress={onPress} className="p-0">
-        <CardBody className="p-4">
-          <HStack space="md" className="items-center">
-            <Avatar size="sm" className={`${isLender ? 'bg-emerald-100' : 'bg-orange-100'}`}>
-              <AvatarFallbackText>{otherParty}</AvatarFallbackText>
-            </Avatar>
+    <Pressable onPress={onPress}>
+      <Box
+        className="bg-white rounded-2xl p-4 border border-background-200"
+        style={{
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.05,
+          shadowRadius: 8,
+          elevation: 2,
+        }}
+      >
+        <HStack space="md" className="items-center">
+          <Box
+            className="w-12 h-12 rounded-xl items-center justify-center"
+            style={{ backgroundColor: isLender ? QredColors.status.success[50] : QredColors.status.warning[50] }}
+          >
+            <Text
+              className="text-lg font-bold"
+              style={{ color: isLender ? QredColors.accent.green : QredColors.status.warning[600] }}
+            >
+              {otherParty.charAt(0).toUpperCase()}
+            </Text>
+          </Box>
 
-            <VStack space="xs" className="flex-1">
-              <HStack className="items-center justify-between">
-                <Text size="sm" bold className="text-typography-900">
-                  {otherParty}
+          <VStack space="xs" className="flex-1">
+            <HStack className="items-center justify-between">
+              <Text size="sm" className="font-bold text-typography-900">
+                {otherParty}
+              </Text>
+              <Box className={`px-2 py-1 rounded-lg ${config.bg}`}>
+                <Text size="xs" className={`font-semibold ${config.text}`}>
+                  {debt.status}
                 </Text>
-                <Badge
-                  action={debt.status === 'PAID' ? 'success' : debt.status === 'OVERDUE' ? 'error' : 'warning'}
-                  size="sm"
-                  variant="outline"
-                >
-                  <BadgeText>{debt.status}</BadgeText>
-                </Badge>
-              </HStack>
+              </Box>
+            </HStack>
 
-              <HStack className="items-center justify-between">
-                <Text size="xs" className="text-typography-500">
-                  {isLender ? 'owes you' : 'you owe'} ₦{debt.outstandingBalance.toLocaleString()}
-                </Text>
-                <Text size="xs" className="text-typography-400">
-                  {new Date(debt.createdAt).toLocaleDateString()}
-                </Text>
-              </HStack>
-            </VStack>
+            <HStack className="items-center justify-between">
+              <Text size="sm" className="font-semibold text-typography-700">
+                ₦{debt.outstandingBalance.toLocaleString()}
+              </Text>
+              <Text size="xs" className="text-typography-400">
+                {new Date(debt.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+              </Text>
+            </HStack>
+          </VStack>
 
-            <Icon as={ArrowUpRight} size="xs" className="text-typography-400" />
-          </HStack>
-        </CardBody>
-      </Pressable>
-    </Card>
-  );
+          <Icon as={ArrowUpRight} size="sm" className="text-typography-300" />
+        </HStack>
+      </Box>
+    </Pressable>
+  )
 }
 
 function QuickAction({ title, description, icon, onPress, variant = "primary" }: QuickActionProps) {
-  const isPrimary = variant === "primary";
+  const isPrimary = variant === "primary"
 
   return (
-    <Card variant="outline" className={`overflow-hidden ${isPrimary ? 'border-primary-200' : 'border-gray-200'}`}>
-      <Pressable onPress={onPress} className="p-0">
-        <CardBody className="p-6">
-          <VStack space="md" className="items-center">
-            <Box
-              className={`
-                w-20 h-20 rounded-2xl items-center justify-center shadow-lg
-                ${isPrimary
-                  ? 'bg-gradient-to-br from-primary-500 to-primary-600'
-                  : 'bg-gradient-to-br from-gray-100 to-gray-200'
-                }
-              `}
-            >
-              <Icon
-                as={icon}
-                size="xl"
-                className={isPrimary ? 'text-white' : 'text-gray-600'}
-              />
-            </Box>
+    <Pressable onPress={onPress}>
+      <Box
+        className="bg-white rounded-2xl p-6 border border-background-200"
+        style={{
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.08,
+          shadowRadius: 12,
+          elevation: 3,
+        }}
+      >
+        <VStack space="md" className="items-center">
+          <Box
+            className="w-16 h-16 rounded-2xl items-center justify-center"
+            style={{
+              backgroundColor: isPrimary ? QredColors.brand.navy : QredColors.surface.elevated,
+            }}
+          >
+            <Icon as={icon} size="xl" className={isPrimary ? "text-white" : "text-typography-600"} />
+          </Box>
 
-            <VStack space="xs" className="items-center">
-              <Heading
-                size="md"
-                className={`text-center ${isPrimary ? 'text-primary-700' : 'text-typography-700'}`}
-              >
-                {title}
-              </Heading>
-              <Text
-                size="sm"
-                className={`text-center max-w-[120px] ${isPrimary ? 'text-primary-600' : 'text-typography-500'}`}
-              >
-                {description}
-              </Text>
-            </VStack>
+          <VStack space="xs" className="items-center">
+            <Text size="md" className="font-bold text-typography-900 text-center">
+              {title}
+            </Text>
+            <Text size="sm" className="text-typography-500 text-center">
+              {description}
+            </Text>
           </VStack>
-        </CardBody>
-      </Pressable>
-    </Card>
-  );
+        </VStack>
+      </Box>
+    </Pressable>
+  )
 }
 
 export default function RoleBasedDashboard({ navigation }: DashboardProps) {
-  const { user } = useAuth();
-  const { lendingDebts, owingDebts, isLoading } = useDebts();
-  const { fetchAllDebts } = useDebtActions();
+  const { user } = useAuth()
+  const { lendingDebts, owingDebts, isLoading } = useDebts()
+  const { fetchAllDebts } = useDebtActions()
 
-  const [refreshing, setRefreshing] = useState(false);
+  const [refreshing, setRefreshing] = useState(false)
 
-  const userRole = user?.defaultRole || 'BORROWER';
-  const isLender = userRole === 'LENDER';
+  const userRole = user?.defaultRole || "BORROWER"
+  const isLender = userRole === "LENDER"
 
   useEffect(() => {
     if (user?.id) {
-      fetchAllDebts();
+      fetchAllDebts()
     }
-  }, [user?.id, fetchAllDebts]);
+  }, [user?.id, fetchAllDebts])
 
-  // Calculate summary from current debt data
   const summary = {
     totalLending: lendingDebts.reduce((sum, debt) => sum + debt.outstandingBalance, 0),
     totalOwing: owingDebts.reduce((sum, debt) => sum + debt.outstandingBalance, 0),
-  };
+  }
 
-  // Get recent activities (recent debts from both lending and owing)
   const recentActivities = [...lendingDebts, ...owingDebts]
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    .slice(0, 5);
+    .slice(0, 5)
 
   const handleRefresh = async () => {
-    setRefreshing(true);
+    setRefreshing(true)
     try {
-      await fetchAllDebts();
+      await fetchAllDebts()
     } catch (error) {
-      Alert.alert("Error", "Failed to refresh data");
+      Alert.alert("Error", "Failed to refresh data")
     } finally {
-      setRefreshing(false);
+      setRefreshing(false)
     }
-  };
+  }
 
   const handleAddLoan = () => {
-    navigation?.navigate('Debts', {
-      screen: 'AddDebt',
-      params: { mode: 'lending' }
-    });
-  };
+    navigation?.navigate("Debts", {
+      screen: "AddDebt",
+      params: { mode: "lending" },
+    })
+  }
 
   const handleAddDebt = () => {
-    navigation?.navigate('Debts', {
-      screen: 'AddDebt',
-      params: { mode: 'borrowing' }
-    });
-  };
+    navigation?.navigate("Debts", {
+      screen: "AddDebt",
+      params: { mode: "borrowing" },
+    })
+  }
 
-  const handleViewAllDebts = (type: 'lending' | 'owing') => {
-    navigation?.navigate('Debts', {
-      screen: 'DebtsList',
-      params: { filter: type }
-    });
-  };
+  const handleViewAllDebts = (type: "lending" | "owing") => {
+    navigation?.navigate("Debts", {
+      screen: "DebtsList",
+      params: { filter: type },
+    })
+  }
 
   const handleSwitchMode = () => {
-    Alert.alert(
-      "Switch Mode",
-      `Switch to ${isLender ? 'Borrower' : 'Lender'} view?`,
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Switch",
-          onPress: () => {
-            // This would update the user's view preference temporarily
-            // You could implement this as a temporary state or save to settings
-            Alert.alert("Feature Coming Soon", "Mode switching will be available in Settings");
-          }
-        }
-      ]
-    );
-  };
+    Alert.alert("Switch Mode", `Switch to ${isLender ? "Borrower" : "Lender"} view?`, [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Switch",
+        onPress: () => {
+          Alert.alert("Feature Coming Soon", "Mode switching will be available in Settings")
+        },
+      },
+    ])
+  }
 
   const renderLenderDashboard = () => (
     <VStack space="xl">
-      {/* Enhanced Header with Avatar */}
-      <Card variant="filled" className="bg-gradient-to-r from-blue-50 to-indigo-50 border-0">
-        <CardBody className="p-6">
+      <Box className="rounded-3xl overflow-hidden">
+        <LinearGradient
+          colors={[QredColors.brand.navy, QredColors.brand.navyDark]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={{ padding: 24, borderRadius: 24 }}
+        >
           <HStack space="md" className="items-center justify-between">
             <HStack space="md" className="items-center flex-1">
-              <Avatar size="lg" className="border-2 border-white shadow-md">
-                <AvatarFallbackText>{user?.name || 'LN'}</AvatarFallbackText>
-                {user?.avatarUrl && (
-                  <AvatarImage source={{ uri: user.avatarUrl }} />
+              <Box
+                className="w-16 h-16 rounded-2xl items-center justify-center border-2 border-white/20"
+                style={{ backgroundColor: "rgba(255, 255, 255, 0.1)" }}
+              >
+                {user?.avatarUrl ? (
+                  <Image
+                    source={{ uri: user.avatarUrl }}
+                    style={{ width: 64, height: 64, borderRadius: 16 }}
+                    resizeMode="cover"
+                  />
+                ) : (
+                  <Text className="text-2xl font-bold text-white">{(user?.name || "LN").charAt(0).toUpperCase()}</Text>
                 )}
-              </Avatar>
+              </Box>
 
               <VStack space="xs" className="flex-1">
-                <Text size="sm" className="text-blue-600 font-medium">
+                <Text size="sm" className="text-white/70 font-medium">
                   Welcome back,
                 </Text>
-                <Heading size="xl" className="text-blue-900">
-                  {user?.name || 'Lender'}
+                <Heading size="xl" className="text-white font-bold">
+                  {user?.name || "Lender"}
                 </Heading>
-                <HStack space="xs" className="items-center">
-                  <Badge action="primary" size="sm" variant="solid">
-                    <BadgeText>Lender Mode</BadgeText>
-                  </Badge>
-                  <Text size="sm" className="text-blue-600">
-                    • Manage your lending business
+                <Box className="px-3 py-1 rounded-lg self-start" style={{ backgroundColor: QredColors.accent.green }}>
+                  <Text size="xs" className="text-white font-bold">
+                    LENDER MODE
                   </Text>
-                </HStack>
+                </Box>
               </VStack>
             </HStack>
-
-            <Pressable
-              onPress={handleSwitchMode}
-              className="px-4 py-2 bg-white rounded-lg shadow-sm border border-blue-200"
-            >
-              <Text size="sm" className="text-blue-700 font-medium">
-                Switch Mode
-              </Text>
-            </Pressable>
           </HStack>
-        </CardBody>
-      </Card>
+        </LinearGradient>
+      </Box>
 
-      {/* Enhanced Summary Cards */}
       <VStack space="lg">
-        <Heading size="lg" className="text-typography-900">
+        <Heading size="lg" className="text-typography-900 font-bold">
           Lending Overview
         </Heading>
 
@@ -371,7 +401,7 @@ export default function RoleBasedDashboard({ navigation }: DashboardProps) {
           count={lendingDebts.length}
           icon={DollarSign}
           variant="lending"
-          onPress={() => handleViewAllDebts('lending')}
+          onPress={() => handleViewAllDebts("lending")}
           trend={{ value: 12.5, isPositive: true }}
         />
 
@@ -380,9 +410,9 @@ export default function RoleBasedDashboard({ navigation }: DashboardProps) {
             <SummaryCard
               title="Pending"
               amount={lendingDebts
-                .filter(d => d.status === 'PENDING')
+                .filter((d) => d.status === "PENDING")
                 .reduce((sum, d) => sum + d.outstandingBalance, 0)}
-              count={lendingDebts.filter(d => d.status === 'PENDING').length}
+              count={lendingDebts.filter((d) => d.status === "PENDING").length}
               icon={Clock}
               variant="secondary"
             />
@@ -391,9 +421,9 @@ export default function RoleBasedDashboard({ navigation }: DashboardProps) {
             <SummaryCard
               title="Overdue"
               amount={lendingDebts
-                .filter(d => d.status === 'OVERDUE')
+                .filter((d) => d.status === "OVERDUE")
                 .reduce((sum, d) => sum + d.outstandingBalance, 0)}
-              count={lendingDebts.filter(d => d.status === 'OVERDUE').length}
+              count={lendingDebts.filter((d) => d.status === "OVERDUE").length}
               icon={AlertCircle}
               variant="warning"
             />
@@ -401,9 +431,8 @@ export default function RoleBasedDashboard({ navigation }: DashboardProps) {
         </HStack>
       </VStack>
 
-      {/* Enhanced Quick Actions */}
       <VStack space="lg">
-        <Heading size="lg" className="text-typography-900">
+        <Heading size="lg" className="text-typography-900 font-bold">
           Quick Actions
         </Heading>
 
@@ -422,56 +451,68 @@ export default function RoleBasedDashboard({ navigation }: DashboardProps) {
               title="Personal Debts"
               description="Track money you owe"
               icon={Users}
-              onPress={() => handleViewAllDebts('owing')}
+              onPress={() => handleViewAllDebts("owing")}
               variant="secondary"
             />
           </Box>
         </HStack>
       </VStack>
 
-      {/* Recent Activities Section */}
       <VStack space="lg">
         <HStack className="items-center justify-between">
-          <Heading size="lg" className="text-typography-900">
+          <Heading size="lg" className="text-typography-900 font-bold">
             Recent Activities
           </Heading>
-          <Pressable onPress={() => navigation?.navigate('Debts')}>
-            <Text size="sm" className="text-primary-600 font-medium">
-              View All
+          <Pressable onPress={() => navigation?.navigate("Debts")}>
+            <Text size="sm" className="font-bold" style={{ color: QredColors.brand.navy }}>
+              View All →
             </Text>
           </Pressable>
         </HStack>
 
         {recentActivities.length > 0 ? (
-          <VStack space="sm">
+          <VStack space="md">
             {recentActivities.map((debt) => (
               <RecentActivityItem
                 key={debt.id}
                 debt={debt}
                 userRole="LENDER"
-                onPress={() => navigation?.navigate('Debts', {
-                  screen: 'DebtDetail',
-                  params: { debtId: debt.id }
-                })}
+                onPress={() =>
+                  navigation?.navigate("Debts", {
+                    screen: "DebtDetail",
+                    params: { debtId: debt.id },
+                  })
+                }
               />
             ))}
           </VStack>
         ) : (
-          <Card variant="outline" className="bg-gray-50">
-            <CardBody className="p-6 items-center">
-              <Icon as={Clock} size="xl" className="text-gray-400 mb-2" />
-              <Text size="sm" className="text-gray-600 text-center">
-                No recent activities
-              </Text>
-              <Text size="xs" className="text-gray-500 text-center mt-1">
-                Your lending activities will appear here
-              </Text>
-            </CardBody>
-          </Card>
+          <Box
+            className="bg-white rounded-2xl p-8 items-center border border-background-200"
+            style={{
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.05,
+              shadowRadius: 8,
+              elevation: 2,
+            }}
+          >
+            <Box
+              className="w-16 h-16 rounded-2xl items-center justify-center mb-4"
+              style={{ backgroundColor: QredColors.surface.elevated }}
+            >
+              <Icon as={Clock} size="xl" className="text-typography-400" />
+            </Box>
+            <Text size="sm" className="text-typography-600 text-center font-semibold">
+              No recent activities
+            </Text>
+            <Text size="xs" className="text-typography-400 text-center mt-2">
+              Your lending activities will appear here
+            </Text>
+          </Box>
         )}
       </VStack>
 
-      {/* Secondary Summary for Personal Debts */}
       {owingDebts.length > 0 && (
         <VStack space="md">
           <Heading size="md" className="text-typography-700">
@@ -483,60 +524,62 @@ export default function RoleBasedDashboard({ navigation }: DashboardProps) {
             count={owingDebts.length}
             icon={ArrowDownLeft}
             variant="borrowing"
-            onPress={() => handleViewAllDebts('owing')}
+            onPress={() => handleViewAllDebts("owing")}
           />
         </VStack>
       )}
     </VStack>
-  );
+  )
 
   const renderBorrowerDashboard = () => (
     <VStack space="xl">
-      {/* Enhanced Header with Avatar */}
-      <Card variant="filled" className="bg-gradient-to-r from-orange-50 to-amber-50 border-0">
-        <CardBody className="p-6">
+      <Box className="rounded-3xl overflow-hidden">
+        <LinearGradient
+          colors={[QredColors.status.warning[500], QredColors.status.warning[600]]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={{ padding: 24, borderRadius: 24 }}
+        >
           <HStack space="md" className="items-center justify-between">
             <HStack space="md" className="items-center flex-1">
-              <Avatar size="lg" className="border-2 border-white shadow-md">
-                <AvatarFallbackText>{user?.name || 'BR'}</AvatarFallbackText>
-                {user?.avatarUrl && (
-                  <AvatarImage source={{ uri: user.avatarUrl }} />
+              <Box
+                className="w-16 h-16 rounded-2xl items-center justify-center border-2 border-white/20"
+                style={{ backgroundColor: "rgba(255, 255, 255, 0.1)" }}
+              >
+                {user?.avatarUrl ? (
+                  <Image
+                    source={{ uri: user.avatarUrl }}
+                    style={{ width: 64, height: 64, borderRadius: 16 }}
+                    resizeMode="cover"
+                  />
+                ) : (
+                  <Text className="text-2xl font-bold text-white">{(user?.name || "BR").charAt(0).toUpperCase()}</Text>
                 )}
-              </Avatar>
+              </Box>
 
               <VStack space="xs" className="flex-1">
-                <Text size="sm" className="text-orange-600 font-medium">
+                <Text size="sm" className="text-white/70 font-medium">
                   Welcome back,
                 </Text>
-                <Heading size="xl" className="text-orange-900">
-                  {user?.name || 'User'}
+                <Heading size="xl" className="text-white font-bold">
+                  {user?.name || "User"}
                 </Heading>
-                <HStack space="xs" className="items-center">
-                  <Badge action="warning" size="sm" variant="solid">
-                    <BadgeText>Borrower Mode</BadgeText>
-                  </Badge>
-                  <Text size="sm" className="text-orange-600">
-                    • Track and manage your debts
+                <Box
+                  className="px-3 py-1 rounded-lg self-start"
+                  style={{ backgroundColor: "rgba(255, 255, 255, 0.2)" }}
+                >
+                  <Text size="xs" className="text-white font-bold">
+                    BORROWER MODE
                   </Text>
-                </HStack>
+                </Box>
               </VStack>
             </HStack>
-
-            <Pressable
-              onPress={handleSwitchMode}
-              className="px-4 py-2 bg-white rounded-lg shadow-sm border border-orange-200"
-            >
-              <Text size="sm" className="text-orange-700 font-medium">
-                Switch Mode
-              </Text>
-            </Pressable>
           </HStack>
-        </CardBody>
-      </Card>
+        </LinearGradient>
+      </Box>
 
-      {/* Enhanced Summary Cards */}
       <VStack space="lg">
-        <Heading size="lg" className="text-typography-900">
+        <Heading size="lg" className="text-typography-900 font-bold">
           Debt Overview
         </Heading>
 
@@ -546,7 +589,7 @@ export default function RoleBasedDashboard({ navigation }: DashboardProps) {
           count={owingDebts.length}
           icon={ArrowDownLeft}
           variant="borrowing"
-          onPress={() => handleViewAllDebts('owing')}
+          onPress={() => handleViewAllDebts("owing")}
           trend={{ value: -8.2, isPositive: false }}
         />
 
@@ -555,9 +598,9 @@ export default function RoleBasedDashboard({ navigation }: DashboardProps) {
             <SummaryCard
               title="Pending"
               amount={owingDebts
-                .filter(d => d.status === 'PENDING')
+                .filter((d) => d.status === "PENDING")
                 .reduce((sum, d) => sum + d.outstandingBalance, 0)}
-              count={owingDebts.filter(d => d.status === 'PENDING').length}
+              count={owingDebts.filter((d) => d.status === "PENDING").length}
               icon={Clock}
               variant="secondary"
             />
@@ -566,9 +609,9 @@ export default function RoleBasedDashboard({ navigation }: DashboardProps) {
             <SummaryCard
               title="Overdue"
               amount={owingDebts
-                .filter(d => d.status === 'OVERDUE')
+                .filter((d) => d.status === "OVERDUE")
                 .reduce((sum, d) => sum + d.outstandingBalance, 0)}
-              count={owingDebts.filter(d => d.status === 'OVERDUE').length}
+              count={owingDebts.filter((d) => d.status === "OVERDUE").length}
               icon={AlertCircle}
               variant="warning"
             />
@@ -576,9 +619,8 @@ export default function RoleBasedDashboard({ navigation }: DashboardProps) {
         </HStack>
       </VStack>
 
-      {/* Enhanced Quick Actions */}
       <VStack space="lg">
-        <Heading size="lg" className="text-typography-900">
+        <Heading size="lg" className="text-typography-900 font-bold">
           Quick Actions
         </Heading>
 
@@ -597,56 +639,68 @@ export default function RoleBasedDashboard({ navigation }: DashboardProps) {
               title="My Lending"
               description="Money owed to you"
               icon={DollarSign}
-              onPress={() => handleViewAllDebts('lending')}
+              onPress={() => handleViewAllDebts("lending")}
               variant="secondary"
             />
           </Box>
         </HStack>
       </VStack>
 
-      {/* Recent Activities Section */}
       <VStack space="lg">
         <HStack className="items-center justify-between">
-          <Heading size="lg" className="text-typography-900">
+          <Heading size="lg" className="text-typography-900 font-bold">
             Recent Activities
           </Heading>
-          <Pressable onPress={() => navigation?.navigate('Debts')}>
-            <Text size="sm" className="text-primary-600 font-medium">
-              View All
+          <Pressable onPress={() => navigation?.navigate("Debts")}>
+            <Text size="sm" className="font-bold" style={{ color: QredColors.brand.navy }}>
+              View All →
             </Text>
           </Pressable>
         </HStack>
 
         {recentActivities.length > 0 ? (
-          <VStack space="sm">
+          <VStack space="md">
             {recentActivities.map((debt) => (
               <RecentActivityItem
                 key={debt.id}
                 debt={debt}
                 userRole="BORROWER"
-                onPress={() => navigation?.navigate('Debts', {
-                  screen: 'DebtDetail',
-                  params: { debtId: debt.id }
-                })}
+                onPress={() =>
+                  navigation?.navigate("Debts", {
+                    screen: "DebtDetail",
+                    params: { debtId: debt.id },
+                  })
+                }
               />
             ))}
           </VStack>
         ) : (
-          <Card variant="outline" className="bg-gray-50">
-            <CardBody className="p-6 items-center">
-              <Icon as={Clock} size="xl" className="text-gray-400 mb-2" />
-              <Text size="sm" className="text-gray-600 text-center">
-                No recent activities
-              </Text>
-              <Text size="xs" className="text-gray-500 text-center mt-1">
-                Your debt activities will appear here
-              </Text>
-            </CardBody>
-          </Card>
+          <Box
+            className="bg-white rounded-2xl p-8 items-center border border-background-200"
+            style={{
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.05,
+              shadowRadius: 8,
+              elevation: 2,
+            }}
+          >
+            <Box
+              className="w-16 h-16 rounded-2xl items-center justify-center mb-4"
+              style={{ backgroundColor: QredColors.surface.elevated }}
+            >
+              <Icon as={Clock} size="xl" className="text-typography-400" />
+            </Box>
+            <Text size="sm" className="text-typography-600 text-center font-semibold">
+              No recent activities
+            </Text>
+            <Text size="xs" className="text-typography-400 text-center mt-2">
+              Your debt activities will appear here
+            </Text>
+          </Box>
         )}
       </VStack>
 
-      {/* Secondary Summary for Lending */}
       {lendingDebts.length > 0 && (
         <VStack space="md">
           <Heading size="md" className="text-typography-700">
@@ -658,15 +712,15 @@ export default function RoleBasedDashboard({ navigation }: DashboardProps) {
             count={lendingDebts.length}
             icon={DollarSign}
             variant="lending"
-            onPress={() => handleViewAllDebts('lending')}
+            onPress={() => handleViewAllDebts("lending")}
           />
         </VStack>
       )}
     </VStack>
-  );
+  )
 
   return (
-    <Box className="flex-1 bg-gradient-to-b from-background-0 to-background-50">
+    <Box className="flex-1" style={{ backgroundColor: QredColors.background.light }}>
       <ScrollView
         className="flex-1"
         showsVerticalScrollIndicator={false}
@@ -678,26 +732,29 @@ export default function RoleBasedDashboard({ navigation }: DashboardProps) {
           />
         }
       >
-        <Box className="px-6 py-8 pt-16 pb-24">
-          {isLender ? renderLenderDashboard() : renderBorrowerDashboard()}
-        </Box>
+        <Box className="px-6 py-8 pt-16 pb-24">{isLender ? renderLenderDashboard() : renderBorrowerDashboard()}</Box>
       </ScrollView>
 
-      {/* Enhanced Floating Action Button */}
       <Box className="absolute bottom-8 right-6">
         <Pressable
           onPress={isLender ? handleAddLoan : handleAddDebt}
-          className={`
-            w-16 h-16 rounded-2xl items-center justify-center shadow-2xl
-            ${isLender
-              ? 'bg-gradient-to-br from-emerald-500 to-emerald-600'
-              : 'bg-gradient-to-br from-orange-500 to-amber-500'
-            }
-          `}
+          style={{
+            width: 64,
+            height: 64,
+            borderRadius: 20,
+            backgroundColor: isLender ? QredColors.accent.green : QredColors.status.warning[500],
+            alignItems: "center",
+            justifyContent: "center",
+            shadowColor: isLender ? QredColors.accent.green : QredColors.status.warning[500],
+            shadowOffset: { width: 0, height: 8 },
+            shadowOpacity: 0.4,
+            shadowRadius: 16,
+            elevation: 8,
+          }}
         >
           <Icon as={Plus} size="xl" className="text-white" />
         </Pressable>
       </Box>
     </Box>
-  );
+  )
 }

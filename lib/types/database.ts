@@ -141,6 +141,8 @@ export type Database = {
           name: string
           phoneNumber: string | null
           avatarUrl: string | null
+          defaultRole: Database['public']['Enums']['UserRole']
+          hasCompletedRoleSelection: boolean
           createdAt: string
           updatedAt: string
         }
@@ -150,6 +152,8 @@ export type Database = {
           name: string
           phoneNumber?: string | null
           avatarUrl?: string | null
+          defaultRole?: Database['public']['Enums']['UserRole']
+          hasCompletedRoleSelection?: boolean
           createdAt?: string
           updatedAt?: string
         }
@@ -159,6 +163,8 @@ export type Database = {
           name?: string
           phoneNumber?: string | null
           avatarUrl?: string | null
+          defaultRole?: Database['public']['Enums']['UserRole']
+          hasCompletedRoleSelection?: boolean
           createdAt?: string
           updatedAt?: string
         }
@@ -197,6 +203,7 @@ export type Database = {
     Enums: {
       DebtStatus: 'PENDING' | 'PAID' | 'OVERDUE' | 'DEFAULTED'
       PaymentStatus: 'PENDING' | 'SUCCESSFUL' | 'FAILED'
+      UserRole: 'LENDER' | 'BORROWER'
     }
     CompositeTypes: {
       [_ in never]: never
@@ -299,6 +306,7 @@ export type PaymentUpdate = TablesUpdate<'Payment'>
 
 export type DebtStatus = Enums<'DebtStatus'>
 export type PaymentStatus = Enums<'PaymentStatus'>
+export type UserRole = Enums<'UserRole'>
 
 // Extended types with relationships
 export type DebtWithRelations = DebtRow & {

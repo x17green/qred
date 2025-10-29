@@ -21,6 +21,7 @@ interface AuthState {
   isLoading: boolean;
   error: string | null;
   needsOnboarding: boolean;
+  needsRoleSelection: boolean;
 }
 
 interface AuthActions {
@@ -31,7 +32,9 @@ interface AuthActions {
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   setNeedsOnboarding: (needsOnboarding: boolean) => void;
+  setNeedsRoleSelection: (needsRoleSelection: boolean) => void;
   checkProfileCompletion: () => boolean;
+  checkRoleSelectionCompletion: () => boolean;
 }
 
 interface AuthStore extends AuthState, AuthActions {
@@ -70,11 +73,19 @@ export const useAuthStore = create<AuthStore>()(
       isLoading: false,
       error: null,
       needsOnboarding: false,
+      needsRoleSelection: false,
 
       // Actions
       setUser: (user: UserRow) => {
         const needsOnboarding = !get().checkProfileCompletion();
-        set({ user, isAuthenticated: true, error: null, needsOnboarding });
+        const needsRoleSelection = !get().checkRoleSelectionCompletion();
+        set({
+          user,
+          isAuthenticated: true,
+          error: null,
+          needsOnboarding,
+          needsRoleSelection
+        });
       },
 
       setAuthUser: (user: User) => {
@@ -99,6 +110,7 @@ export const useAuthStore = create<AuthStore>()(
             isLoading: false,
             error: null,
             needsOnboarding: false,
+            needsRoleSelection: false,
           });
         } catch (error) {
           const errorMessage =
@@ -120,6 +132,10 @@ export const useAuthStore = create<AuthStore>()(
         set({ needsOnboarding });
       },
 
+      setNeedsRoleSelection: (needsRoleSelection: boolean) => {
+        set({ needsRoleSelection });
+      },
+
       checkProfileCompletion: () => {
         const { user } = get();
         if (!user) return false;
@@ -128,6 +144,14 @@ export const useAuthStore = create<AuthStore>()(
         const hasName = user.name && user.name.trim() !== "" && user.name !== "User" && user.name !== "Qred User";
 
         return !!hasName;
+      },
+
+      checkRoleSelectionCompletion: () => {
+        const { user } = get();
+        if (!user) return false;
+
+        // Check if role selection is completed
+        return !!user.hasCompletedRoleSelection;
       },
 
       // Additional auth actions
@@ -156,6 +180,7 @@ export const useAuthStore = create<AuthStore>()(
 
           const needsOnboarding = !userProfile || !userProfile.name ||
             userProfile.name === "User" || userProfile.name === "Qred User";
+          const needsRoleSelection = userProfile ? !userProfile.hasCompletedRoleSelection : false;
 
           set({
             user: userProfile,
@@ -165,6 +190,7 @@ export const useAuthStore = create<AuthStore>()(
             isLoading: false,
             error: null,
             needsOnboarding,
+            needsRoleSelection,
           });
 
           return response;
@@ -238,6 +264,7 @@ export const useAuthStore = create<AuthStore>()(
 
             const needsOnboarding = !userProfile || !userProfile.name ||
               userProfile.name === "User" || userProfile.name === "Qred User";
+            const needsRoleSelection = userProfile ? !userProfile.hasCompletedRoleSelection : false;
 
             set({
               user: userProfile,
@@ -247,6 +274,7 @@ export const useAuthStore = create<AuthStore>()(
               isLoading: false,
               error: null,
               needsOnboarding,
+              needsRoleSelection,
             });
           } else {
             set({ isLoading: false });
@@ -278,6 +306,7 @@ export const useAuthStore = create<AuthStore>()(
 
           const needsOnboarding = !userProfile || !userProfile.name ||
             userProfile.name === "User" || userProfile.name === "Qred User";
+          const needsRoleSelection = userProfile ? !userProfile.hasCompletedRoleSelection : false;
 
           set({
             user: userProfile,
@@ -287,6 +316,7 @@ export const useAuthStore = create<AuthStore>()(
             isLoading: false,
             error: null,
             needsOnboarding,
+            needsRoleSelection,
           });
 
           return response;
@@ -309,12 +339,14 @@ export const useAuthStore = create<AuthStore>()(
           const updatedUser = await authService.updateProfile(data);
 
           const needsOnboarding = !get().checkProfileCompletion();
+          const needsRoleSelection = !get().checkRoleSelectionCompletion();
 
           set({
             user: updatedUser,
             isLoading: false,
             error: null,
             needsOnboarding,
+            needsRoleSelection,
           });
 
           return updatedUser;
@@ -366,6 +398,7 @@ export const useAuthStore = create<AuthStore>()(
               if (token && authUser) {
                 const needsOnboarding = !userProfile || !userProfile.name ||
                   userProfile.name === "User" || userProfile.name === "Qred User";
+                const needsRoleSelection = userProfile ? !userProfile.hasCompletedRoleSelection : false;
 
                 set({
                   token,
@@ -375,6 +408,7 @@ export const useAuthStore = create<AuthStore>()(
                   isLoading: false,
                   error: null,
                   needsOnboarding,
+                  needsRoleSelection,
                 });
                 return true;
               }
@@ -392,6 +426,7 @@ export const useAuthStore = create<AuthStore>()(
             isLoading: false,
             error: null,
             needsOnboarding: false,
+            needsRoleSelection: false,
           });
 
           return false;
@@ -422,6 +457,7 @@ export const useAuthStore = create<AuthStore>()(
           isLoading: false,
           error: null,
           needsOnboarding: false,
+          needsRoleSelection: false,
         });
       },
     }),
@@ -434,6 +470,7 @@ export const useAuthStore = create<AuthStore>()(
         token: state.token,
         isAuthenticated: state.isAuthenticated,
         needsOnboarding: state.needsOnboarding,
+        needsRoleSelection: state.needsRoleSelection,
       }),
     },
   ),
@@ -450,6 +487,7 @@ export const useAuth = () =>
       isLoading: state.isLoading,
       error: state.error,
       needsOnboarding: state.needsOnboarding,
+      needsRoleSelection: state.needsRoleSelection,
     })),
   );
 
@@ -473,7 +511,9 @@ export const useAuthActions = () =>
       clearError: state.clearError,
       reset: state.reset,
       setNeedsOnboarding: state.setNeedsOnboarding,
+      setNeedsRoleSelection: state.setNeedsRoleSelection,
       checkProfileCompletion: state.checkProfileCompletion,
+      checkRoleSelectionCompletion: state.checkRoleSelectionCompletion,
     })),
   );
 

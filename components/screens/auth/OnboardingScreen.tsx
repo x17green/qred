@@ -215,18 +215,34 @@ export default function OnboardingScreen({ navigation }: OnboardingScreenProps) 
         avatarUrl,
       });
 
-      Alert.alert(
-        "Welcome to Qred!",
-        "Your profile has been set up successfully. Let's start managing your debts!",
-        [
-          {
-            text: "Get Started",
-            onPress: () => {
-              // Navigation will be handled by auth state change
+      // Check if role selection is still needed
+      if (!updatedUser.hasCompletedRoleSelection) {
+        Alert.alert(
+          "Profile Complete!",
+          "Now let's set up how you'll use Qred.",
+          [
+            {
+              text: "Continue",
+              onPress: () => {
+                // Navigation to role selection will be handled by auth state change
+              },
             },
-          },
-        ]
-      );
+          ]
+        );
+      } else {
+        Alert.alert(
+          "Welcome to Qred!",
+          "Your profile has been set up successfully. Let's start managing your debts!",
+          [
+            {
+              text: "Get Started",
+              onPress: () => {
+                // Navigation will be handled by auth state change
+              },
+            },
+          ]
+        );
+      }
     } catch (error) {
       Alert.alert(
         "Error",
@@ -260,6 +276,7 @@ export default function OnboardingScreen({ navigation }: OnboardingScreenProps) 
                   name: authUser?.user_metadata?.name || "Qred User",
                 });
               }
+              // Note: Role selection will still be required after this skip
             } catch (error) {
               console.error("Skip profile error:", error);
             } finally {

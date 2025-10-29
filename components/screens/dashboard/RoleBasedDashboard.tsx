@@ -1,13 +1,17 @@
+import { Avatar, AvatarFallbackText, AvatarImage } from "@/components/ui/avatar";
+import { Badge, BadgeIcon, BadgeText } from "@/components/ui/badge";
 import { Box } from "@/components/ui/box";
+import { Card, CardBody } from "@/components/ui/card";
 import { Heading } from "@/components/ui/heading";
 import { HStack } from "@/components/ui/hstack";
 import { Icon } from "@/components/ui/icon";
 import { Pressable } from "@/components/ui/pressable";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
+import { SemanticColors } from "@/lib/constants/colors";
 import { useAuth } from "@/lib/store/authStore";
 import { useDebtActions, useDebts } from "@/lib/store/debtStore";
-import { AlertCircle, ArrowDownLeft, ArrowUpRight, Clock, DollarSign, Plus, Users } from "lucide-react-native";
+import { AlertCircle, ArrowDownLeft, ArrowUpRight, Clock, DollarSign, Plus, TrendingUp, Users } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import { Alert, RefreshControl, ScrollView } from "react-native";
 
@@ -20,71 +24,107 @@ interface SummaryCardProps {
   amount: number;
   count: number;
   icon: React.ComponentType<any>;
-  variant: "primary" | "secondary" | "success" | "warning";
+  variant: "primary" | "secondary" | "success" | "warning" | "lending" | "borrowing";
   onPress?: () => void;
+  trend?: {
+    value: number;
+    isPositive: boolean;
+  };
 }
 
-function SummaryCard({ title, amount, count, icon, variant, onPress }: SummaryCardProps) {
+function SummaryCard({ title, amount, count, icon, variant, onPress, trend }: SummaryCardProps) {
   const variantStyles = {
     primary: {
-      bg: "bg-primary-50",
-      iconBg: "bg-primary-500",
+      card: "bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200",
+      iconBg: "bg-blue-500",
       iconColor: "text-white",
-      titleColor: "text-primary-700",
-      amountColor: "text-primary-900",
+      titleColor: "text-blue-700",
+      amountColor: "text-blue-900",
+      shadow: "shadow-blue-100",
     },
     secondary: {
-      bg: "bg-background-100",
-      iconBg: "bg-background-500",
+      card: "bg-gradient-to-br from-gray-50 to-gray-100 border-gray-200",
+      iconBg: "bg-gray-500",
       iconColor: "text-white",
-      titleColor: "text-typography-700",
-      amountColor: "text-typography-900",
+      titleColor: "text-gray-700",
+      amountColor: "text-gray-900",
+      shadow: "shadow-gray-100",
     },
     success: {
-      bg: "bg-success-50",
-      iconBg: "bg-success-500",
+      card: "bg-gradient-to-br from-green-50 to-emerald-100 border-green-200",
+      iconBg: "bg-green-500",
       iconColor: "text-white",
-      titleColor: "text-success-700",
-      amountColor: "text-success-900",
+      titleColor: "text-green-700",
+      amountColor: "text-green-900",
+      shadow: "shadow-green-100",
     },
     warning: {
-      bg: "bg-warning-50",
-      iconBg: "bg-warning-500",
+      card: "bg-gradient-to-br from-amber-50 to-yellow-100 border-amber-200",
+      iconBg: "bg-amber-500",
       iconColor: "text-white",
-      titleColor: "text-warning-700",
-      amountColor: "text-warning-900",
+      titleColor: "text-amber-700",
+      amountColor: "text-amber-900",
+      shadow: "shadow-amber-100",
+    },
+    lending: {
+      card: "bg-gradient-to-br from-emerald-50 to-green-100 border-emerald-200",
+      iconBg: "bg-emerald-600",
+      iconColor: "text-white",
+      titleColor: "text-emerald-700",
+      amountColor: "text-emerald-900",
+      shadow: "shadow-emerald-100",
+    },
+    borrowing: {
+      card: "bg-gradient-to-br from-orange-50 to-amber-100 border-orange-200",
+      iconBg: "bg-orange-500",
+      iconColor: "text-white",
+      titleColor: "text-orange-700",
+      amountColor: "text-orange-900",
+      shadow: "shadow-orange-100",
     },
   };
 
   const styles = variantStyles[variant];
 
   return (
-    <Pressable
-      onPress={onPress}
-      className={`${styles.bg} p-4 rounded-xl border border-opacity-20`}
-    >
-      <HStack space="md" className="items-center">
-        <Box className={`w-12 h-12 rounded-full ${styles.iconBg} items-center justify-center`}>
-          <Icon as={icon} size="lg" className={styles.iconColor} />
-        </Box>
+    <Card variant="elevated" className={`${styles.card} ${styles.shadow} border-l-4`}>
+      <Pressable onPress={onPress} className="p-0">
+        <CardBody className="p-4">
+          <HStack space="md" className="items-center">
+            <Box className={`w-14 h-14 rounded-2xl ${styles.iconBg} items-center justify-center shadow-md`}>
+              <Icon as={icon} size="lg" className={styles.iconColor} />
+            </Box>
 
-        <VStack space="xs" className="flex-1">
-          <Text size="sm" className={`${styles.titleColor} font-medium`}>
-            {title}
-          </Text>
-          <Text size="2xl" bold className={styles.amountColor}>
-            ₦{amount.toLocaleString()}
-          </Text>
-          <Text size="xs" className="text-typography-500">
-            {count} {count === 1 ? 'debt' : 'debts'}
-          </Text>
-        </VStack>
+            <VStack space="xs" className="flex-1">
+              <HStack className="items-center justify-between">
+                <Text size="sm" className={`${styles.titleColor} font-medium`}>
+                  {title}
+                </Text>
+                {trend && (
+                  <Badge action={trend.isPositive ? "success" : "error"} size="sm" variant="outline">
+                    <BadgeIcon as={TrendingUp} />
+                    <BadgeText>{trend.isPositive ? "+" : ""}{trend.value}%</BadgeText>
+                  </Badge>
+                )}
+              </HStack>
 
-        {onPress && (
-          <Icon as={ArrowUpRight} size="sm" className="text-typography-400" />
-        )}
-      </HStack>
-    </Pressable>
+              <Heading size="xl" className={styles.amountColor}>
+                ₦{amount.toLocaleString()}
+              </Heading>
+
+              <HStack space="xs" className="items-center">
+                <Text size="xs" className="text-typography-500">
+                  {count} {count === 1 ? 'debt' : 'debts'}
+                </Text>
+                {onPress && (
+                  <Icon as={ArrowUpRight} size="xs" className="text-typography-400" />
+                )}
+              </HStack>
+            </VStack>
+          </HStack>
+        </CardBody>
+      </Pressable>
+    </Card>
   );
 }
 
@@ -100,44 +140,44 @@ function QuickAction({ title, description, icon, onPress, variant = "primary" }:
   const isPrimary = variant === "primary";
 
   return (
-    <Pressable
-      onPress={onPress}
-      className={`
-        p-4 rounded-xl border-2 transition-all
-        ${isPrimary
-          ? 'border-primary-200 bg-primary-50 data-[hover=true]:border-primary-300'
-          : 'border-background-300 bg-background-0 data-[hover=true]:border-background-400'
-        }
-      `}
-    >
-      <VStack space="sm" className="items-center">
-        <Box
-          className={`
-            w-16 h-16 rounded-full items-center justify-center
-            ${isPrimary ? 'bg-primary-500' : 'bg-background-200'}
-          `}
-        >
-          <Icon
-            as={icon}
-            size="xl"
-            className={isPrimary ? 'text-white' : 'text-typography-600'}
-          />
-        </Box>
-        <Text
-          size="md"
-          bold
-          className={`text-center ${isPrimary ? 'text-primary-700' : 'text-typography-700'}`}
-        >
-          {title}
-        </Text>
-        <Text
-          size="sm"
-          className={`text-center ${isPrimary ? 'text-primary-600' : 'text-typography-500'}`}
-        >
-          {description}
-        </Text>
-      </VStack>
-    </Pressable>
+    <Card variant="outline" className={`overflow-hidden ${isPrimary ? 'border-primary-200' : 'border-gray-200'}`}>
+      <Pressable onPress={onPress} className="p-0">
+        <CardBody className="p-6">
+          <VStack space="md" className="items-center">
+            <Box
+              className={`
+                w-20 h-20 rounded-2xl items-center justify-center shadow-lg
+                ${isPrimary
+                  ? 'bg-gradient-to-br from-primary-500 to-primary-600'
+                  : 'bg-gradient-to-br from-gray-100 to-gray-200'
+                }
+              `}
+            >
+              <Icon
+                as={icon}
+                size="xl"
+                className={isPrimary ? 'text-white' : 'text-gray-600'}
+              />
+            </Box>
+
+            <VStack space="xs" className="items-center">
+              <Heading
+                size="md"
+                className={`text-center ${isPrimary ? 'text-primary-700' : 'text-typography-700'}`}
+              >
+                {title}
+              </Heading>
+              <Text
+                size="sm"
+                className={`text-center max-w-[120px] ${isPrimary ? 'text-primary-600' : 'text-typography-500'}`}
+              >
+                {description}
+              </Text>
+            </VStack>
+          </VStack>
+        </CardBody>
+      </Pressable>
+    </Card>
   );
 }
 
@@ -215,41 +255,62 @@ export default function RoleBasedDashboard({ navigation }: DashboardProps) {
 
   const renderLenderDashboard = () => (
     <VStack space="xl">
-      {/* Header */}
-      <VStack space="md">
-        <HStack className="items-center justify-between">
-          <VStack space="xs">
-            <Text size="lg" className="text-typography-600">
-              Welcome back,
-            </Text>
-            <Heading size="xl" className="text-typography-900">
-              {user?.name || 'Lender'}
-            </Heading>
-          </VStack>
-          <Pressable
-            onPress={handleSwitchMode}
-            className="px-3 py-2 bg-background-100 rounded-lg"
-          >
-            <Text size="sm" className="text-typography-600">
-              Switch to Borrower
-            </Text>
-          </Pressable>
-        </HStack>
+      {/* Enhanced Header with Avatar */}
+      <Card variant="filled" className="bg-gradient-to-r from-blue-50 to-indigo-50 border-0">
+        <CardBody className="p-6">
+          <HStack space="md" className="items-center justify-between">
+            <HStack space="md" className="items-center flex-1">
+              <Avatar size="lg" className="border-2 border-white shadow-md">
+                <AvatarFallbackText>{user?.name || 'LN'}</AvatarFallbackText>
+                {user?.avatarUrl && (
+                  <AvatarImage source={{ uri: user.avatarUrl }} />
+                )}
+              </Avatar>
 
-        <Text size="md" className="text-typography-600">
-          Manage your lending business
-        </Text>
-      </VStack>
+              <VStack space="xs" className="flex-1">
+                <Text size="sm" className="text-blue-600 font-medium">
+                  Welcome back,
+                </Text>
+                <Heading size="xl" className="text-blue-900">
+                  {user?.name || 'Lender'}
+                </Heading>
+                <HStack space="xs" className="items-center">
+                  <Badge action="primary" size="sm" variant="solid">
+                    <BadgeText>Lender Mode</BadgeText>
+                  </Badge>
+                  <Text size="sm" className="text-blue-600">
+                    • Manage your lending business
+                  </Text>
+                </HStack>
+              </VStack>
+            </HStack>
 
-      {/* Summary Cards */}
-      <VStack space="md">
+            <Pressable
+              onPress={handleSwitchMode}
+              className="px-4 py-2 bg-white rounded-lg shadow-sm border border-blue-200"
+            >
+              <Text size="sm" className="text-blue-700 font-medium">
+                Switch Mode
+              </Text>
+            </Pressable>
+          </HStack>
+        </CardBody>
+      </Card>
+
+      {/* Enhanced Summary Cards */}
+      <VStack space="lg">
+        <Heading size="lg" className="text-typography-900">
+          Lending Overview
+        </Heading>
+
         <SummaryCard
           title="Total Owed to You"
           amount={summary.totalLending}
           count={lendingDebts.length}
           icon={DollarSign}
-          variant="primary"
+          variant="lending"
           onPress={() => handleViewAllDebts('lending')}
+          trend={{ value: 12.5, isPositive: true }}
         />
 
         <HStack space="md">
@@ -278,11 +339,11 @@ export default function RoleBasedDashboard({ navigation }: DashboardProps) {
         </HStack>
       </VStack>
 
-      {/* Quick Actions */}
-      <VStack space="md">
-        <Text size="lg" bold className="text-typography-900">
+      {/* Enhanced Quick Actions */}
+      <VStack space="lg">
+        <Heading size="lg" className="text-typography-900">
           Quick Actions
-        </Text>
+        </Heading>
 
         <HStack space="md">
           <Box className="flex-1">
@@ -296,7 +357,7 @@ export default function RoleBasedDashboard({ navigation }: DashboardProps) {
           </Box>
           <Box className="flex-1">
             <QuickAction
-              title="My Personal Debts"
+              title="Personal Debts"
               description="Track money you owe"
               icon={Users}
               onPress={() => handleViewAllDebts('owing')}
@@ -309,15 +370,15 @@ export default function RoleBasedDashboard({ navigation }: DashboardProps) {
       {/* Secondary Summary for Personal Debts */}
       {owingDebts.length > 0 && (
         <VStack space="md">
-          <Text size="md" className="text-typography-600">
+          <Heading size="md" className="text-typography-700">
             Your Personal Debts
-          </Text>
+          </Heading>
           <SummaryCard
             title="Total You Owe"
             amount={summary.totalOwing}
             count={owingDebts.length}
-            icon={Users}
-            variant="secondary"
+            icon={ArrowDownLeft}
+            variant="borrowing"
             onPress={() => handleViewAllDebts('owing')}
           />
         </VStack>
@@ -327,41 +388,62 @@ export default function RoleBasedDashboard({ navigation }: DashboardProps) {
 
   const renderBorrowerDashboard = () => (
     <VStack space="xl">
-      {/* Header */}
-      <VStack space="md">
-        <HStack className="items-center justify-between">
-          <VStack space="xs">
-            <Text size="lg" className="text-typography-600">
-              Welcome back,
-            </Text>
-            <Heading size="xl" className="text-typography-900">
-              {user?.name || 'User'}
-            </Heading>
-          </VStack>
-          <Pressable
-            onPress={handleSwitchMode}
-            className="px-3 py-2 bg-background-100 rounded-lg"
-          >
-            <Text size="sm" className="text-typography-600">
-              Switch to Lender
-            </Text>
-          </Pressable>
-        </HStack>
+      {/* Enhanced Header with Avatar */}
+      <Card variant="filled" className="bg-gradient-to-r from-orange-50 to-amber-50 border-0">
+        <CardBody className="p-6">
+          <HStack space="md" className="items-center justify-between">
+            <HStack space="md" className="items-center flex-1">
+              <Avatar size="lg" className="border-2 border-white shadow-md">
+                <AvatarFallbackText>{user?.name || 'BR'}</AvatarFallbackText>
+                {user?.avatarUrl && (
+                  <AvatarImage source={{ uri: user.avatarUrl }} />
+                )}
+              </Avatar>
 
-        <Text size="md" className="text-typography-600">
-          Track and manage your debts
-        </Text>
-      </VStack>
+              <VStack space="xs" className="flex-1">
+                <Text size="sm" className="text-orange-600 font-medium">
+                  Welcome back,
+                </Text>
+                <Heading size="xl" className="text-orange-900">
+                  {user?.name || 'User'}
+                </Heading>
+                <HStack space="xs" className="items-center">
+                  <Badge action="warning" size="sm" variant="solid">
+                    <BadgeText>Borrower Mode</BadgeText>
+                  </Badge>
+                  <Text size="sm" className="text-orange-600">
+                    • Track and manage your debts
+                  </Text>
+                </HStack>
+              </VStack>
+            </HStack>
 
-      {/* Summary Cards */}
-      <VStack space="md">
+            <Pressable
+              onPress={handleSwitchMode}
+              className="px-4 py-2 bg-white rounded-lg shadow-sm border border-orange-200"
+            >
+              <Text size="sm" className="text-orange-700 font-medium">
+                Switch Mode
+              </Text>
+            </Pressable>
+          </HStack>
+        </CardBody>
+      </Card>
+
+      {/* Enhanced Summary Cards */}
+      <VStack space="lg">
+        <Heading size="lg" className="text-typography-900">
+          Debt Overview
+        </Heading>
+
         <SummaryCard
           title="Total You Owe"
           amount={summary.totalOwing}
           count={owingDebts.length}
           icon={ArrowDownLeft}
-          variant="primary"
+          variant="borrowing"
           onPress={() => handleViewAllDebts('owing')}
+          trend={{ value: -8.2, isPositive: false }}
         />
 
         <HStack space="md">
@@ -390,11 +472,11 @@ export default function RoleBasedDashboard({ navigation }: DashboardProps) {
         </HStack>
       </VStack>
 
-      {/* Quick Actions */}
-      <VStack space="md">
-        <Text size="lg" bold className="text-typography-900">
+      {/* Enhanced Quick Actions */}
+      <VStack space="lg">
+        <Heading size="lg" className="text-typography-900">
           Quick Actions
-        </Text>
+        </Heading>
 
         <HStack space="md">
           <Box className="flex-1">
@@ -421,15 +503,15 @@ export default function RoleBasedDashboard({ navigation }: DashboardProps) {
       {/* Secondary Summary for Lending */}
       {lendingDebts.length > 0 && (
         <VStack space="md">
-          <Text size="md" className="text-typography-600">
+          <Heading size="md" className="text-typography-700">
             Your Lending Business
-          </Text>
+          </Heading>
           <SummaryCard
             title="Total Owed to You"
             amount={summary.totalLending}
             count={lendingDebts.length}
             icon={DollarSign}
-            variant="secondary"
+            variant="lending"
             onPress={() => handleViewAllDebts('lending')}
           />
         </VStack>
@@ -438,26 +520,36 @@ export default function RoleBasedDashboard({ navigation }: DashboardProps) {
   );
 
   return (
-    <Box className="flex-1 bg-background-0">
+    <Box className="flex-1 bg-gradient-to-b from-background-0 to-background-50">
       <ScrollView
         className="flex-1"
         showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
+            tintColor={isLender ? SemanticColors.lending : SemanticColors.borrowing}
+          />
         }
       >
-        <Box className="px-6 py-8 pt-16">
+        <Box className="px-6 py-8 pt-16 pb-24">
           {isLender ? renderLenderDashboard() : renderBorrowerDashboard()}
         </Box>
       </ScrollView>
 
-      {/* Floating Action Button */}
-      <Box className="absolute bottom-6 right-6">
+      {/* Enhanced Floating Action Button */}
+      <Box className="absolute bottom-8 right-6">
         <Pressable
           onPress={isLender ? handleAddLoan : handleAddDebt}
-          className="w-14 h-14 bg-primary-600 rounded-full items-center justify-center shadow-lg"
+          className={`
+            w-16 h-16 rounded-2xl items-center justify-center shadow-2xl
+            ${isLender
+              ? 'bg-gradient-to-br from-emerald-500 to-emerald-600'
+              : 'bg-gradient-to-br from-orange-500 to-amber-500'
+            }
+          `}
         >
-          <Icon as={Plus} size="lg" className="text-white" />
+          <Icon as={Plus} size="xl" className="text-white" />
         </Pressable>
       </Box>
     </Box>

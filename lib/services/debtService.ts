@@ -12,6 +12,7 @@ import {
     PaymentRow,
     UpdateDebtStatusRequest,
 } from "../types/database";
+import DebtLinkingService from "./debtLinkingService";
 import { getCurrentUser, handleSupabaseError, supabase } from "./supabase";
 
 class DebtService {
@@ -144,17 +145,8 @@ class DebtService {
       const calculatedInterest = (principal * interestRate) / 100;
       const totalAmount = principal + calculatedInterest;
 
-      // Check if debtor exists by phone number
+      // Initially set debtorId to null - will be linked by DebtLinkingService if user exists
       let debtorId = null;
-      const { data: existingDebtor } = await supabase
-        .from("User")
-        .select("id")
-        .eq("phoneNumber", request.debtorPhoneNumber)
-        .single();
-
-      if (existingDebtor) {
-        debtorId = existingDebtor.id;
-      }
 
       const debtData: DebtInsert = {
         lenderId: user.id,
@@ -184,6 +176,22 @@ class DebtService {
       if (!data) {
         throw new Error("Debt not found");
       }
+
+      // Attempt to link the debt to an existing user if they have this phone number
+      try {
+        const linkResult = await DebtLinkingService.linkNewDebtToExistingUser(
+          data.id,
+          request.debtorPhoneNumber
+        );
+
+        if (linkResult.linked) {
+          console.log(`DebtService: Successfully linked new debt ${data.id} to existing user ${linkResult.userId}`);
+        }
+      } catch (linkError) {
+        // Don't fail debt creation if linking fails
+        console.error("DebtService: Debt linking failed but debt was created:", linkError);
+      }
+
       return data;
     } catch (error) {
       console.error("Qred DebtService: Create debt error:", error);

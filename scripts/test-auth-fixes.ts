@@ -175,11 +175,13 @@ async function testAuthenticationFixes() {
 
     for (const testCase of testProfiles) {
       const testProfile = {
-        id: "test-id",
+        id: `test-user-${Date.now()}`,
         name: testCase.name,
         email: "test@example.com",
         phoneNumber: null,
         avatarUrl: null,
+        defaultRole: "BORROWER" as const,
+        hasCompletedRoleSelection: true,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };

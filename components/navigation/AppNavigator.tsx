@@ -1,4 +1,5 @@
 import OnboardingScreen from "@/components/screens/auth/OnboardingScreen";
+import RoleSelectionScreen from "@/components/screens/auth/RoleSelectionScreen";
 import { Box } from "@/components/ui/box";
 import { Text } from "@/components/ui/text";
 import { useAuth, useAuthActions } from "@/lib/store/authStore";
@@ -23,7 +24,7 @@ function LoadingScreen() {
 }
 
 export default function AppNavigator() {
-  const { isAuthenticated, isLoading, needsOnboarding } = useAuth();
+  const { isAuthenticated, isLoading, needsOnboarding, needsRoleSelection } = useAuth();
   const { checkAuthStatus } = useAuthActions();
   const [isInitializing, setIsInitializing] = useState(true);
 
@@ -66,6 +67,15 @@ export default function AppNavigator() {
             <Stack.Screen
               name="Onboarding"
               component={OnboardingScreen}
+              options={{
+                animationTypeForReplace: "push",
+                headerShown: false,
+              }}
+            />
+          ) : needsRoleSelection ? (
+            <Stack.Screen
+              name="RoleSelection"
+              component={RoleSelectionScreen}
               options={{
                 animationTypeForReplace: "push",
                 headerShown: false,

@@ -1,4 +1,5 @@
 import { UserInsert, UserRow, UserUpdate } from "../types/database";
+import DebtLinkingService from "./debtLinkingService";
 import { getCurrentUser, supabase } from "./supabase";
 
 class ProfileService {
@@ -133,6 +134,10 @@ class ProfileService {
    */
   async updateProfile(userId: string, updates: UserUpdate): Promise<UserRow> {
     try {
+      // Check if phone number is being updated
+      const isUpdatingPhone = updates.phoneNumber !== undefined;
+      const oldProfile = isUpdatingPhone ? await this.getProfile(userId) : null;
+
       const { data, error } = await supabase
         .from("User")
         .update(updates)
@@ -156,6 +161,24 @@ class ProfileService {
 
       if (!data) {
         throw new Error("Profile update returned no data");
+      }
+
+      // If phone number was added or changed, attempt to link existing debts
+      if (isUpdatingPhone &&
+          updates.phoneNumber &&
+          oldProfile?.phoneNumber !== updates.phoneNumber) {
+
+        console.log(`ProfileService: Phone number updated for user ${userId}, attempting debt linking...`);
+
+        try {
+          const linkResult = await DebtLinkingService.linkDebtsToUser(userId, updates.phoneNumber);
+          if (linkResult.linkedDebts > 0) {
+            console.log(`ProfileService: Successfully linked ${linkResult.linkedDebts} debts to user ${userId}`);
+          }
+        } catch (linkError) {
+          // Don't fail the profile update if debt linking fails
+          console.error("ProfileService: Debt linking failed but continuing with profile update:", linkError);
+        }
       }
 
       return data;

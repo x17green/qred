@@ -5,6 +5,8 @@ export interface User {
   name: string;
   phoneNumber: string | null;
   avatarUrl: string | null;
+  defaultRole: "LENDER" | "BORROWER";
+  hasCompletedRoleSelection: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -145,6 +147,7 @@ export type RootStackParamList = {
   Auth: undefined;
   Main: undefined;
   Onboarding: undefined;
+  RoleSelection: undefined;
 };
 
 export type AuthStackParamList = {
@@ -156,6 +159,7 @@ export type AuthStackParamList = {
     name?: string;
   };
   Onboarding: undefined;
+  RoleSelection: undefined;
   Test: undefined;
   Debug: undefined;
 };

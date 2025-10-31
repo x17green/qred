@@ -6,6 +6,7 @@ import { HStack } from "@/components/ui/hstack"
 import { Pressable } from "@/components/ui/pressable"
 import { Text } from "@/components/ui/text"
 import { VStack } from "@/components/ui/vstack"
+import { BorderRadius, Gradients, QredColors, SemanticColors } from "@/lib/constants/colors"
 import { debtService } from "@/lib/services/debtService"
 import { useAuth } from "@/lib/store/authStore"
 import { useDebtActions, useDebts } from "@/lib/store/debtStore"
@@ -14,7 +15,6 @@ import { Ionicons } from "@expo/vector-icons"
 import { LinearGradient } from "expo-linear-gradient"
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { Alert, Linking, RefreshControl, ScrollView } from "react-native"
-import { SemanticColors, QredColors } from "@/lib/constants/colors"
 
 interface DebtDetailScreenProps {
   navigation: any
@@ -240,23 +240,19 @@ export default function DebtDetailScreen({ navigation, route }: DebtDetailScreen
   const statusColor = debtService.getDebtStatusColor(currentDebt.status)
 
   return (
-    <Box className="flex-1 bg-background-0">
-      <LinearGradient
-        colors={["#1A2A4D", "#2D3E6F"]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={{ paddingHorizontal: 24, paddingTop: 64, paddingBottom: 10 }}
-      >
+    <Box className="flex-1" style={{ backgroundColor: QredColors.background.light }}>
+      {/* Header */}
+      <Box className="px-6 py-4 pt-16 border-b" style={{ backgroundColor: QredColors.background.light, borderColor: QredColors.border.light }}>
         <HStack className="items-center justify-between">
           <HStack className="items-center flex-1">
             <Pressable onPress={() => navigation.goBack()}>
-              <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
+              <Ionicons name="arrow-back" size={24} color={SemanticColors.secondary} />
             </Pressable>
             <VStack className="ml-4 flex-1">
-              <Text size="xl" className="-mb-3 font-bold text-white">
+              <Text size="xl" className="-mb-3 font-bold" style={{ color: SemanticColors.secondary }}>
                 {getPersonName()}
               </Text>
-              <Text size="sm" className="text-white/80 mt-1">
+              <Text size="sm" className="mt-1" style={{ color: SemanticColors.secondary }}>
                 {isLender ? "owes you" : "you owe"}
               </Text>
             </VStack>
@@ -275,13 +271,13 @@ export default function DebtDetailScreen({ navigation, route }: DebtDetailScreen
             </Text>
           </Box>
         </HStack>
-      </LinearGradient>
+      </Box>
 
       <ScrollView
         className="flex-1"
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
         showsVerticalScrollIndicator={false}
-        style={{ backgroundColor: SemanticColors.secondarySurface }}
+        style={{ backgroundColor: QredColors.background.light }}
       >
         <Box className="px-6 py-6">
           <VStack space="xl">
@@ -291,8 +287,8 @@ export default function DebtDetailScreen({ navigation, route }: DebtDetailScreen
               end={{ x: 1, y: 1 }}
               style={{
                 padding: 24,
-                borderRadius: 20,
-                borderWidth: 1.5,
+                
+                borderWidth: 0.5,
                 borderColor: isLender ? "#00E676" : "#FFC107",
                 shadowColor: isLender ? "#00E676" : "#FFC107",
                 shadowOffset: { width: 0, height: 6 },
@@ -511,7 +507,7 @@ export default function DebtDetailScreen({ navigation, route }: DebtDetailScreen
               )}
 
               {/* Timestamps */}
-              <Box 
+              <Box
                 className="bg-background-50 rounded-lg border border-background-200"
                 style={{
                   borderColor: QredColors.border.medium
@@ -563,16 +559,16 @@ export default function DebtDetailScreen({ navigation, route }: DebtDetailScreen
                 {/* For Lenders */}
                 {isLender && (
                   <VStack space="md">
-                    <Button 
-                      size="lg" 
-                      className="w-full bg-primary-600" 
+                    <Button
+                      size="lg"
+                      className="w-full bg-primary-600"
                       onPress={handleRecordPayment}
                       style={{
-                        borderColor: SemanticColors.secondaryGradient,
+                        borderColor: QredColors.brand.navyLight,
                         backgroundColor: QredColors.brand.navyLight,
                         borderWidth: 1.5,
-                        borderRadius: 16,
-                        height: 48,
+                        borderRadius: BorderRadius.lg,
+                        height: 50,
                       }}
                     >
                       <Ionicons name="add-circle" size={20} color="white" />
@@ -590,8 +586,8 @@ export default function DebtDetailScreen({ navigation, route }: DebtDetailScreen
                           borderColor: QredColors.border.medium,
                           backgroundColor: QredColors.background.muted,
                           borderWidth: 1.5,
-                          borderRadius: 16,
-                          height: 48,
+                          borderRadius: BorderRadius.lg,
+                          height: 50,
                         }}
                       >
                         <Ionicons name="notifications" size={18} color="#4F46E5" />
@@ -609,8 +605,8 @@ export default function DebtDetailScreen({ navigation, route }: DebtDetailScreen
                           borderColor: QredColors.border.accent,
                           backgroundColor: QredColors.status.success[600],
                           borderWidth: 1.5,
-                          borderRadius: 16,
-                          height: 48,
+                          borderRadius: BorderRadius.lg,
+                          height: 50,
                         }}
                       >
                         <Ionicons name="checkmark-circle" size={18} color="white" />
@@ -633,8 +629,8 @@ export default function DebtDetailScreen({ navigation, route }: DebtDetailScreen
                       borderColor: QredColors.border.medium,
                       backgroundColor: QredColors.background.muted,
                       borderWidth: 1.5,
-                      borderRadius: 16,
-                      height: 48,
+                      borderRadius: BorderRadius.xl,
+                      height: 30,
                     }}
                   >
                     <Ionicons name="create" size={20} color="#374151" />
@@ -661,9 +657,9 @@ export default function DebtDetailScreen({ navigation, route }: DebtDetailScreen
                   style={{
                     borderColor: QredColors.status.error[700],
                     backgroundColor: QredColors.status.error[50],
-                    borderWidth: 1.5,
-                    borderRadius: 16,
-                    height: 56,
+                    borderWidth: 0.5,
+                    borderRadius: BorderRadius.lg,
+                    height: 40,
                   }}
                 >
                   <Ionicons name="trash" size={20} color="#EF4444" />
@@ -705,7 +701,7 @@ const PaymentHistoryRow = ({
   const statusColor = payment.status === "SUCCESSFUL" ? "#10B981" : payment.status === "FAILED" ? "#EF4444" : "#F59E0B"
 
   return (
-    <Box 
+    <Box
       className={`px-4 py-3 ${!isLast ? "border-b border-background-300" : ""}`}
       style={{
         borderColor: QredColors.border.dark
@@ -754,7 +750,7 @@ const DetailRow = ({
   isLast?: boolean
 }) => {
   return (
-    <Box 
+    <Box
       className={`px-4 py-3 ${!isLast ? "border-b border-background-300" : ""}`}
       style={{
         borderColor: QredColors.border.medium

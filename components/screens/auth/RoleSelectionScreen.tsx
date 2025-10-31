@@ -8,6 +8,7 @@ import { Icon } from "@/components/ui/icon";
 import { Pressable } from "@/components/ui/pressable";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
+import { BorderRadius, QredColors, Shadows } from "@/lib/constants/colors";
 import { useAuth, useAuthActions } from "@/lib/store/authStore";
 import { UserRole } from "@/lib/types/database";
 import { Check, DollarSign, TrendingUp, Users } from "lucide-react-native";
@@ -33,35 +34,42 @@ function RoleOption({ role, title, description, icon, isSelected, onSelect }: Ro
   return (
     <Card
       variant={isSelected ? "elevated" : "outline"}
-      className={`
-        overflow-hidden transition-all duration-200 border-2
-        ${isSelected
+      className="overflow-hidden transition-all duration-200 border-2"
+      style={{
+        borderColor: isSelected
           ? isLender
-            ? 'border-emerald-400 bg-gradient-to-br from-emerald-50 to-green-100 shadow-emerald-100'
-            : 'border-amber-400 bg-gradient-to-br from-amber-50 to-orange-100 shadow-amber-100'
-          : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-md'
-        }
-      `}
+            ? QredColors.status.success[500]
+            : QredColors.status.warning[500]
+          : QredColors.border.light,
+        backgroundColor: isSelected
+          ? isLender
+            ? QredColors.status.success[50]
+            : QredColors.status.warning[50]
+          : QredColors.background.light,
+        borderRadius: BorderRadius.lg,
+        ...Shadows.md,
+      }}
     >
       <Pressable onPress={() => onSelect(role)} className="p-0">
         <CardBody className="p-6">
           <VStack space="lg">
             <HStack space="md" className="items-center">
               <Box
-                className={`
-                  w-16 h-16 rounded-2xl items-center justify-center shadow-lg
-                  ${isSelected
+                className="w-16 h-16 rounded-2xl items-center justify-center"
+                style={{
+                  backgroundColor: isSelected
                     ? isLender
-                      ? 'bg-gradient-to-br from-emerald-500 to-emerald-600'
-                      : 'bg-gradient-to-br from-amber-500 to-orange-500'
-                    : 'bg-gradient-to-br from-gray-100 to-gray-200'
-                  }
-                `}
+                      ? QredColors.status.success[600]
+                      : QredColors.status.warning[600]
+                    : QredColors.background.muted,
+                  borderRadius: BorderRadius.lg,
+                  ...Shadows.md,
+                }}
               >
                 <Icon
                   as={icon}
                   size="xl"
-                  className={isSelected ? 'text-white' : 'text-gray-600'}
+                  color={isSelected ? QredColors.text.inverse : QredColors.text.secondary}
                 />
               </Box>
 
@@ -69,12 +77,11 @@ function RoleOption({ role, title, description, icon, isSelected, onSelect }: Ro
                 <HStack className="items-center justify-between">
                   <Heading
                     size="lg"
-                    className={`
-                      ${isSelected
-                        ? isLender ? 'text-emerald-800' : 'text-amber-800'
-                        : 'text-gray-800'
-                      }
-                    `}
+                    style={{
+                      color: isSelected
+                        ? isLender ? QredColors.status.success[800] : QredColors.status.warning[800]
+                        : QredColors.text.primary,
+                    }}
                   >
                     {title}
                   </Heading>
@@ -93,8 +100,8 @@ function RoleOption({ role, title, description, icon, isSelected, onSelect }: Ro
 
                 {isSelected && (
                   <HStack space="xs" className="items-center">
-                    <Icon as={TrendingUp} size="xs" className={isLender ? 'text-emerald-600' : 'text-amber-600'} />
-                    <Text size="xs" className={isLender ? 'text-emerald-600' : 'text-amber-600'}>
+                    <Icon as={TrendingUp} size="xs" color={isLender ? QredColors.status.success[600] : QredColors.status.warning[600]} />
+                    <Text size="xs" style={{ color: isLender ? QredColors.status.success[600] : QredColors.status.warning[600] }}>
                       {isLender ? 'Grow your lending business' : 'Better debt management'}
                     </Text>
                   </HStack>
@@ -102,11 +109,17 @@ function RoleOption({ role, title, description, icon, isSelected, onSelect }: Ro
               </VStack>
 
               {isSelected && (
-                <Box className={`w-8 h-8 rounded-full items-center justify-center ${isLender ? 'bg-emerald-500' : 'bg-amber-500'}`}>
+                <Box
+                  className="w-8 h-8 rounded-full items-center justify-center"
+                  style={{
+                    backgroundColor: isLender ? QredColors.status.success[600] : QredColors.status.warning[600],
+                    borderRadius: BorderRadius.full,
+                  }}
+                >
                   <Icon
                     as={Check}
                     size="md"
-                    className="text-white"
+                    color={QredColors.text.inverse}
                   />
                 </Box>
               )}
@@ -114,13 +127,12 @@ function RoleOption({ role, title, description, icon, isSelected, onSelect }: Ro
 
             <Text
               size="sm"
-              className={`
-                leading-relaxed
-                ${isSelected
-                  ? isLender ? 'text-emerald-700' : 'text-amber-700'
-                  : 'text-gray-600'
-                }
-              `}
+              style={{
+                color: isSelected
+                  ? isLender ? QredColors.status.success[700] : QredColors.status.warning[700]
+                  : QredColors.text.secondary,
+                lineHeight: 20,
+              }}
             >
               {description}
             </Text>
@@ -216,26 +228,39 @@ export default function RoleSelectionScreen({ navigation }: RoleSelectionScreenP
   };
 
   return (
-    <Box className="flex-1 bg-gradient-to-b from-blue-50 via-white to-indigo-50">
+    <Box className="flex-1" style={{ backgroundColor: QredColors.background.light }}>
       <VStack space="xl" className="px-6 py-8 pt-16 flex-1">
         {/* Enhanced Header */}
-        <Card variant="filled" className="bg-gradient-to-r from-blue-500 to-indigo-600 border-0">
-          <CardBody className="p-6">
+        <Box
+          className="border-0"
+          style={{
+            backgroundColor: QredColors.brand.navy,
+            borderRadius: BorderRadius.lg,
+            ...Shadows.md,
+          }}
+        >
+          <Box className="p-6">
             <VStack space="md" className="items-center">
-              <Box className="w-20 h-20 rounded-2xl bg-white/20 items-center justify-center mb-2">
-                <Icon as={TrendingUp} size="xl" className="text-white" />
+              <Box
+                className="w-20 h-20 rounded-2xl items-center justify-center mb-2"
+                style={{
+                  backgroundColor: QredColors.text.inverse + '20',
+                  borderRadius: BorderRadius.lg,
+                }}
+              >
+                <Icon as={TrendingUp} size="xl" color={QredColors.text.inverse} />
               </Box>
 
-              <Heading size="2xl" className="text-center text-white">
+              <Heading size="2xl" className="text-center" style={{ color: QredColors.text.inverse }}>
                 How will you primarily use Qred?
               </Heading>
 
-              <Text size="md" className="text-center text-blue-100 max-w-sm">
+              <Text size="md" className="text-center max-w-sm" style={{ color: QredColors.text.inverse + '80' }}>
                 Choose your primary mode to get a personalized experience. Don't worry - you'll have access to all features regardless of your choice.
               </Text>
             </VStack>
-          </CardBody>
-        </Card>
+          </Box>
+        </Box>
 
         {/* Role Options */}
         <VStack space="lg" className="flex-1">
@@ -256,17 +281,18 @@ export default function RoleSelectionScreen({ navigation }: RoleSelectionScreenP
         <VStack space="md">
           <Button
             size="lg"
-            className={`
-              w-full shadow-lg
-              ${selectedRole === 'LENDER'
-                ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700'
-                : selectedRole === 'BORROWER'
-                ? 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600'
-                : 'bg-gradient-to-r from-gray-400 to-gray-500'
-              }
-            `}
+            className="w-full"
             onPress={handleRoleSelection}
             isDisabled={!selectedRole || isSubmitting || isLoading}
+            style={{
+              backgroundColor: selectedRole === 'LENDER'
+                ? QredColors.status.success[600]
+                : selectedRole === 'BORROWER'
+                ? QredColors.status.warning[600]
+                : QredColors.text.disabled,
+              borderRadius: BorderRadius.lg,
+              ...Shadows.md,
+            }}
           >
             <ButtonText className="text-white font-semibold text-base">
               {isSubmitting ? "Setting Up Your Experience..." : "Continue to Qred"}
@@ -276,35 +302,40 @@ export default function RoleSelectionScreen({ navigation }: RoleSelectionScreenP
           <Button
             variant="outline"
             size="lg"
-            className="w-full border-gray-300 bg-white/80"
+            className="w-full"
             onPress={handleSkip}
             isDisabled={isSubmitting || isLoading}
+            style={{
+              borderColor: QredColors.border.medium,
+              backgroundColor: QredColors.background.light + '80',
+              borderRadius: BorderRadius.md,
+            }}
           >
-            <ButtonText className="text-gray-700 font-medium">
+            <ButtonText style={{ color: QredColors.text.secondary }} className="font-medium">
               I'll Choose Later
             </ButtonText>
           </Button>
         </VStack>
 
         {/* Enhanced Footer */}
-        <Card variant="ghost" className="mt-4">
-          <CardBody className="p-4">
+        <Box className="mt-4" style={{ backgroundColor: 'transparent' }}>
+          <Box className="p-4">
             <VStack space="sm">
               <HStack space="xs" className="items-center justify-center">
-                <Icon as={Check} size="xs" className="text-green-600" />
-                <Text size="xs" className="text-gray-600 text-center">
+                <Icon as={Check} size="xs" color={QredColors.status.success[600]} />
+                <Text size="xs" className="text-center" style={{ color: QredColors.text.secondary }}>
                   Switch between modes anytime in Settings
                 </Text>
               </HStack>
               <HStack space="xs" className="items-center justify-center">
-                <Icon as={Check} size="xs" className="text-green-600" />
-                <Text size="xs" className="text-gray-600 text-center">
+                <Icon as={Check} size="xs" color={QredColors.status.success[600]} />
+                <Text size="xs" className="text-center" style={{ color: QredColors.text.secondary }}>
                   Access to all features regardless of your choice
                 </Text>
               </HStack>
             </VStack>
-          </CardBody>
-        </Card>
+          </Box>
+        </Box>
       </VStack>
     </Box>
   );

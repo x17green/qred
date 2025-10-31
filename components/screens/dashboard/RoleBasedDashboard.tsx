@@ -9,6 +9,7 @@ import { VStack } from "@/components/ui/vstack"
 import { QredColors, SemanticColors } from "@/lib/constants/colors"
 import { useAuth } from "@/lib/store/authStore"
 import { useDebtActions, useDebts } from "@/lib/store/debtStore"
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 import { LinearGradient } from "expo-linear-gradient"
 import {
     AlertCircle,
@@ -17,10 +18,8 @@ import {
     Clock,
     DollarSign,
     Plus,
-    TrendingUp,
-    Users,
+    Users
 } from "lucide-react-native"
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import type React from "react"
 import { useEffect, useState } from "react"
 import { Alert, Image, RefreshControl, ScrollView } from "react-native"
@@ -127,15 +126,15 @@ function SummaryCard({ title, amount, count, icon, variant, onPress, trend }: Su
                     style={{ backgroundColor: "rgba(255, 255, 255, 0.3)" }}
                   >
                     <MaterialCommunityIcons
-                      name="chart-timeline-variant-shimmer" 
-                      size={20} 
+                      name="chart-timeline-variant-shimmer"
+                      size={20}
                       color={SemanticColors.secondary}
-                      style={{ 
-                        transform: [{ 
-                          rotate: trend.isPositive 
-                          ? "0deg" 
-                          : "180deg" 
-                        }] 
+                      style={{
+                        transform: [{
+                          rotate: trend.isPositive
+                          ? "0deg"
+                          : "180deg"
+                        }]
                       }}
                     />
                     <Text size="md" className="text-white font-semibold">

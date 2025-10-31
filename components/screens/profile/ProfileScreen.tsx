@@ -27,7 +27,7 @@ import { Input, InputField, InputIcon, InputSlot } from "@/components/ui/input"
 import { Pressable } from "@/components/ui/pressable"
 import { Text } from "@/components/ui/text"
 import { VStack } from "@/components/ui/vstack"
-import { QredColors, SemanticColors } from "@/lib/constants/colors"
+import { BorderRadius, QredColors, SemanticColors, Shadows } from "@/lib/constants/colors"
 import { authService } from "@/lib/services/authService"
 import { storageService } from "@/lib/services/storageService"
 import { useAuth, useAuthActions } from "@/lib/store/authStore"
@@ -257,11 +257,7 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
                 <Box
                   className="w-28 h-28 rounded-full overflow-hidden border-4 border-white/25"
                   style={{
-                    shadowColor: "#000",
-                    shadowOffset: { width: 0, height: 8 },
-                    shadowOpacity: 0.3,
-                    shadowRadius: 16,
-                    elevation: 8,
+                    ...Shadows.lg,
                   }}
                 >
                   {editData.avatarUri || user?.avatarUrl ? (
@@ -274,7 +270,7 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
                   ) : (
                     <Box
                       className="w-full h-full rounded-full items-center justify-center"
-                      style={{ backgroundColor: QredColors.accent.green }}
+                      style={{ backgroundColor: QredColors.accent.green, borderRadius: BorderRadius.full }}
                     >
                       <Text size="5xl" className="font-bold text-white">
                         {user?.name?.charAt(0)?.toUpperCase() || "U"}
@@ -285,11 +281,12 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
                   {isEditing && (
                     <Box
                       className="w-10 h-10 rounded-full items-center justify-center border-2 border-white"
-                      style={{ 
+                      style={{
                         backgroundColor: QredColors.accent.green,
-                        position: 'absolute', 
-                        bottom: -8, 
-                        right: -8
+                        position: 'absolute',
+                        bottom: -8,
+                        right: -8,
+                        borderRadius: BorderRadius.full,
                       }}
                     >
                       <Camera size={20} color="white" />
@@ -321,11 +318,7 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
               <Box
                 className="bg-white rounded-2xl p-6 border border-background-200"
                 style={{
-                  shadowColor: "#000",
-                  shadowOffset: { width: 0, height: 4 },
-                  shadowOpacity: 0.08,
-                  shadowRadius: 12,
-                  elevation: 3,
+                  ...Shadows.md,
                   borderWidth: 1.5,
                   borderColor: QredColors.border.light,
                 }}
@@ -455,11 +448,7 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
                       isDisabled={isUpdating}
                       style={{
                         backgroundColor: QredColors.accent.green,
-                        shadowColor: QredColors.accent.green,
-                        shadowOffset: { width: 0, height: 4 },
-                        shadowOpacity: 0.3,
-                        shadowRadius: 8,
-                        elevation: 4,
+                        ...Shadows.md,
                       }}
                     >
                       <ButtonText className="text-white font-bold">
@@ -537,7 +526,7 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
                   borderColor: QredColors.status.error[700],
                   backgroundColor: QredColors.status.error[600],
                   borderWidth: 1.5,
-                  borderRadius: 16,
+                  borderRadius: BorderRadius.lg,
                   height: 56,
                 }}
               >
@@ -572,11 +561,7 @@ function ProfileMenuItem({
       <Box
         className={`bg-white rounded-2xl p-5 border border-background-200 ${disabled ? "opacity-50" : ""}`}
         style={{
-          shadowColor: "#000",
-          shadowOffset: { width: 0, height: 2 },
-          shadowOpacity: 0.05,
-          shadowRadius: 8,
-          elevation: 2,
+          ...Shadows.sm,
           borderWidth: 1.5,
           borderColor: QredColors.border.light,
         }}

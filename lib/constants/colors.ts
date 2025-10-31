@@ -121,6 +121,46 @@ export const QredColors = {
   },
 }
 
+// Centralized utilities for gradients, shadows, and border radii
+
+export const Gradients = {
+  brandPrimary: [QredColors.brand.navy, QredColors.brand.navyLight],
+  brandSecondary: [QredColors.brand.navyDark, QredColors.brand.navy],
+  accent: [QredColors.accent.green, QredColors.accent.greenDark],
+};
+
+export const Shadows = {
+  sm: {
+    shadowColor: QredColors.surface.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  md: {
+    shadowColor: QredColors.surface.shadow,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  lg: {
+    shadowColor: QredColors.surface.shadow,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+};
+
+export const BorderRadius = {
+  sm: 8,
+  md: 16,
+  lg: 24,
+  xl: 32,
+  full: 9999,
+};
+
 // Utility function to get color with opacity
 export const withOpacity = (color: string, opacity: number): string => {
   // Convert hex to rgba
@@ -167,18 +207,7 @@ export const SemanticColors = {
 }
 
 // Shadow definitions following brand guidelines (Enhanced)
-export const Shadows = {
-  xs: "0px 1px 2px rgba(10, 14, 26, 0.05)",
-  sm: "0px 2px 4px rgba(10, 14, 26, 0.06), 0px 1px 2px rgba(10, 14, 26, 0.04)",
-  md: "0px 4px 8px rgba(10, 14, 26, 0.08), 0px 2px 4px rgba(10, 14, 26, 0.06)",
-  lg: "0px 8px 16px rgba(10, 14, 26, 0.10), 0px 4px 8px rgba(10, 14, 26, 0.08)",
-  xl: "0px 12px 24px rgba(10, 14, 26, 0.12), 0px 6px 12px rgba(10, 14, 26, 0.10)",
-  "2xl": "0px 16px 32px rgba(10, 14, 26, 0.14), 0px 8px 16px rgba(10, 14, 26, 0.12)",
-  card: "0px 2px 8px rgba(26, 42, 77, 0.06)",
-  elevated: "0px 4px 16px rgba(26, 42, 77, 0.10)",
-  fab: "0px 8px 24px rgba(26, 42, 77, 0.14)",
-  overlay: "0px 12px 32px rgba(26, 42, 77, 0.18)",
-}
+
 
 // Spacing scale (8px base)
 export const Spacing = {
@@ -192,15 +221,7 @@ export const Spacing = {
 }
 
 // Border radius scale
-export const BorderRadius = {
-  xs: 4,
-  sm: 8,
-  md: 12,
-  lg: 16,
-  xl: 20,
-  "2xl": 24,
-  full: 9999,
-}
+
 
 // Export default color scheme for easy access
 export default QredColors

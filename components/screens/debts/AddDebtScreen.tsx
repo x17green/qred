@@ -6,6 +6,7 @@ import { Input, InputField } from "@/components/ui/input"
 import { Pressable } from "@/components/ui/pressable"
 import { Text } from "@/components/ui/text"
 import { VStack } from "@/components/ui/vstack"
+import QredColors, { SemanticColors, Gradients, Shadows, BorderRadius } from "@/lib/constants/colors"
 import { authService } from "@/lib/services/authService"
 import { useDebtActions } from "@/lib/store/debtStore"
 import type { CreateDebtRequest } from "@/lib/types/database"
@@ -13,7 +14,6 @@ import { Ionicons } from "@expo/vector-icons"
 import { LinearGradient } from "expo-linear-gradient"
 import { useCallback, useState } from "react"
 import { Alert, ScrollView } from "react-native"
-import QredColors, { SemanticColors } from "@/lib/constants/colors"
 
 interface AddDebtScreenProps {
   navigation: any
@@ -220,27 +220,23 @@ export default function AddDebtScreen({ navigation }: AddDebtScreenProps) {
   }
 
   return (
-    <Box className="flex-1 bg-background-0">
-      <LinearGradient
-        colors={["#1A2A4D", "#2D3E6F"]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={{ paddingHorizontal: 24, paddingTop: 64, paddingBottom: 20 }}
-      >
+    <Box className="flex-1" style={{ backgroundColor: QredColors.background.light }}>
+      {/* Header */}
+      <Box className="px-6 py-4 pt-16 border-b" style={{ backgroundColor: QredColors.background.light, borderColor: QredColors.border.light }}>
         <HStack className="items-center">
           <Pressable onPress={() => navigation.goBack()}>
-            <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
+            <Ionicons name="arrow-back" size={24} color={SemanticColors.secondary} />
           </Pressable>
           <VStack className="ml-4 flex-1">
-            <Text size="2xl" className="font-bold text-white">
+            <Text size="xl" className="-mb-3 font-bold" style={{ color: SemanticColors.secondary }}>
               Add New Debt
             </Text>
-            <Text size="sm" className="text-white/80 mt-1">
+            <Text size="sm" className="mt-1" style={{ color: SemanticColors.secondary }}>
               Record money you've lent
             </Text>
           </VStack>
         </HStack>
-      </LinearGradient>
+      </Box>
 
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         <Box className="px-6 py-6">
@@ -253,17 +249,9 @@ export default function AddDebtScreen({ navigation }: AddDebtScreenProps) {
               <HStack space="sm">
                 <Pressable style={{ flex: 1 }} onPress={() => updateField("isExternal", false)}>
                   <Box
-                    className={`p-5 rounded-2xl border-2 ${
-                      !formData.isExternal
-                        ? "bg-primary-50 border-primary-500"
-                        : "bg-background-50 border-background-300"
-                    }`}
+                    className="p-5 rounded-2xl border-2"
                     style={{
-                      shadowColor: !formData.isExternal ? "#1A2A4D" : "transparent",
-                      shadowOffset: { width: 0, height: 4 },
-                      shadowOpacity: 0.1,
-                      shadowRadius: 8,
-                      elevation: !formData.isExternal ? 4 : 0,
+                      ...(!formData.isExternal ? Shadows.md : {}),
                       borderColor: !formData.isExternal ? SemanticColors.pressed : SemanticColors.hover,
                       backgroundColor: !formData.isExternal ? QredColors.background.light : QredColors.background.muted,
                     }}
@@ -355,14 +343,11 @@ export default function AddDebtScreen({ navigation }: AddDebtScreenProps) {
                   Lender Name *
                 </Text>
                 <Box
-                  className="rounded-xl border-2 border-background-300 bg-white overflow-hidden"
+                  className="rounded-xl border-2 overflow-hidden"
                   style={{
-                    shadowColor: "#000",
-                    shadowOffset: { width: 0, height: 2 },
-                    shadowOpacity: 0.05,
-                    shadowRadius: 4,
-                    elevation: 2,
+                    ...Shadows.sm,
                     borderColor: QredColors.border.light,
+                    backgroundColor: QredColors.background.elevated,
                   }}
                 >
                   <HStack className="items-center px-4">
@@ -697,17 +682,13 @@ export default function AddDebtScreen({ navigation }: AddDebtScreenProps) {
             <Box className="pt-4 pb-8">
               <Pressable onPress={handleSubmit} disabled={isLoading}>
                 <LinearGradient
-                  colors={["#1A2A4D", "#2D3E6F"]}
+                  colors={Gradients.brandPrimary as [string, string]}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
                   style={{
                     paddingVertical: 18,
-                    borderRadius: 16,
-                    shadowColor: "#1A2A4D",
-                    shadowOffset: { width: 0, height: 4 },
-                    shadowOpacity: 0.3,
-                    shadowRadius: 8,
-                    elevation: 6,
+                    borderRadius: BorderRadius.lg,
+                    ...Shadows.md,
                   }}
                 >
                   <HStack className="items-center justify-center">

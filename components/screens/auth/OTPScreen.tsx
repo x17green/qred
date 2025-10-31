@@ -1,15 +1,16 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Alert, TextInput } from "react-native";
 import { StackScreenProps } from "@react-navigation/stack";
+import React, { useEffect, useRef, useState } from "react";
+import { Alert, TextInput } from "react-native";
 
 import { Box } from "@/components/ui/box";
-import { VStack } from "@/components/ui/vstack";
-import { HStack } from "@/components/ui/hstack";
-import { Text } from "@/components/ui/text";
 import { Button, ButtonText } from "@/components/ui/button";
+import { HStack } from "@/components/ui/hstack";
 import { Input, InputField } from "@/components/ui/input";
-import { useAuthActions } from "@/lib/store/authStore";
+import { Text } from "@/components/ui/text";
+import { VStack } from "@/components/ui/vstack";
+import { BorderRadius, QredColors, Shadows } from "@/lib/constants/colors";
 import { authService } from "@/lib/services/authService";
+import { useAuthActions } from "@/lib/store/authStore";
 import { AuthStackParamList } from "@/types";
 
 type OTPScreenProps = StackScreenProps<AuthStackParamList, "OTP">;
@@ -177,8 +178,14 @@ export default function OTPScreen({ navigation, route }: OTPScreenProps) {
                   key={index}
                   variant="outline"
                   size="lg"
-                  className="w-14 h-14 border-background-300 items-center justify-center"
+                  className="w-14 h-14 items-center justify-center"
                   isInvalid={!!error}
+                  style={{
+                    borderWidth: 1.5,
+                    borderColor: error ? QredColors.status.error[500] : QredColors.border.light,
+                    backgroundColor: QredColors.background.elevated,
+                    borderRadius: BorderRadius.md,
+                  }}
                 >
                   <InputField
                     ref={(ref) => {
@@ -192,7 +199,8 @@ export default function OTPScreen({ navigation, route }: OTPScreenProps) {
                     keyboardType="numeric"
                     maxLength={6}
                     textAlign="center"
-                    className="text-xl font-bold text-typography-900"
+                    className="text-xl font-bold"
+                    style={{ color: QredColors.text.primary }}
                     selectTextOnFocus
                   />
                 </Input>
@@ -209,11 +217,16 @@ export default function OTPScreen({ navigation, route }: OTPScreenProps) {
           {/* Verify Button */}
           <Button
             size="lg"
-            className="w-full bg-primary-600 hover:bg-primary-700"
+            className="w-full"
             onPress={handleVerifyOtp}
             isDisabled={isLoading || otp.join("").length !== 6}
+            style={{
+              backgroundColor: QredColors.brand.navy,
+              borderRadius: BorderRadius.lg,
+              ...Shadows.md,
+            }}
           >
-            <ButtonText className="font-semibold">
+            <ButtonText className="font-semibold text-white">
               {isLoading ? "Verifying..." : "Verify OTP"}
             </ButtonText>
           </Button>
@@ -246,10 +259,15 @@ export default function OTPScreen({ navigation, route }: OTPScreenProps) {
           <Button
             variant="outline"
             size="md"
-            className="w-full border-background-300 mt-4"
+            className="w-full"
             onPress={() => navigation.goBack()}
+            style={{
+              borderColor: QredColors.border.medium,
+              backgroundColor: QredColors.background.muted,
+              borderRadius: BorderRadius.md,
+            }}
           >
-            <ButtonText className="text-typography-700">
+            <ButtonText style={{ color: QredColors.text.secondary }}>
               Change Phone Number
             </ButtonText>
           </Button>

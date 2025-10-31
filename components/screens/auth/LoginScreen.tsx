@@ -10,7 +10,7 @@ import { Input, InputField } from "@/components/ui/input"
 import { Pressable } from "@/components/ui/pressable"
 import { Text } from "@/components/ui/text"
 import { VStack } from "@/components/ui/vstack"
-import { QredColors } from "@/lib/constants/colors"
+import { BorderRadius, Gradients, QredColors, Shadows } from "@/lib/constants/colors"
 import { useGoogleAuth } from "@/lib/hooks/useGoogleAuth"
 import { authService } from "@/lib/services/authService"
 import { useAuthActions } from "@/lib/store/authStore"
@@ -126,7 +126,7 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
     <Box className="flex-1" style={{ backgroundColor: QredColors.background.light }}>
       <Box className="relative">
         <LinearGradient
-          colors={[QredColors.brand.navy, QredColors.brand.navyLight]}
+          colors={Gradients.brandPrimary as [string, string]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={{ position: "absolute", left: 0, right: 0, top: 0, height: 280 }}
@@ -138,11 +138,7 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
               className="w-20 h-20 rounded-3xl items-center justify-center mb-4"
               style={{
                 backgroundColor: QredColors.accent.green,
-                shadowColor: QredColors.accent.green,
-                shadowOffset: { width: 0, height: 8 },
-                shadowOpacity: 0.3,
-                shadowRadius: 16,
-                elevation: 8,
+                ...Shadows.lg
               }}
             >
               <Ionicons name="wallet" size={40} color="white" />
@@ -162,11 +158,7 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
         className="flex-1 px-6 -mt-8 rounded-t-3xl"
         style={{
           backgroundColor: QredColors.background.light,
-          shadowColor: "#000",
-          shadowOffset: { width: 0, height: -4 },
-          shadowOpacity: 0.1,
-          shadowRadius: 12,
-          elevation: 8,
+          ...Shadows.md
         }}
       >
         <VStack space="xl" className="pt-8">
@@ -279,27 +271,23 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
 
               <Pressable onPress={handleSendOTP} disabled={isLoading || isGoogleLoading}>
                 <LinearGradient
-                  colors={[QredColors.accent.green, QredColors.accent.greenDark]}
+                  colors={Gradients.accent as [string, string]}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
                   style={{
                     paddingVertical: 16,
                     paddingHorizontal: 24,
-                    borderRadius: 16,
-                    shadowColor: QredColors.accent.green,
-                    shadowOffset: { width: 0, height: 4 },
-                    shadowOpacity: 0.3,
-                    shadowRadius: 8,
-                    elevation: 4,
+                    borderRadius: BorderRadius.lg,
+                    ...Shadows.md
                   }}
                 >
                   <HStack space="sm" className="items-center justify-center">
                     {isLoading ? (
-                      <Ionicons name="hourglass-outline" size={20} color="white" />
+                      <Ionicons name="hourglass-outline" size={20} color={QredColors.text.inverse} />
                     ) : (
-                      <Ionicons name="arrow-forward" size={20} color="white" />
+                      <Ionicons name="arrow-forward" size={20} color={QredColors.text.inverse} />
                     )}
-                    <Text size="md" className="font-bold text-white">
+                    <Text size="md" className="font-bold" style={{ color: QredColors.text.inverse }}>
                       {isLoading ? "Sending..." : "Send Code"}
                     </Text>
                   </HStack>
@@ -406,11 +394,11 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
                 >
                   <HStack space="sm" className="items-center justify-center">
                     {isLoading ? (
-                      <Ionicons name="hourglass-outline" size={20} color="white" />
+                      <Ionicons name="hourglass-outline" size={20} color={QredColors.text.inverse} />
                     ) : (
-                      <Ionicons name="log-in-outline" size={20} color="white" />
+                      <Ionicons name="log-in-outline" size={20} color={QredColors.text.inverse} />
                     )}
-                    <Text size="md" className="font-bold text-white">
+                    <Text size="md" className="font-bold" style={{ color: QredColors.text.inverse }}>
                       {isLoading ? "Signing in..." : "Sign In"}
                     </Text>
                   </HStack>

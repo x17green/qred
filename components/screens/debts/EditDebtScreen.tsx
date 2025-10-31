@@ -5,6 +5,7 @@ import { Input, InputField } from "@/components/ui/input";
 import { Pressable } from "@/components/ui/pressable";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
+import { BorderRadius, QredColors, SemanticColors, Shadows } from "@/lib/constants/colors";
 import { authService } from "@/lib/services/authService";
 import { useAuth } from "@/lib/store/authStore";
 import { useDebtActions, useDebts } from "@/lib/store/debtStore";
@@ -277,19 +278,19 @@ export default function EditDebtScreen({ navigation, route }: EditDebtScreenProp
   }
 
   return (
-    <Box className="flex-1 bg-background-0">
+    <Box className="flex-1" style={{ backgroundColor: QredColors.background.light }}>
       {/* Header */}
-      <Box className="px-6 py-4 pt-16 bg-background-0 border-b border-background-200">
+      <Box className="px-6 py-4 pt-16 border-b" style={{ backgroundColor: QredColors.background.light, borderColor: QredColors.border.light }}>
         <HStack className="items-center justify-between">
-          <HStack className="items-center">
+          <HStack className="items-center ">
             <Pressable onPress={() => navigation.goBack()}>
-              <Ionicons name="arrow-back" size={24} color="#374151" />
+              <Ionicons name="arrow-back" size={24} color={SemanticColors.secondary} />
             </Pressable>
             <VStack className="ml-4">
-              <Text size="xl" className="font-bold text-typography-900">
+              <Text size="xl" className="-mb-3 font-bold" style={{ color: SemanticColors.secondary }}>
                 Edit Debt
               </Text>
-              <Text size="sm" className="text-typography-500">
+              <Text size="sm" className="mt-1" style={{ color: SemanticColors.secondary }}>
                 Update debt details
               </Text>
             </VStack>
@@ -301,10 +302,10 @@ export default function EditDebtScreen({ navigation, route }: EditDebtScreenProp
         <Box className="px-6 py-6">
           <VStack space="xl">
             {/* Debt Status Info */}
-            <Box className="bg-info-50 p-4 rounded-lg border border-info-200">
+            <Box className="p-4 border" style={{ backgroundColor: QredColors.status.info[50], borderColor: QredColors.status.info[200], borderRadius: BorderRadius.md }}>
               <HStack className="items-center">
-                <Ionicons name="information-circle" size={20} color="#3B82F6" />
-                <Text size="sm" className="text-info-700 ml-2 flex-1">
+                <Ionicons name="information-circle" size={20} color={QredColors.status.info[600]} />
+                <Text size="sm" className="ml-2 flex-1" style={{ color: QredColors.status.info[700] }}>
                   {currentDebt.status === "PAID"
                     ? "This debt has been paid. Only notes and due date can be edited."
                     : "Editing principal amount will recalculate the total debt amount."
@@ -323,13 +324,18 @@ export default function EditDebtScreen({ navigation, route }: EditDebtScreenProp
                   variant="outline"
                   size="lg"
                   isInvalid={!!errors.externalLenderName}
-                  className="border-background-300"
+                  style={{
+                    borderWidth: 1.5,
+                    borderColor: errors.externalLenderName ? QredColors.status.error[500] : QredColors.border.light,
+                    backgroundColor: QredColors.background.elevated,
+                    borderRadius: BorderRadius.md,
+                  }}
                 >
                   <InputField
                     placeholder="Enter lender/company name"
                     value={formData.externalLenderName}
                     onChangeText={(text) => updateField("externalLenderName", text)}
-                    className="text-typography-900"
+                    style={{ color: QredColors.text.primary }}
                   />
                 </Input>
                 {errors.externalLenderName && (
@@ -349,14 +355,19 @@ export default function EditDebtScreen({ navigation, route }: EditDebtScreenProp
                 variant="outline"
                 size="lg"
                 isInvalid={!!errors.debtorPhoneNumber}
-                className="border-background-300"
+                style={{
+                  borderWidth: 1.5,
+                  borderColor: errors.debtorPhoneNumber ? QredColors.status.error[500] : QredColors.border.light,
+                  backgroundColor: QredColors.background.elevated,
+                  borderRadius: BorderRadius.md,
+                }}
               >
                 <InputField
                   placeholder="+234 801 234 5678"
                   value={formData.debtorPhoneNumber}
                   onChangeText={(text) => updateField("debtorPhoneNumber", text)}
                   keyboardType="phone-pad"
-                  className="text-typography-900"
+                  style={{ color: QredColors.text.primary }}
                 />
               </Input>
               {errors.debtorPhoneNumber && (
@@ -381,15 +392,20 @@ export default function EditDebtScreen({ navigation, route }: EditDebtScreenProp
                   variant="outline"
                   size="lg"
                   isInvalid={!!errors.principal}
-                  className="border-background-300"
                   isDisabled={currentDebt.status === "PAID"}
+                  style={{
+                    borderWidth: 1.5,
+                    borderColor: errors.principal ? QredColors.status.error[500] : QredColors.border.light,
+                    backgroundColor: QredColors.background.elevated,
+                    borderRadius: BorderRadius.md,
+                  }}
                 >
                   <InputField
                     placeholder="0.00"
                     value={formData.principal}
                     onChangeText={(text) => updateField("principal", text)}
                     keyboardType="numeric"
-                    className="text-typography-900"
+                    style={{ color: QredColors.text.primary }}
                     editable={currentDebt.status !== "PAID"}
                   />
                 </Input>
@@ -414,15 +430,20 @@ export default function EditDebtScreen({ navigation, route }: EditDebtScreenProp
                   variant="outline"
                   size="lg"
                   isInvalid={!!errors.interestRate}
-                  className="border-background-300"
                   isDisabled={currentDebt.status === "PAID"}
+                  style={{
+                    borderWidth: 1.5,
+                    borderColor: errors.interestRate ? QredColors.status.error[500] : QredColors.border.light,
+                    backgroundColor: QredColors.background.elevated,
+                    borderRadius: BorderRadius.md,
+                  }}
                 >
                   <InputField
                     placeholder="0"
                     value={formData.interestRate}
                     onChangeText={(text) => updateField("interestRate", text)}
                     keyboardType="numeric"
-                    className="text-typography-900"
+                    style={{ color: QredColors.text.primary }}
                     editable={currentDebt.status !== "PAID"}
                   />
                 </Input>
@@ -435,41 +456,41 @@ export default function EditDebtScreen({ navigation, route }: EditDebtScreenProp
 
               {/* Total Amount Display */}
               {parseFloat(formData.principal) > 0 && (
-                <Box className="bg-primary-50 p-4 rounded-lg border border-primary-200">
+                <Box className="p-4 border" style={{ backgroundColor: QredColors.brand.navyLight + '20', borderColor: QredColors.border.dark, borderRadius: BorderRadius.md }}>
                   <VStack space="sm">
                     <HStack className="justify-between">
-                      <Text size="sm" className="text-primary-700">
+                      <Text size="sm" style={{ color: QredColors.brand.navy }}>
                         Principal Amount:
                       </Text>
-                      <Text size="sm" className="font-medium text-primary-900">
+                      <Text size="sm" className="font-medium" style={{ color: QredColors.brand.navyDark }}>
                         ₦{parseFloat(formData.principal).toLocaleString()}
                       </Text>
                     </HStack>
 
                     {parseFloat(formData.interestRate) > 0 && (
                       <HStack className="justify-between">
-                        <Text size="sm" className="text-primary-700">
+                        <Text size="sm" style={{ color: QredColors.brand.navy }}>
                           Interest ({formData.interestRate}%):
                         </Text>
-                        <Text size="sm" className="font-medium text-primary-900">
+                        <Text size="sm" className="font-medium" style={{ color: QredColors.brand.navyDark }}>
                           ₦{((parseFloat(formData.principal) * parseFloat(formData.interestRate)) / 100).toLocaleString()}
                         </Text>
                       </HStack>
                     )}
 
-                    <Box className="border-t border-primary-300 pt-2">
+                    <Box className="pt-2" style={{ borderTopWidth: 1, borderTopColor: QredColors.brand.navyLight }}>
                       <HStack className="justify-between">
-                        <Text size="md" className="font-semibold text-primary-800">
+                        <Text size="md" className="font-semibold" style={{ color: QredColors.brand.navyDark }}>
                           Total Amount:
                         </Text>
-                        <Text size="md" className="font-bold text-primary-900">
+                        <Text size="md" className="font-bold" style={{ color: QredColors.brand.navyDark }}>
                           ₦{calculateTotal().toLocaleString()}
                         </Text>
                       </HStack>
                     </Box>
 
                     {currentDebt.status === "PENDING" && calculateTotal() !== currentDebt.totalAmount && (
-                      <Text size="xs" className="text-primary-600 mt-2">
+                      <Text size="xs" className="mt-2" style={{ color: QredColors.brand.navy }}>
                         Outstanding balance will be updated to match the new total
                       </Text>
                     )}
@@ -484,12 +505,12 @@ export default function EditDebtScreen({ navigation, route }: EditDebtScreenProp
                 Due Date *
               </Text>
               <Pressable onPress={handleDatePress}>
-                <Box className="p-4 rounded-lg border border-background-300 bg-background-0">
+                <Box className="p-4 border" style={{ borderColor: QredColors.border.light, backgroundColor: QredColors.background.light, borderRadius: BorderRadius.md }}>
                   <HStack className="items-center justify-between">
-                    <Text size="md" className="text-typography-900">
+                    <Text size="md" style={{ color: QredColors.text.primary }}>
                       {formatDateForDisplay(formData.dueDate)}
                     </Text>
-                    <Ionicons name="calendar" size={20} color="#9CA3AF" />
+                    <Ionicons name="calendar" size={20} color={QredColors.text.quaternary} />
                   </HStack>
                 </Box>
               </Pressable>
@@ -508,7 +529,12 @@ export default function EditDebtScreen({ navigation, route }: EditDebtScreenProp
               <Input
                 variant="outline"
                 size="lg"
-                className="border-background-300"
+                style={{
+                  borderWidth: 1.5,
+                  borderColor: QredColors.border.light,
+                  backgroundColor: QredColors.background.elevated,
+                  borderRadius: BorderRadius.md,
+                }}
               >
                 <InputField
                   placeholder="Add any additional notes or context..."
@@ -516,19 +542,23 @@ export default function EditDebtScreen({ navigation, route }: EditDebtScreenProp
                   onChangeText={(text) => updateField("notes", text)}
                   multiline
                   numberOfLines={3}
-                  className="text-typography-900"
-                  style={{ minHeight: 80 }}
+                  style={{ color: QredColors.text.primary, minHeight: 80 }}
                 />
               </Input>
             </VStack>
 
             {/* Action Buttons */}
-            <VStack space="md" className="pt-4">
+            <VStack space="sm" className="pt-4">
               <Button
                 size="lg"
-                className="w-full bg-primary-600"
+                className="w-full"
                 onPress={handleSubmit}
                 isDisabled={isUpdating}
+                style={{
+                  backgroundColor: QredColors.brand.navy,
+                  borderRadius: BorderRadius.lg,
+                  ...Shadows.md,
+                }}
               >
                 <ButtonText className="text-white font-semibold">
                   {isUpdating ? "Updating..." : "Update Debt"}
@@ -538,11 +568,16 @@ export default function EditDebtScreen({ navigation, route }: EditDebtScreenProp
               <Button
                 variant="outline"
                 size="lg"
-                className="w-full border-background-300"
+                className="w-full"
                 onPress={() => navigation.goBack()}
                 isDisabled={isUpdating}
+                style={{
+                  borderColor: QredColors.border.medium,
+                  backgroundColor: QredColors.background.muted,
+                  borderRadius: BorderRadius.md,
+                }}
               >
-                <ButtonText className="text-typography-700">
+                <ButtonText style={{ color: QredColors.text.secondary }}>
                   Cancel
                 </ButtonText>
               </Button>

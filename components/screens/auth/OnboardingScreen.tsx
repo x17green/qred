@@ -9,6 +9,7 @@ import { Input, InputField } from "@/components/ui/input";
 import { Pressable } from "@/components/ui/pressable";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
+import { BorderRadius, QredColors, Shadows } from "@/lib/constants/colors";
 import { authService } from "@/lib/services/authService";
 import { storageService } from "@/lib/services/storageService";
 import { useAuth, useAuthActions } from "@/lib/store/authStore";
@@ -305,11 +306,17 @@ export default function OnboardingScreen({ navigation }: OnboardingScreenProps) 
     }
 
     return (
-      <Box className="w-full h-full bg-primary-100 rounded-full items-center justify-center">
+      <Box
+        className="w-full h-full rounded-full items-center justify-center"
+        style={{
+          backgroundColor: QredColors.brand.navyLight,
+          borderRadius: BorderRadius.full,
+        }}
+      >
         <Ionicons
           name="camera-outline"
           size={40}
-          color="#4f46e5"
+          color={QredColors.brand.navy}
         />
       </Box>
     );
@@ -337,16 +344,30 @@ export default function OnboardingScreen({ navigation }: OnboardingScreenProps) 
               </Text>
 
               <Pressable onPress={showImagePicker} style={{ position: 'relative' }}>
-                <Box className="w-32 h-32 rounded-full border-4 border-primary-200">
+                <Box
+                  className="w-32 h-32 border-4"
+                  style={{
+                    borderRadius: BorderRadius.full,
+                    borderColor: QredColors.brand.navyLight,
+                  }}
+                >
                   {getAvatarDisplay()}
                 </Box>
 
                 {/* Camera icon overlay */}
-                <Box className="absolute -bottom-2 -right-2 w-10 h-10 bg-primary-600 rounded-full items-center justify-center border-4 border-background-0">
+                <Box
+                  className="absolute -bottom-2 -right-2 w-10 h-10 rounded-full items-center justify-center border-4"
+                  style={{
+                    backgroundColor: QredColors.brand.navy,
+                    borderColor: QredColors.background.light,
+                    borderRadius: BorderRadius.full,
+                    ...Shadows.sm,
+                  }}
+                >
                   <Ionicons
                     name="camera"
                     size={20}
-                    color="white"
+                    color={QredColors.text.inverse}
                   />
                 </Box>
               </Pressable>
@@ -367,7 +388,12 @@ export default function OnboardingScreen({ navigation }: OnboardingScreenProps) 
                   variant="outline"
                   size="lg"
                   isInvalid={!!errors.name}
-                  className="border-background-300"
+                  style={{
+                    borderWidth: 1.5,
+                    borderColor: errors.name ? QredColors.status.error[500] : QredColors.border.light,
+                    backgroundColor: QredColors.background.elevated,
+                    borderRadius: BorderRadius.md,
+                  }}
                 >
                   <InputField
                     placeholder="Enter your full name"
@@ -375,7 +401,7 @@ export default function OnboardingScreen({ navigation }: OnboardingScreenProps) 
                     onChangeText={(text) =>
                       setForm(prev => ({ ...prev, name: text }))
                     }
-                    className="text-typography-900"
+                    style={{ color: QredColors.text.primary }}
                     autoCapitalize="words"
                   />
                 </Input>
@@ -395,7 +421,12 @@ export default function OnboardingScreen({ navigation }: OnboardingScreenProps) 
                   variant="outline"
                   size="lg"
                   isInvalid={!!errors.phoneNumber}
-                  className="border-background-300"
+                  style={{
+                    borderWidth: 1.5,
+                    borderColor: errors.phoneNumber ? QredColors.status.error[500] : QredColors.border.light,
+                    backgroundColor: QredColors.background.elevated,
+                    borderRadius: BorderRadius.md,
+                  }}
                 >
                   <InputField
                     placeholder="Enter your phone number (optional)"
@@ -404,7 +435,7 @@ export default function OnboardingScreen({ navigation }: OnboardingScreenProps) 
                       setForm(prev => ({ ...prev, phoneNumber: text }))
                     }
                     keyboardType="phone-pad"
-                    className="text-typography-900"
+                    style={{ color: QredColors.text.primary }}
                   />
                 </Input>
                 {errors.phoneNumber && (
@@ -422,9 +453,14 @@ export default function OnboardingScreen({ navigation }: OnboardingScreenProps) 
             <VStack space="md" className="mt-8">
               <Button
                 size="lg"
-                className="w-full bg-primary-600"
+                className="w-full"
                 onPress={handleCompleteProfile}
                 isDisabled={isSubmitting || isLoading || isUploadingAvatar}
+                style={{
+                  backgroundColor: QredColors.brand.navy,
+                  borderRadius: BorderRadius.lg,
+                  ...Shadows.md,
+                }}
               >
                 <ButtonText className="text-white font-semibold">
                   {isSubmitting
@@ -438,11 +474,16 @@ export default function OnboardingScreen({ navigation }: OnboardingScreenProps) 
               <Button
                 variant="outline"
                 size="lg"
-                className="w-full border-background-300"
+                className="w-full"
                 onPress={skipForNow}
                 isDisabled={isSubmitting || isLoading}
+                style={{
+                  borderColor: QredColors.border.medium,
+                  backgroundColor: QredColors.background.muted,
+                  borderRadius: BorderRadius.md,
+                }}
               >
-                <ButtonText className="text-typography-700">
+                <ButtonText style={{ color: QredColors.text.secondary }}>
                   Skip for Now
                 </ButtonText>
               </Button>

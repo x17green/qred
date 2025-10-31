@@ -7,7 +7,7 @@ import { Input, InputField, InputIcon, InputSlot } from "@/components/ui/input"
 import { Pressable } from "@/components/ui/pressable"
 import { Text } from "@/components/ui/text"
 import { VStack } from "@/components/ui/vstack"
-import { QredColors, SemanticColors } from "@/lib/constants/colors"
+import { BorderRadius, Gradients, QredColors, SemanticColors, Shadows } from "@/lib/constants/colors"
 import { debtService } from "@/lib/services/debtService"
 import { useAuth } from "@/lib/store/authStore"
 import { useDebtActions, useDebts, useSearchDebts } from "@/lib/store/debtStore"
@@ -129,7 +129,7 @@ export default function DebtsListScreen({ navigation, route }: DebtsListScreenPr
     <Box className="flex-1" style={{ backgroundColor: QredColors.background.light }}>
       <Box className="overflow-hidden">
         <LinearGradient
-          colors={[QredColors.brand.navy, QredColors.brand.navyDark]}
+          colors={Gradients.brandPrimary as [string, string]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={{ paddingHorizontal: 24, paddingTop: 64, paddingBottom: 24 }}
@@ -156,8 +156,12 @@ export default function DebtsListScreen({ navigation, route }: DebtsListScreenPr
             <Input
               variant="outline"
               size="md"
-              className="border-2 border-white/20 rounded-xl"
-              style={{ backgroundColor: "rgba(255, 255, 255, 0.1)" }}
+              style={{
+                borderWidth: 1.5,
+                borderColor: QredColors.text.inverse + '20',
+                backgroundColor: QredColors.text.inverse + '10',
+                borderRadius: BorderRadius.lg,
+              }}
             >
               <InputSlot className="pl-3">
                 <InputIcon as={Search} className="text-white/60" size="sm" />
@@ -174,9 +178,10 @@ export default function DebtsListScreen({ navigation, route }: DebtsListScreenPr
             <HStack space="md">
               <Pressable style={{ flex: 1 }} onPress={() => setActiveTab("lending")}>
                 <Box
-                  className="p-4 rounded-xl"
+                  className="p-4"
                   style={{
-                    backgroundColor: activeTab === "lending" ? QredColors.accent.green : "rgba(255, 255, 255, 0.1)",
+                    backgroundColor: activeTab === "lending" ? QredColors.accent.green : QredColors.text.inverse + '10',
+                    borderRadius: BorderRadius.lg,
                   }}
                 >
                   <VStack className="items-center" space="xs">
@@ -193,9 +198,10 @@ export default function DebtsListScreen({ navigation, route }: DebtsListScreenPr
 
               <Pressable style={{ flex: 1 }} onPress={() => setActiveTab("owing")}>
                 <Box
-                  className="p-4 rounded-xl"
+                  className="p-4"
                   style={{
-                    backgroundColor: activeTab === "owing" ? QredColors.status.warning[500] : "rgba(255, 255, 255, 0.1)",
+                    backgroundColor: activeTab === "owing" ? QredColors.status.warning[500] : QredColors.text.inverse + '10',
+                    borderRadius: BorderRadius.lg,
                   }}
                 >
                   <VStack className="items-center" space="xs">
@@ -212,11 +218,12 @@ export default function DebtsListScreen({ navigation, route }: DebtsListScreenPr
             </HStack>
 
             <Box
-              className="p-5 rounded-2xl"
+              className="p-5"
               style={{
-                backgroundColor: "rgba(255, 255, 255, 0.15)",
+                backgroundColor: QredColors.text.inverse + '15',
                 borderWidth: 1,
-                borderColor: "rgba(255, 255, 255, 0.2)",
+                borderColor: QredColors.text.inverse + '20',
+                borderRadius: BorderRadius.lg,
               }}
             >
               <VStack space="sm" className="items-center">
@@ -314,15 +321,13 @@ const DebtCard = React.memo(
     return (
       <Pressable onPress={onPress}>
         <Box
-          className="bg-white rounded-2xl p-5 border border-background-200"
+          className="p-5 border"
           style={{
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.08,
-            shadowRadius: 12,
-            elevation: 3,
+            backgroundColor: QredColors.background.light,
+            borderRadius: BorderRadius.lg,
             borderWidth: 1.5,
             borderColor: QredColors.border.light,
+            ...Shadows.sm,
           }}
         >
           <VStack space="md">
@@ -348,15 +353,15 @@ const DebtCard = React.memo(
               </VStack>
             </HStack>
 
-            <Box className="p-3 rounded-xl" style={{ backgroundColor: QredColors.background.elevated }}>
+            <Box className="p-3" style={{ backgroundColor: QredColors.background.elevated, borderRadius: BorderRadius.lg }}>
               <HStack className="items-center justify-between">
                 <HStack className="items-center" space="xs">
                   <Calendar size={14} color={QredColors.text.tertiary} />
-                  <Text size="xs" className="text-typography-500 font-medium">
+                  <Text size="xs" className="font-medium" style={{ color: QredColors.text.secondary }}>
                     Due Date
                   </Text>
                 </HStack>
-                <Text size="sm" className={`font-bold ${isOverdue ? "text-error-600" : "text-typography-700"}`}>
+                <Text size="sm" className="font-bold" style={{ color: isOverdue ? QredColors.status.error[600] : QredColors.text.primary }}>
                   {new Date(debt.dueDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                 </Text>
               </HStack>
@@ -365,11 +370,11 @@ const DebtCard = React.memo(
                 <HStack className="items-center justify-between mt-2">
                   <HStack className="items-center" space="xs">
                     <AlertCircle size={14} color={isOverdue ? QredColors.status.error[500] : QredColors.status.warning[500]} />
-                    <Text size="xs" className={`font-medium ${isOverdue ? "text-error-600" : "text-warning-600"}`}>
+                    <Text size="xs" className="font-medium" style={{ color: isOverdue ? QredColors.status.error[600] : QredColors.status.warning[600] }}>
                       {isOverdue ? "Overdue by" : "Due in"}
                     </Text>
                   </HStack>
-                  <Text size="sm" className={`font-bold ${isOverdue ? "text-error-600" : "text-warning-600"}`}>
+                  <Text size="sm" className="font-bold" style={{ color: isOverdue ? QredColors.status.error[600] : QredColors.status.warning[600] }}>
                     {Math.abs(daysUntilDue)} day{Math.abs(daysUntilDue) !== 1 ? "s" : ""}
                   </Text>
                 </HStack>
@@ -377,14 +382,14 @@ const DebtCard = React.memo(
             </Box>
 
             {debt.notes && (
-              <Text size="sm" className="text-typography-600" numberOfLines={2}>
+              <Text size="sm" style={{ color: QredColors.text.secondary }} numberOfLines={2}>
                 {debt.notes}
               </Text>
             )}
 
             {debt.interestRate > 0 && (
-              <Box className="px-3 py-2 rounded-lg" style={{ backgroundColor: QredColors.status.warning[50] }}>
-                <Text size="xs" className="text-typography-600 font-medium">
+              <Box className="px-3 py-2" style={{ backgroundColor: QredColors.status.warning[50], borderRadius: BorderRadius.md }}>
+                <Text size="xs" className="font-medium" style={{ color: QredColors.text.secondary }}>
                   Interest: {debt.interestRate}%
                 </Text>
               </Box>
@@ -411,15 +416,15 @@ const EmptyState = ({
   if (hasSearchQuery) {
     return (
       <Box className="py-16 items-center">
-        <Search size={48} color="#9CA3AF" />
-        <Text size="lg" className="font-medium text-typography-600 mt-4">
+        <Search size={48} color={QredColors.text.quaternary} />
+        <Text size="lg" className="font-medium mt-4" style={{ color: QredColors.text.secondary }}>
           No debts found
         </Text>
-        <Text size="sm" className="text-typography-500 mt-2 text-center">
+        <Text size="sm" className="mt-2 text-center" style={{ color: QredColors.text.tertiary }}>
           No debts match your search criteria
         </Text>
         <Button variant="link" size="sm" className="mt-4" onPress={onClearSearch}>
-          <ButtonText className="text-primary-600">Clear search</ButtonText>
+          <ButtonText style={{ color: QredColors.brand.navy }}>Clear search</ButtonText>
         </Button>
       </Box>
     )
@@ -427,19 +432,19 @@ const EmptyState = ({
 
   return (
     <Box className="py-16 items-center">
-      <TrendingUp size={48} color="#9CA3AF" />
-      <Text size="lg" className="font-medium text-typography-600 mt-4">
+      <TrendingUp size={48} color={QredColors.text.quaternary} />
+      <Text size="lg" className="font-medium mt-4" style={{ color: QredColors.text.secondary }}>
         No {activeTab === "lending" ? "lending" : "owing"} debts
       </Text>
-      <Text size="sm" className="text-typography-500 mt-2 text-center px-8">
+      <Text size="sm" className="mt-2 text-center px-8" style={{ color: QredColors.text.tertiary }}>
         {activeTab === "lending"
           ? "You haven't lent money to anyone yet. Start tracking debts by adding your first one."
           : "You don't owe anyone money. That's great! Keep it up."}
       </Text>
       {activeTab === "lending" && (
-        <Button size="md" className="bg-primary-600 mt-6" onPress={onAddDebt}>
-          <Plus size={16} color="white" />
-          <ButtonText className="ml-2">Add First Debt</ButtonText>
+        <Button size="md" className="mt-6" onPress={onAddDebt} style={{ backgroundColor: QredColors.brand.navy }}>
+          <Plus size={16} color={QredColors.text.inverse} />
+          <ButtonText className="ml-2 text-white">Add First Debt</ButtonText>
         </Button>
       )}
     </Box>

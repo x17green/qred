@@ -5,6 +5,7 @@ import { Input, InputField } from "@/components/ui/input";
 import { Pressable } from "@/components/ui/pressable";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
+import { BorderRadius, QredColors, Shadows } from "@/lib/constants/colors";
 import { debtService } from "@/lib/services/debtService";
 import { useAuth } from "@/lib/store/authStore";
 import { useDebtActions, useDebts } from "@/lib/store/debtStore";
@@ -198,18 +199,18 @@ export default function RecordPaymentScreen({ navigation, route }: RecordPayment
   const debtorName = debtService.getDebtorDisplayName(currentDebt);
 
   return (
-    <Box className="flex-1 bg-background-0">
+    <Box className="flex-1" style={{ backgroundColor: QredColors.background.light }}>
       {/* Header */}
-      <Box className="px-6 py-4 pt-16 bg-background-0 border-b border-background-200">
+      <Box className="px-6 py-4 pt-16 border-b" style={{ backgroundColor: QredColors.background.light, borderColor: QredColors.border.light }}>
         <HStack className="items-center">
           <Pressable onPress={() => navigation.goBack()}>
-            <Ionicons name="arrow-back" size={24} color="#374151" />
+            <Ionicons name="arrow-back" size={24} color={QredColors.text.secondary} />
           </Pressable>
           <VStack className="ml-4 flex-1">
-            <Text size="xl" className="font-bold text-typography-900">
+            <Text size="xl" className="-mb-3 font-bold" style={{ color: QredColors.text.primary }}>
               Record Payment
             </Text>
-            <Text size="sm" className="text-typography-500">
+            <Text size="sm" className="mt-1" style={{ color: QredColors.text.secondary }}>
               Payment from {debtorName}
             </Text>
           </VStack>
@@ -220,32 +221,32 @@ export default function RecordPaymentScreen({ navigation, route }: RecordPayment
         <Box className="px-6 py-6">
           <VStack space="xl">
             {/* Debt Summary */}
-            <Box className="bg-primary-50 p-4 rounded-lg border border-primary-200">
+            <Box className="p-4 border" style={{ backgroundColor: QredColors.brand.navyLight + '20', borderColor: QredColors.border.dark, borderRadius: BorderRadius.md }}>
               <VStack space="md">
                 <HStack className="items-center justify-between">
-                  <Text size="sm" className="text-primary-700 font-medium">
+                  <Text size="sm" className="font-medium" style={{ color: QredColors.brand.navy }}>
                     Current Outstanding Balance
                   </Text>
-                  <Text size="lg" className="font-bold text-primary-900">
+                  <Text size="lg" className="font-bold" style={{ color: QredColors.brand.navyDark }}>
                     {debtService.formatCurrency(currentDebt.outstandingBalance)}
                   </Text>
                 </HStack>
 
                 <HStack className="items-center justify-between">
-                  <Text size="xs" className="text-primary-600">
+                  <Text size="xs" style={{ color: QredColors.brand.navy }}>
                     Original Amount:
                   </Text>
-                  <Text size="xs" className="text-primary-700">
+                  <Text size="xs" style={{ color: QredColors.brand.navy }}>
                     {debtService.formatCurrency(currentDebt.totalAmount)}
                   </Text>
                 </HStack>
 
                 {currentDebt.totalAmount > currentDebt.outstandingBalance && (
                   <HStack className="items-center justify-between">
-                    <Text size="xs" className="text-primary-600">
+                    <Text size="xs" style={{ color: QredColors.brand.navy }}>
                       Already Paid:
                     </Text>
-                    <Text size="xs" className="text-success-600 font-medium">
+                    <Text size="xs" className="font-medium" style={{ color: QredColors.status.success[600] }}>
                       {debtService.formatCurrency(currentDebt.totalAmount - currentDebt.outstandingBalance)}
                     </Text>
                   </HStack>
@@ -254,22 +255,22 @@ export default function RecordPaymentScreen({ navigation, route }: RecordPayment
             </Box>
 
             {/* Quick Amount Buttons */}
-            <VStack space="md">
+            <VStack space="sm">
               <Text size="md" className="font-semibold text-typography-900">
                 Quick Amounts
               </Text>
 
-              <HStack space="md">
+              <HStack space="xs">
                 <Pressable
                   style={{ flex: 1 }}
                   onPress={() => setQuickAmount(25)}
                 >
-                  <Box className="p-3 bg-background-50 rounded-lg border border-background-300">
+                  <Box className="p-3 border" style={{ backgroundColor: QredColors.background.muted, borderColor: QredColors.border.light, borderRadius: BorderRadius.md }}>
                     <VStack className="items-center">
-                      <Text size="sm" className="font-medium text-typography-700">
+                      <Text size="sm" className="font-medium" style={{ color: QredColors.text.primary }}>
                         25%
                       </Text>
-                      <Text size="xs" className="text-typography-500">
+                      <Text size="xs" style={{ color: QredColors.text.secondary }}>
                         ₦{(currentDebt.outstandingBalance * 0.25).toLocaleString()}
                       </Text>
                     </VStack>
@@ -280,12 +281,12 @@ export default function RecordPaymentScreen({ navigation, route }: RecordPayment
                   style={{ flex: 1 }}
                   onPress={() => setQuickAmount(50)}
                 >
-                  <Box className="p-3 bg-background-50 rounded-lg border border-background-300">
+                  <Box className="p-3 border" style={{ backgroundColor: QredColors.background.muted, borderColor: QredColors.border.light, borderRadius: BorderRadius.md }}>
                     <VStack className="items-center">
-                      <Text size="sm" className="font-medium text-typography-700">
+                      <Text size="sm" className="font-medium" style={{ color: QredColors.text.primary }}>
                         50%
                       </Text>
-                      <Text size="xs" className="text-typography-500">
+                      <Text size="xs" style={{ color: QredColors.text.secondary }}>
                         ₦{(currentDebt.outstandingBalance * 0.5).toLocaleString()}
                       </Text>
                     </VStack>
@@ -296,12 +297,12 @@ export default function RecordPaymentScreen({ navigation, route }: RecordPayment
                   style={{ flex: 1 }}
                   onPress={() => setQuickAmount(100)}
                 >
-                  <Box className="p-3 bg-success-50 rounded-lg border border-success-300">
+                  <Box className="p-3 border" style={{ backgroundColor: QredColors.status.success[50], borderColor: QredColors.status.success[200], borderRadius: BorderRadius.md }}>
                     <VStack className="items-center">
-                      <Text size="sm" className="font-medium text-success-700">
+                      <Text size="sm" className="font-medium" style={{ color: QredColors.status.success[700] }}>
                         Full
                       </Text>
-                      <Text size="xs" className="text-success-600">
+                      <Text size="xs" style={{ color: QredColors.status.success[600] }}>
                         Pay all
                       </Text>
                     </VStack>
@@ -325,14 +326,19 @@ export default function RecordPaymentScreen({ navigation, route }: RecordPayment
                   variant="outline"
                   size="lg"
                   isInvalid={!!errors.amount}
-                  className="border-background-300"
+                  style={{
+                    borderWidth: 1.5,
+                    borderColor: errors.amount ? QredColors.status.error[500] : QredColors.border.light,
+                    backgroundColor: QredColors.background.elevated,
+                    borderRadius: BorderRadius.md,
+                  }}
                 >
                   <InputField
                     placeholder="0.00"
                     value={formData.amount}
                     onChangeText={(text) => updateField("amount", text)}
                     keyboardType="numeric"
-                    className="text-typography-900"
+                    style={{ color: QredColors.text.primary }}
                   />
                 </Input>
                 {errors.amount && (
@@ -353,7 +359,12 @@ export default function RecordPaymentScreen({ navigation, route }: RecordPayment
                 <Input
                   variant="outline"
                   size="lg"
-                  className="border-background-300"
+                  style={{
+                    borderWidth: 1.5,
+                    borderColor: QredColors.border.light,
+                    backgroundColor: QredColors.background.elevated,
+                    borderRadius: BorderRadius.md,
+                  }}
                 >
                   <InputField
                     placeholder="Add payment details (e.g., cash payment, bank transfer...)"
@@ -361,8 +372,7 @@ export default function RecordPaymentScreen({ navigation, route }: RecordPayment
                     onChangeText={(text) => updateField("notes", text)}
                     multiline
                     numberOfLines={3}
-                    className="text-typography-900"
-                    style={{ minHeight: 80 }}
+                    style={{ color: QredColors.text.primary, minHeight: 80 }}
                   />
                 </Input>
                 <Text size="sm" className="text-typography-500">
@@ -372,29 +382,29 @@ export default function RecordPaymentScreen({ navigation, route }: RecordPayment
 
               {/* Payment Preview */}
               {parseFloat(formData.amount) > 0 && (
-                <Box className="bg-success-50 p-4 rounded-lg border border-success-200">
+                <Box className="p-4 border" style={{ backgroundColor: QredColors.status.success[50], borderColor: QredColors.status.success[200], borderRadius: BorderRadius.md }}>
                   <VStack space="sm">
                     <HStack className="justify-between">
-                      <Text size="sm" className="text-success-700">
+                      <Text size="sm" style={{ color: QredColors.status.success[700] }}>
                         Payment Amount:
                       </Text>
-                      <Text size="sm" className="font-medium text-success-900">
+                      <Text size="sm" className="font-medium" style={{ color: QredColors.status.success[900] }}>
                         ₦{parseFloat(formData.amount).toLocaleString()}
                       </Text>
                     </HStack>
 
                     <HStack className="justify-between">
-                      <Text size="sm" className="text-success-700">
+                      <Text size="sm" style={{ color: QredColors.status.success[700] }}>
                         Remaining Balance:
                       </Text>
-                      <Text size="sm" className="font-medium text-success-900">
+                      <Text size="sm" className="font-medium" style={{ color: QredColors.status.success[900] }}>
                         ₦{Math.max(0, currentDebt.outstandingBalance - parseFloat(formData.amount)).toLocaleString()}
                       </Text>
                     </HStack>
 
                     {(currentDebt.outstandingBalance - parseFloat(formData.amount)) <= 0 && (
-                      <Box className="border-t border-success-300 pt-2">
-                        <Text size="md" className="font-bold text-success-800 text-center">
+                      <Box className="pt-2" style={{ borderTopWidth: 1, borderTopColor: QredColors.status.success[200] }}>
+                        <Text size="md" className="font-bold text-center" style={{ color: QredColors.status.success[800] }}>
                           🎉 This payment will settle the debt in full!
                         </Text>
                       </Box>
@@ -405,15 +415,21 @@ export default function RecordPaymentScreen({ navigation, route }: RecordPayment
             </VStack>
 
             {/* Action Buttons */}
-            <VStack space="md" className="pt-4">
+            <VStack space="sm" className="pt-4">
               <Button
                 size="lg"
-                className="w-full bg-success-600"
+                className="w-full"
                 onPress={handleRecordPayment}
                 isDisabled={isRecording || !formData.amount.trim()}
+                style={{
+                  backgroundColor: QredColors.status.success[600],
+                  borderRadius: BorderRadius.lg,
+                  height: 40,
+                  ...Shadows.md,
+                }}
               >
-                <Ionicons name="checkmark-circle" size={20} color="white" />
-                <ButtonText className="ml-2 text-white font-semibold">
+                <Ionicons name="checkmark-circle" size={20} color={QredColors.text.inverse} />
+                <ButtonText className="ml-2 font-semibold" style={{ color: QredColors.text.inverse }}>
                   {isRecording ? "Recording Payment..." : "Record Payment"}
                 </ButtonText>
               </Button>
@@ -421,25 +437,30 @@ export default function RecordPaymentScreen({ navigation, route }: RecordPayment
               <Button
                 variant="outline"
                 size="lg"
-                className="w-full border-background-300"
+                className="w-full"
                 onPress={() => navigation.goBack()}
                 isDisabled={isRecording}
+                style={{
+                  borderColor: QredColors.border.medium,
+                  backgroundColor: QredColors.background.muted,
+                  borderRadius: BorderRadius.lg,
+                }}
               >
-                <ButtonText className="text-typography-700">
+                <ButtonText style={{ color: QredColors.text.secondary }}>
                   Cancel
                 </ButtonText>
               </Button>
             </VStack>
 
             {/* Info Box */}
-            <Box className="bg-info-50 p-4 rounded-lg border border-info-200">
+            <Box className="p-4 border" style={{ backgroundColor: QredColors.status.info[50], borderColor: QredColors.status.info[200], borderRadius: BorderRadius.md }}>
               <HStack className="items-start">
-                <Ionicons name="information-circle" size={20} color="#3B82F6" />
+                <Ionicons name="information-circle" size={20} color={QredColors.status.info[600]} />
                 <VStack className="ml-3 flex-1">
-                  <Text size="sm" className="text-info-700 font-medium">
+                  <Text size="sm" className="font-medium" style={{ color: QredColors.status.info[700] }}>
                     About Manual Payments
                   </Text>
-                  <Text size="sm" className="text-info-600 mt-1">
+                  <Text size="sm" className="mt-1" style={{ color: QredColors.status.info[600] }}>
                     Use this feature to record payments you've received outside the app (cash, bank transfer, etc.).
                     The payment will be marked as successful and the debt balance will be updated automatically.
                   </Text>

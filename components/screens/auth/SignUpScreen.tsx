@@ -11,7 +11,7 @@ import { HStack } from "@/components/ui/hstack"
 import { Input, InputField, InputIcon, InputSlot } from "@/components/ui/input"
 import { Text } from "@/components/ui/text"
 import { VStack } from "@/components/ui/vstack"
-import { QredColors } from "@/lib/constants/colors"
+import { BorderRadius, Gradients, QredColors, Shadows } from "@/lib/constants/colors"
 import { authService } from "@/lib/services/authService"
 import { useAuthActions } from "@/lib/store/authStore"
 
@@ -117,7 +117,7 @@ export default function SignUpScreen({ navigation }: SignUpScreenProps) {
   return (
     <Box className="flex-1">
       <LinearGradient
-        colors={[QredColors.brand.navy, QredColors.brand.navyDark]}
+        colors={Gradients.brandPrimary as [string, string]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={{ position: "absolute", left: 0, right: 0, top: 0, bottom: 0 }}
@@ -136,13 +136,11 @@ export default function SignUpScreen({ navigation }: SignUpScreenProps) {
             </VStack>
 
             <Box
-              className="bg-white rounded-3xl p-6"
+              className="p-6"
               style={{
-                shadowColor: "#000",
-                shadowOffset: { width: 0, height: 8 },
-                shadowOpacity: 0.15,
-                shadowRadius: 16,
-                elevation: 8,
+                backgroundColor: QredColors.background.light,
+                borderRadius: BorderRadius.xl,
+                ...Shadows.lg,
               }}
             >
               <VStack space="lg">
@@ -154,11 +152,11 @@ export default function SignUpScreen({ navigation }: SignUpScreenProps) {
                     variant="outline"
                     size="lg"
                     isInvalid={!!errors.name}
-                    className="border-2 border-background-200 rounded-xl"
                     style={{
                       borderWidth: 1.5,
                       borderColor: errors.name ? QredColors.status.error[500] : QredColors.border.light,
                       backgroundColor: QredColors.background.elevated,
+                      borderRadius: BorderRadius.lg,
                     }}
                   >
                     <InputSlot className="pl-3">
@@ -187,11 +185,11 @@ export default function SignUpScreen({ navigation }: SignUpScreenProps) {
                     variant="outline"
                     size="lg"
                     isInvalid={!!errors.email}
-                    className="border-2 border-background-200 rounded-xl"
                     style={{
                       borderWidth: 1.5,
                       borderColor: errors.email ? QredColors.status.error[500] : QredColors.border.light,
                       backgroundColor: QredColors.background.elevated,
+                      borderRadius: BorderRadius.lg,
                     }}
                   >
                     <InputSlot className="pl-3">
@@ -222,11 +220,11 @@ export default function SignUpScreen({ navigation }: SignUpScreenProps) {
                     variant="outline"
                     size="lg"
                     isInvalid={!!errors.phoneNumber}
-                    className="border-2 border-background-200 rounded-xl"
                     style={{
                       borderWidth: 1.5,
                       borderColor: errors.phoneNumber ? QredColors.status.error[500] : QredColors.border.light,
                       backgroundColor: QredColors.background.elevated,
+                      borderRadius: BorderRadius.lg,
                     }}
                   >
                     <InputSlot className="pl-3">
@@ -261,11 +259,11 @@ export default function SignUpScreen({ navigation }: SignUpScreenProps) {
                     variant="outline"
                     size="lg"
                     isInvalid={!!errors.password}
-                    className="border-2 border-background-200 rounded-xl"
                     style={{
                       borderWidth: 1.5,
                       borderColor: errors.password ? QredColors.status.error[500] : QredColors.border.light,
                       backgroundColor: QredColors.background.elevated,
+                      borderRadius: BorderRadius.lg,
                     }}
                   >
                     <InputSlot className="pl-3">
@@ -300,11 +298,11 @@ export default function SignUpScreen({ navigation }: SignUpScreenProps) {
                     variant="outline"
                     size="lg"
                     isInvalid={!!errors.confirmPassword}
-                    className="border-2 border-background-200 rounded-xl"
                     style={{
                       borderWidth: 1.5,
                       borderColor: errors.confirmPassword ? QredColors.status.error[500] : QredColors.border.light,
                       backgroundColor: QredColors.background.elevated,
+                      borderRadius: BorderRadius.lg,
                     }}
                   >
                     <InputSlot className="pl-3">
@@ -329,19 +327,16 @@ export default function SignUpScreen({ navigation }: SignUpScreenProps) {
                 <Box className="mt-4">
                   <Button
                     size="lg"
-                    className="w-full rounded-xl"
+                    className="w-full"
                     onPress={handleSignUp}
                     isDisabled={isLoading}
                     style={{
                       backgroundColor: QredColors.accent.green,
-                      shadowColor: QredColors.accent.green,
-                      shadowOffset: { width: 0, height: 4 },
-                      shadowOpacity: 0.3,
-                      shadowRadius: 8,
-                      elevation: 4,
+                      borderRadius: BorderRadius.lg,
+                      ...Shadows.md,
                     }}
                   >
-                    <ButtonText className="font-bold text-base">
+                    <ButtonText className="font-bold text-base text-white">
                       {isLoading ? "Creating Account..." : "Create Account"}
                     </ButtonText>
                   </Button>

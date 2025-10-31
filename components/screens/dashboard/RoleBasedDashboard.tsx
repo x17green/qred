@@ -6,7 +6,7 @@ import { Icon } from "@/components/ui/icon"
 import { Pressable } from "@/components/ui/pressable"
 import { Text } from "@/components/ui/text"
 import { VStack } from "@/components/ui/vstack"
-import { QredColors, SemanticColors } from "@/lib/constants/colors"
+import { BorderRadius, QredColors, SemanticColors, Shadows } from "@/lib/constants/colors"
 import { useAuth } from "@/lib/store/authStore"
 import { useDebtActions, useDebts } from "@/lib/store/debtStore"
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
@@ -22,7 +22,7 @@ import {
 } from "lucide-react-native"
 import type React from "react"
 import { useEffect, useState } from "react"
-import { Alert, Image, RefreshControl, ScrollView } from "react-native"
+import { Alert, Image, RefreshControl, ScrollView, View } from "react-native"
 
 interface DashboardProps {
   navigation?: any
@@ -49,6 +49,8 @@ function SummaryCard({ title, amount, count, icon, variant, onPress, trend }: Su
       titleColor: "text-white/80",
       amountColor: "text-white",
       countColor: "text-white/70",
+      iconColor: "text-white",
+      hasDollarSign: true,
     },
     secondary: {
       gradientColors: [QredColors.surface.card, QredColors.surface.elevated],
@@ -56,6 +58,8 @@ function SummaryCard({ title, amount, count, icon, variant, onPress, trend }: Su
       titleColor: "text-typography-600",
       amountColor: "text-typography-900",
       countColor: "text-typography-500",
+      iconColor: "text-typography-600",
+      hasDollarSign: false,
     },
     success: {
       gradientColors: [QredColors.accent.green, QredColors.accent.greenDark],
@@ -63,6 +67,8 @@ function SummaryCard({ title, amount, count, icon, variant, onPress, trend }: Su
       titleColor: "text-white/80",
       amountColor: "text-white",
       countColor: "text-white/70",
+      iconColor: "text-white",
+      hasDollarSign: true,
     },
     warning: {
       gradientColors: [QredColors.status.warning[500], QredColors.status.warning[600]],
@@ -70,6 +76,8 @@ function SummaryCard({ title, amount, count, icon, variant, onPress, trend }: Su
       titleColor: "text-white/80",
       amountColor: "text-white",
       countColor: "text-white/70",
+      iconColor: "text-white",
+      hasDollarSign: true,
     },
     lending: {
       gradientColors: [QredColors.accent.green, QredColors.accent.greenDark],
@@ -77,6 +85,8 @@ function SummaryCard({ title, amount, count, icon, variant, onPress, trend }: Su
       titleColor: "text-white/80",
       amountColor: "text-white",
       countColor: "text-white/70",
+      iconColor: "text-white",
+      hasDollarSign: true,
     },
     borrowing: {
       gradientColors: [QredColors.status.warning[500], QredColors.status.warning[600]],
@@ -84,6 +94,8 @@ function SummaryCard({ title, amount, count, icon, variant, onPress, trend }: Su
       titleColor: "text-white/80",
       amountColor: "text-white",
       countColor: "text-white/70",
+      iconColor: "text-white",
+      hasDollarSign: true,
     },
   }
 
@@ -91,72 +103,59 @@ function SummaryCard({ title, amount, count, icon, variant, onPress, trend }: Su
 
   return (
     <Pressable onPress={onPress} className="rounded-2xl overflow-hidden">
-      <Box
-        style={{
-          shadowColor: "#000",
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.1,
-          shadowRadius: 12,
-          elevation: 4,
-          marginBottom: -4,
-        }}
-      >
+      <Box style={Shadows.md}>
         <LinearGradient
           colors={styles.gradientColors as [string, string]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
-          style={{ borderRadius: 10, padding: 8 }}
+          style={{ borderRadius: BorderRadius.sm, padding: 12, position: 'relative' }}
         >
-          <HStack space="md" className="items-start">
-            <Box
-              className="w-16 h-16 rounded-md items-center justify-center"
-              style={{ backgroundColor: "rgba(255, 255, 255, 0.4)" }}
-            >
-              <Icon as={icon} size="lg" className="text-white" />
-            </Box>
-
-            <VStack space="xs" className="flex-1">
-              <HStack className="items-center justify-between">
-                <Text size="sm" className={`${styles.titleColor} font-medium`}>
-                  {title}
-                </Text>
-                {trend && (
-                  <Box
-                    className="px-2 py-1 rounded-md flex-row items-center gap-1"
-                    style={{ backgroundColor: "rgba(255, 255, 255, 0.3)" }}
-                  >
-                    <MaterialCommunityIcons
-                      name="chart-timeline-variant-shimmer"
-                      size={20}
-                      color={SemanticColors.secondary}
-                      style={{
-                        transform: [{
-                          rotate: trend.isPositive
-                          ? "0deg"
-                          : "180deg"
-                        }]
-                      }}
-                    />
-                    <Text size="md" className="text-white font-semibold">
-                      {trend.isPositive ? "+" : "-"}
-                      {trend.value}%
-                    </Text>
-                  </Box>
-                )}
-              </HStack>
-
-              <Heading size="3xl" className={`${styles.amountColor} font-bold`}>
-                ₦{amount.toLocaleString()}
-              </Heading>
-
-              <HStack space="xs" className="items-center">
-                <Text size="xs" className={styles.countColor}>
-                  {count} {count === 1 ? "debt" : "debts"}
-                </Text>
-                {onPress && <Icon as={ArrowUpRight} size="xs" className="text-white/60" />}
-              </HStack>
-            </VStack>
-          </HStack>
+          <View style={{ position: 'absolute', top: -80, right: -80, width: 150, height: 170, borderRadius: 100, backgroundColor: 'rgba(255, 255, 255, 0.1)' }} />
+          <View style={{ position: 'absolute', bottom: -64, left: -64, width: 128, height: 128, borderRadius: 64, backgroundColor: 'rgba(255, 255, 255, 0.1)' }} />
+          {styles.hasDollarSign && (
+            <View style={{ position: 'absolute', top: 24, right: 24, opacity: 0.5 }}>
+              <Icon as={DollarSign} size="xl" className="text-white" />
+            </View>
+          )}
+          <VStack space="md">
+            <HStack className="items-center justify-between">
+              <Text className={`${styles.titleColor} text-lg font-bold`}>
+                {title}
+              </Text>
+              {trend && (
+                <Box
+                  className="px-2 py-1 rounded-md flex-row items-center gap-1"
+                  style={{ top: -5, right: 60 }}
+                >
+                  <MaterialCommunityIcons
+                    name="chart-timeline-variant-shimmer"
+                    size={20}
+                    color={SemanticColors.secondary}
+                    style={{
+                      transform: [{
+                        rotate: trend.isPositive
+                        ? "0deg"
+                        : "180deg"
+                      }]
+                    }}
+                  />
+                  <Text size="md" className="text-white font-semibold">
+                    {trend.isPositive ? "+" : "-"}
+                    {trend.value}%
+                  </Text>
+                </Box>
+              )}
+            </HStack>
+            <Text className={`${styles.amountColor} text-4xl font-bold mb-3`}>
+              ₦{amount.toLocaleString()}
+            </Text>
+            <HStack space="xs" className="items-center">
+              <Icon as={icon} size="sm" className={styles.iconColor} />
+              <Text className={`${styles.countColor} text-sm`}>
+                {count} {count === 1 ? "debt" : "debts"}
+              </Text>
+            </HStack>
+          </VStack>
         </LinearGradient>
       </Box>
     </Pressable>

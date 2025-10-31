@@ -149,7 +149,7 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
   const selectImage = async () => {
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ['images'],
         allowsEditing: true,
         aspect: [1, 1],
         quality: 0.8,
@@ -181,7 +181,7 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
       }
 
       const result = await ImagePicker.launchCameraAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ['images'],
         allowsEditing: true,
         aspect: [1, 1],
         quality: 0.8,
@@ -243,7 +243,7 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
   }
 
   return (
-    <Box className="flex-1" style={{ backgroundColor: SemanticColors.primary }}>
+    <Box className="flex-1" style={{ backgroundColor: SemanticColors.secondarySurface }}>
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         <Box className="overflow-hidden">
           <LinearGradient
@@ -255,7 +255,7 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
             <VStack space="lg" className="items-center">
               <Pressable onPress={isEditing ? showImagePicker : undefined}>
                 <Box
-                  className="w-28 h-28 rounded-full overflow-hidden border-4 border-white/20"
+                  className="w-28 h-28 rounded-full overflow-hidden border-4 border-white/25"
                   style={{
                     shadowColor: "#000",
                     shadowOffset: { width: 0, height: 8 },
@@ -273,10 +273,10 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
                     />
                   ) : (
                     <Box
-                      className="w-full h-full items-center justify-center"
+                      className="w-full h-full rounded-full items-center justify-center"
                       style={{ backgroundColor: QredColors.accent.green }}
                     >
-                      <Text size="3xl" className="font-bold text-white">
+                      <Text size="5xl" className="font-bold text-white">
                         {user?.name?.charAt(0)?.toUpperCase() || "U"}
                       </Text>
                     </Box>
@@ -284,8 +284,13 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
 
                   {isEditing && (
                     <Box
-                      className="absolute -bottom-2 -right-2 w-10 h-10 rounded-full items-center justify-center border-2 border-white"
-                      style={{ backgroundColor: QredColors.accent.green }}
+                      className="w-10 h-10 rounded-full items-center justify-center border-2 border-white"
+                      style={{ 
+                        backgroundColor: QredColors.accent.green,
+                        position: 'absolute', 
+                        bottom: -8, 
+                        right: -8
+                      }}
                     >
                       <Camera size={20} color="white" />
                     </Box>
@@ -294,14 +299,14 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
               </Pressable>
 
               <VStack space="xs" className="items-center">
-                <Text size="2xl" className="font-bold text-white">
+                <Text size="3xl" className="font-bold text-white">
                   {user?.name || "User"}
                 </Text>
-                <Text size="sm" className="text-white/70">
+                <Text size="md" className="text-white/70">
                   {user?.email || "No email address"}
                 </Text>
                 {user?.phoneNumber && (
-                  <Text size="sm" className="text-white/70">
+                  <Text size="lg" className="text-white/70">
                     {user.phoneNumber}
                   </Text>
                 )}
@@ -321,9 +326,11 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
                   shadowOpacity: 0.08,
                   shadowRadius: 12,
                   elevation: 3,
+                  borderWidth: 1.5,
+                  borderColor: QredColors.border.light,
                 }}
               >
-                <VStack space="lg">
+                <VStack space="xs">
                   <Text size="lg" className="font-bold text-typography-900">
                     Edit Profile
                   </Text>
@@ -344,7 +351,7 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
                       }}
                     >
                       <InputSlot className="pl-3">
-                        <InputIcon as={User} className="text-typography-400" size="sm" />
+                        <InputIcon as={User} className="text-typography-100" size="sm" />
                       </InputSlot>
                       <InputField
                         placeholder="Enter your full name"
@@ -434,8 +441,12 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
                       className="flex-1 border-2 border-background-300 rounded-xl bg-transparent"
                       onPress={handleCancelEdit}
                       isDisabled={isUpdating}
+                      style={{
+                        borderColor: QredColors.status.error[100],
+                        backgroundColor: QredColors.background.elevated,
+                      }}
                     >
-                      <ButtonText className="text-typography-700 font-semibold">Cancel</ButtonText>
+                      <ButtonText className="font-semibold color-red-500">Cancel</ButtonText>
                     </Button>
                     <Button
                       size="lg"
@@ -510,7 +521,7 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
                 description="App version and information"
                 icon={Info}
                 onPress={() => {
-                  Alert.alert("About", "Qred v1.0.0\nYour credit, simplified\n\nA modern debt management application")
+                  Alert.alert("About", `Qred v${process.env.EXPO_PUBLIC_APP_VERSION}\nYour credit, simplified\n\nA modern debt management application`)
                 }}
               />
             </VStack>
@@ -518,16 +529,20 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
             <Box className="mt-8">
               <Button
                 variant="outline"
-                size="lg"
+                size="xl"
                 className="w-full border-2 rounded-xl bg-transparent"
                 onPress={handleSignOut}
                 isDisabled={isLoading || isUpdating || isUploadingAvatar}
                 style={{
-                  borderColor: QredColors.text.accent,
+                  borderColor: QredColors.status.error[700],
+                  backgroundColor: QredColors.status.error[600],
+                  borderWidth: 1.5,
+                  borderRadius: 16,
+                  height: 56,
                 }}
               >
-                <LogOut size={20} color={QredColors.text.accent} />
-                <ButtonText className="font-bold ml-2" style={{ color: QredColors.text.accent }}>
+                <LogOut size={20} color={QredColors.surface.card} />
+                <ButtonText className="font-bold ml-2" style={{ color: QredColors.surface.card }}>
                   {isLoading ? "Signing Out..." : "Sign Out"}
                 </ButtonText>
               </Button>
@@ -562,6 +577,8 @@ function ProfileMenuItem({
           shadowOpacity: 0.05,
           shadowRadius: 8,
           elevation: 2,
+          borderWidth: 1.5,
+          borderColor: QredColors.border.light,
         }}
       >
         <HStack className="items-center justify-between">

@@ -14,6 +14,7 @@ import { Ionicons } from "@expo/vector-icons"
 import { LinearGradient } from "expo-linear-gradient"
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { Alert, Linking, RefreshControl, ScrollView } from "react-native"
+import { SemanticColors, QredColors } from "@/lib/constants/colors"
 
 interface DebtDetailScreenProps {
   navigation: any
@@ -244,7 +245,7 @@ export default function DebtDetailScreen({ navigation, route }: DebtDetailScreen
         colors={["#1A2A4D", "#2D3E6F"]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-        style={{ paddingHorizontal: 24, paddingTop: 64, paddingBottom: 20 }}
+        style={{ paddingHorizontal: 24, paddingTop: 64, paddingBottom: 10 }}
       >
         <HStack className="items-center justify-between">
           <HStack className="items-center flex-1">
@@ -252,7 +253,7 @@ export default function DebtDetailScreen({ navigation, route }: DebtDetailScreen
               <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
             </Pressable>
             <VStack className="ml-4 flex-1">
-              <Text size="xl" className="font-bold text-white">
+              <Text size="xl" className="-mb-3 font-bold text-white">
                 {getPersonName()}
               </Text>
               <Text size="sm" className="text-white/80 mt-1">
@@ -265,7 +266,7 @@ export default function DebtDetailScreen({ navigation, route }: DebtDetailScreen
             className="px-4 py-2 rounded-full"
             style={{
               backgroundColor: statusColor + "30",
-              borderWidth: 1,
+              borderWidth: 0.5,
               borderColor: statusColor,
             }}
           >
@@ -280,6 +281,7 @@ export default function DebtDetailScreen({ navigation, route }: DebtDetailScreen
         className="flex-1"
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
         showsVerticalScrollIndicator={false}
+        style={{ backgroundColor: SemanticColors.secondarySurface }}
       >
         <Box className="px-6 py-6">
           <VStack space="xl">
@@ -290,7 +292,7 @@ export default function DebtDetailScreen({ navigation, route }: DebtDetailScreen
               style={{
                 padding: 24,
                 borderRadius: 20,
-                borderWidth: 2,
+                borderWidth: 1.5,
                 borderColor: isLender ? "#00E676" : "#FFC107",
                 shadowColor: isLender ? "#00E676" : "#FFC107",
                 shadowOffset: { width: 0, height: 6 },
@@ -337,12 +339,13 @@ export default function DebtDetailScreen({ navigation, route }: DebtDetailScreen
             </LinearGradient>
 
             <Box
-              className={`p-5 rounded-2xl border-2`}
+              className={`p-3 rounded-xl`}
               style={{
                 backgroundColor: isOverdue ? "#FEE2E2" : "#FEF3C7",
                 borderColor: isOverdue ? "#EF4444" : "#F59E0B",
                 shadowColor: isOverdue ? "#EF4444" : "#F59E0B",
                 shadowOffset: { width: 0, height: 4 },
+                borderWidth: 0.7,
                 shadowOpacity: 0.1,
                 shadowRadius: 8,
                 elevation: 4,
@@ -359,26 +362,45 @@ export default function DebtDetailScreen({ navigation, route }: DebtDetailScreen
                     <Text size="sm" className={`font-bold ml-2 ${isOverdue ? "text-error-700" : "text-warning-700"}`}>
                       {isOverdue ? "OVERDUE" : "DUE DATE"}
                     </Text>
+                    <Text size="2xl" className={`font-bold align-center ${isOverdue ? "text-error-900" : "text-warning-900"}`}>
+                      {new Date(currentDebt.dueDate).toLocaleDateString("en-GB", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      })}
+                    </Text>
                   </HStack>
-                  <Text size="lg" className={`font-bold mt-2 ${isOverdue ? "text-error-900" : "text-warning-900"}`}>
-                    {new Date(currentDebt.dueDate).toLocaleDateString("en-GB", {
-                      day: "numeric",
-                      month: "short",
-                      year: "numeric",
-                    })}
-                  </Text>
-                  <Text size="sm" className={`mt-1 font-medium ${isOverdue ? "text-error-700" : "text-warning-700"}`}>
-                    {isOverdue ? `Overdue by ${Math.abs(daysUntilDue)} days` : `Due in ${daysUntilDue} days`}
-                  </Text>
                 </VStack>
                 <Box
                   className={`w-16 h-16 rounded-full items-center justify-center ${
                     isOverdue ? "bg-error-100" : "bg-warning-100"
                   }`}
                 >
-                  <Text size="2xl" className={`font-bold ${isOverdue ? "text-error-700" : "text-warning-700"}`}>
-                    {Math.abs(daysUntilDue)}
-                  </Text>
+                  {isOverdue ? (
+                    <VStack className="items-center">
+                      <Text size="sm" className="-mb-3 font-medium text-error-700">
+                        Overdue by
+                      </Text>
+                      <Text size="2xl" className="font-bold text-error-700">
+                        {Math.abs(daysUntilDue)}
+                      </Text>
+                      <Text size="sm" className="-mb-3 font-medium text-error-700">
+                        days
+                      </Text>
+                    </VStack>
+                  ) : (
+                    <VStack className="items-center">
+                      <Text size="sm" className="-mb-3 font-medium text-warning-700">
+                        Due in
+                      </Text>
+                      <Text size="2xl" className="font-bold text-warning-700">
+                        {Math.abs(daysUntilDue)}
+                      </Text>
+                      <Text size="sm" className="-mt-3 font-medium text-warning-700">
+                        days
+                      </Text>
+                    </VStack>
+                  )}
                 </Box>
               </HStack>
             </Box>
@@ -396,6 +418,8 @@ export default function DebtDetailScreen({ navigation, route }: DebtDetailScreen
                   shadowOpacity: 0.08,
                   shadowRadius: 12,
                   elevation: 6,
+                  borderWidth: 1.5,
+                  borderColor: QredColors.border.light
                 }}
               >
                 <VStack>
@@ -423,6 +447,8 @@ export default function DebtDetailScreen({ navigation, route }: DebtDetailScreen
                   shadowOpacity: 0.08,
                   shadowRadius: 12,
                   elevation: 6,
+                  borderWidth: 1.5,
+                  borderColor: QredColors.border.dark
                 }}
               >
                 <VStack>
@@ -453,6 +479,8 @@ export default function DebtDetailScreen({ navigation, route }: DebtDetailScreen
                       shadowOpacity: 0.05,
                       shadowRadius: 4,
                       elevation: 2,
+                      borderWidth: 1.5,
+                      borderColor: QredColors.border.dark
                     }}
                   >
                     <Text size="sm" className="text-typography-700 leading-relaxed">
@@ -468,7 +496,7 @@ export default function DebtDetailScreen({ navigation, route }: DebtDetailScreen
                   <Text size="md" className="font-bold text-typography-900">
                     Payment History
                   </Text>
-                  <Box className="bg-background-50 rounded-lg border border-background-200">
+                  <Box className="bg-background-50 rounded-lg border-background-200">
                     <VStack>
                       {paymentHistory.map((payment, index) => (
                         <PaymentHistoryRow
@@ -483,7 +511,12 @@ export default function DebtDetailScreen({ navigation, route }: DebtDetailScreen
               )}
 
               {/* Timestamps */}
-              <Box className="bg-background-50 rounded-lg border border-background-200">
+              <Box 
+                className="bg-background-50 rounded-lg border border-background-200"
+                style={{
+                  borderColor: QredColors.border.medium
+                }}
+              >
                 <VStack>
                   <DetailRow label="Created" value={new Date(currentDebt.createdAt).toLocaleDateString()} />
                   <DetailRow label="Last Updated" value={new Date(currentDebt.updatedAt).toLocaleDateString()} />
@@ -530,7 +563,18 @@ export default function DebtDetailScreen({ navigation, route }: DebtDetailScreen
                 {/* For Lenders */}
                 {isLender && (
                   <VStack space="md">
-                    <Button size="lg" className="w-full bg-primary-600" onPress={handleRecordPayment}>
+                    <Button 
+                      size="lg" 
+                      className="w-full bg-primary-600" 
+                      onPress={handleRecordPayment}
+                      style={{
+                        borderColor: SemanticColors.secondaryGradient,
+                        backgroundColor: QredColors.brand.navyLight,
+                        borderWidth: 1.5,
+                        borderRadius: 16,
+                        height: 48,
+                      }}
+                    >
                       <Ionicons name="add-circle" size={20} color="white" />
                       <ButtonText className="ml-2 text-white font-semibold">Record Payment</ButtonText>
                     </Button>
@@ -542,6 +586,13 @@ export default function DebtDetailScreen({ navigation, route }: DebtDetailScreen
                         className="flex-1 border-primary-600 bg-transparent"
                         onPress={handlePaymentReminder}
                         isDisabled={actionLoading === "reminder"}
+                        style={{
+                          borderColor: QredColors.border.medium,
+                          backgroundColor: QredColors.background.muted,
+                          borderWidth: 1.5,
+                          borderRadius: 16,
+                          height: 48,
+                        }}
                       >
                         <Ionicons name="notifications" size={18} color="#4F46E5" />
                         <ButtonText className="ml-1 text-primary-600 font-medium text-sm">
@@ -554,6 +605,13 @@ export default function DebtDetailScreen({ navigation, route }: DebtDetailScreen
                         className="flex-1 bg-success-600"
                         onPress={handleMarkAsPaid}
                         isDisabled={actionLoading === "markPaid"}
+                        style={{
+                          borderColor: QredColors.border.accent,
+                          backgroundColor: QredColors.status.success[600],
+                          borderWidth: 1.5,
+                          borderRadius: 16,
+                          height: 48,
+                        }}
                       >
                         <Ionicons name="checkmark-circle" size={18} color="white" />
                         <ButtonText className="ml-1 text-white font-medium text-sm">
@@ -571,6 +629,13 @@ export default function DebtDetailScreen({ navigation, route }: DebtDetailScreen
                     size="lg"
                     className="w-full border-background-300 bg-transparent"
                     onPress={handleEditDebt}
+                    style={{
+                      borderColor: QredColors.border.medium,
+                      backgroundColor: QredColors.background.muted,
+                      borderWidth: 1.5,
+                      borderRadius: 16,
+                      height: 48,
+                    }}
                   >
                     <Ionicons name="create" size={20} color="#374151" />
                     <ButtonText className="ml-2 text-typography-700 font-semibold">Edit Details</ButtonText>
@@ -593,6 +658,13 @@ export default function DebtDetailScreen({ navigation, route }: DebtDetailScreen
                   className="w-full border-error-300 bg-transparent"
                   onPress={handleDeleteDebt}
                   isDisabled={actionLoading === "delete"}
+                  style={{
+                    borderColor: QredColors.status.error[700],
+                    backgroundColor: QredColors.status.error[50],
+                    borderWidth: 1.5,
+                    borderRadius: 16,
+                    height: 56,
+                  }}
                 >
                   <Ionicons name="trash" size={20} color="#EF4444" />
                   <ButtonText className="ml-2 text-error-600 font-semibold">
@@ -633,7 +705,12 @@ const PaymentHistoryRow = ({
   const statusColor = payment.status === "SUCCESSFUL" ? "#10B981" : payment.status === "FAILED" ? "#EF4444" : "#F59E0B"
 
   return (
-    <Box className={`px-4 py-3 ${!isLast ? "border-b border-background-300" : ""}`}>
+    <Box 
+      className={`px-4 py-3 ${!isLast ? "border-b border-background-300" : ""}`}
+      style={{
+        borderColor: QredColors.border.dark
+      }}
+    >
       <VStack space="sm">
         <HStack className="items-center justify-between">
           <HStack className="items-center">
@@ -677,7 +754,12 @@ const DetailRow = ({
   isLast?: boolean
 }) => {
   return (
-    <Box className={`px-4 py-3 ${!isLast ? "border-b border-background-300" : ""}`}>
+    <Box 
+      className={`px-4 py-3 ${!isLast ? "border-b border-background-300" : ""}`}
+      style={{
+        borderColor: QredColors.border.medium
+      }}
+    >
       <HStack className="items-center justify-between">
         <Text size="sm" className="text-typography-500 font-medium">
           {label}

@@ -7,7 +7,7 @@ import { Input, InputField, InputIcon, InputSlot } from "@/components/ui/input"
 import { Pressable } from "@/components/ui/pressable"
 import { Text } from "@/components/ui/text"
 import { VStack } from "@/components/ui/vstack"
-import { QredColors } from "@/lib/constants/colors"
+import { QredColors, SemanticColors } from "@/lib/constants/colors"
 import { debtService } from "@/lib/services/debtService"
 import { useAuth } from "@/lib/store/authStore"
 import { useDebtActions, useDebts, useSearchDebts } from "@/lib/store/debtStore"
@@ -236,8 +236,9 @@ export default function DebtsListScreen({ navigation, route }: DebtsListScreenPr
         className="flex-1"
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
         showsVerticalScrollIndicator={false}
+        style={{ backgroundColor: SemanticColors.secondarySurface }}
       >
-        <Box className="px-6 py-6">
+        <Box className="px-3 py-3 md:px-4 md:py-4">
           {isLoading && filteredDebts.length === 0 ? (
             <Box className="py-8">
               <Text className="text-center text-typography-500">Loading debts...</Text>
@@ -250,7 +251,7 @@ export default function DebtsListScreen({ navigation, route }: DebtsListScreenPr
               onClearSearch={() => setSearchQuery("")}
             />
           ) : (
-            <VStack space="md">
+            <VStack space="sm">
               {filteredDebts.map((debt) => (
                 <DebtCard
                   key={debt.id}
@@ -320,6 +321,8 @@ const DebtCard = React.memo(
             shadowOpacity: 0.08,
             shadowRadius: 12,
             elevation: 3,
+            borderWidth: 1.5,
+            borderColor: QredColors.border.light,
           }}
         >
           <VStack space="md">
@@ -382,7 +385,7 @@ const DebtCard = React.memo(
             {debt.interestRate > 0 && (
               <Box className="px-3 py-2 rounded-lg" style={{ backgroundColor: QredColors.status.warning[50] }}>
                 <Text size="xs" className="text-typography-600 font-medium">
-                  Interest: {debt.interestRate}% per year
+                  Interest: {debt.interestRate}%
                 </Text>
               </Box>
             )}

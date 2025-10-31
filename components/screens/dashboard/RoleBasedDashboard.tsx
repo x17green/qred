@@ -20,6 +20,7 @@ import {
     TrendingUp,
     Users,
 } from "lucide-react-native"
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import type React from "react"
 import { useEffect, useState } from "react"
 import { Alert, Image, RefreshControl, ScrollView } from "react-native"
@@ -98,18 +99,19 @@ function SummaryCard({ title, amount, count, icon, variant, onPress, trend }: Su
           shadowOpacity: 0.1,
           shadowRadius: 12,
           elevation: 4,
+          marginBottom: -4,
         }}
       >
         <LinearGradient
           colors={styles.gradientColors as [string, string]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
-          style={{ borderRadius: 16, padding: 20 }}
+          style={{ borderRadius: 10, padding: 8 }}
         >
           <HStack space="md" className="items-start">
             <Box
-              className="w-12 h-12 rounded-xl items-center justify-center"
-              style={{ backgroundColor: "rgba(255, 255, 255, 0.2)" }}
+              className="w-16 h-16 rounded-md items-center justify-center"
+              style={{ backgroundColor: "rgba(255, 255, 255, 0.4)" }}
             >
               <Icon as={icon} size="lg" className="text-white" />
             </Box>
@@ -122,23 +124,29 @@ function SummaryCard({ title, amount, count, icon, variant, onPress, trend }: Su
                 {trend && (
                   <Box
                     className="px-2 py-1 rounded-md flex-row items-center gap-1"
-                    style={{ backgroundColor: "rgba(255, 255, 255, 0.2)" }}
+                    style={{ backgroundColor: "rgba(255, 255, 255, 0.3)" }}
                   >
-                    <Icon
-                      as={TrendingUp}
-                      size="xs"
-                      className="text-white"
-                      style={{ transform: [{ rotate: trend.isPositive ? "0deg" : "180deg" }] }}
+                    <MaterialCommunityIcons
+                      name="chart-timeline-variant-shimmer" 
+                      size={20} 
+                      color={SemanticColors.secondary}
+                      style={{ 
+                        transform: [{ 
+                          rotate: trend.isPositive 
+                          ? "0deg" 
+                          : "180deg" 
+                        }] 
+                      }}
                     />
-                    <Text size="xs" className="text-white font-semibold">
-                      {trend.isPositive ? "+" : ""}
+                    <Text size="md" className="text-white font-semibold">
+                      {trend.isPositive ? "+" : "-"}
                       {trend.value}%
                     </Text>
                   </Box>
                 )}
               </HStack>
 
-              <Heading size="2xl" className={`${styles.amountColor} font-bold`}>
+              <Heading size="3xl" className={`${styles.amountColor} font-bold`}>
                 ₦{amount.toLocaleString()}
               </Heading>
 
@@ -194,6 +202,7 @@ function RecentActivityItem({ debt, userRole, onPress }: RecentActivityItemProps
           shadowOpacity: 0.05,
           shadowRadius: 8,
           elevation: 2,
+          borderColor: QredColors.border.light,
         }}
       >
         <HStack space="md" className="items-center">
@@ -251,6 +260,7 @@ function QuickAction({ title, description, icon, onPress, variant = "primary" }:
           shadowOpacity: 0.08,
           shadowRadius: 12,
           elevation: 3,
+          borderColor: QredColors.border.light,
         }}
       >
         <VStack space="md" className="items-center">
@@ -300,7 +310,7 @@ export default function RoleBasedDashboard({ navigation }: DashboardProps) {
 
   const recentActivities = [...lendingDebts, ...owingDebts]
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    .slice(0, 5)
+    .slice(0, 3)
 
   const handleRefresh = async () => {
     setRefreshing(true)
@@ -406,7 +416,7 @@ export default function RoleBasedDashboard({ navigation }: DashboardProps) {
         />
 
         <HStack space="md">
-          <Box className="flex-1">
+          {/*<Box className="flex-1">
             <SummaryCard
               title="Pending"
               amount={lendingDebts
@@ -416,7 +426,7 @@ export default function RoleBasedDashboard({ navigation }: DashboardProps) {
               icon={Clock}
               variant="secondary"
             />
-          </Box>
+          </Box>*/}
           <Box className="flex-1">
             <SummaryCard
               title="Overdue"
@@ -720,7 +730,7 @@ export default function RoleBasedDashboard({ navigation }: DashboardProps) {
   )
 
   return (
-    <Box className="flex-1" style={{ backgroundColor: QredColors.background.light }}>
+    <Box className="flex-1" style={{ backgroundColor: SemanticColors.secondarySurface }}>
       <ScrollView
         className="flex-1"
         showsVerticalScrollIndicator={false}

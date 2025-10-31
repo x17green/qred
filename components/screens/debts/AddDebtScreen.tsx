@@ -13,6 +13,7 @@ import { Ionicons } from "@expo/vector-icons"
 import { LinearGradient } from "expo-linear-gradient"
 import { useCallback, useState } from "react"
 import { Alert, ScrollView } from "react-native"
+import QredColors, { SemanticColors } from "@/lib/constants/colors"
 
 interface AddDebtScreenProps {
   navigation: any
@@ -263,6 +264,8 @@ export default function AddDebtScreen({ navigation }: AddDebtScreenProps) {
                       shadowOpacity: 0.1,
                       shadowRadius: 8,
                       elevation: !formData.isExternal ? 4 : 0,
+                      borderColor: !formData.isExternal ? SemanticColors.pressed : SemanticColors.hover,
+                      backgroundColor: !formData.isExternal ? QredColors.background.light : QredColors.background.muted,
                     }}
                   >
                     <VStack className="items-center">
@@ -270,6 +273,9 @@ export default function AddDebtScreen({ navigation }: AddDebtScreenProps) {
                         className={`w-12 h-12 rounded-full items-center justify-center ${
                           !formData.isExternal ? "bg-primary-100" : "bg-background-100"
                         }`}
+                        style={{
+                          backgroundColor: !formData.isExternal ? "#DDEFFF" : "#F3F4F6",
+                        }}
                       >
                         <Ionicons name="people" size={24} color={!formData.isExternal ? "#1A2A4D" : "#9CA3AF"} />
                       </Box>
@@ -306,6 +312,8 @@ export default function AddDebtScreen({ navigation }: AddDebtScreenProps) {
                       shadowOpacity: 0.1,
                       shadowRadius: 8,
                       elevation: formData.isExternal ? 4 : 0,
+                      borderColor: formData.isExternal ? SemanticColors.pressed : SemanticColors.hover,
+                      backgroundColor: formData.isExternal ? QredColors.background.light : QredColors.background.muted,
                     }}
                   >
                     <VStack className="items-center">
@@ -313,6 +321,9 @@ export default function AddDebtScreen({ navigation }: AddDebtScreenProps) {
                         className={`w-12 h-12 rounded-full items-center justify-center ${
                           formData.isExternal ? "bg-primary-100" : "bg-background-100"
                         }`}
+                        style={{
+                          backgroundColor: formData.isExternal ? "#DDEFFF" : "#F3F4F6",
+                        }}
                       >
                         <Ionicons name="business" size={24} color={formData.isExternal ? "#1A2A4D" : "#9CA3AF"} />
                       </Box>
@@ -351,6 +362,7 @@ export default function AddDebtScreen({ navigation }: AddDebtScreenProps) {
                     shadowOpacity: 0.05,
                     shadowRadius: 4,
                     elevation: 2,
+                    borderColor: QredColors.border.light,
                   }}
                 >
                   <HStack className="items-center px-4">
@@ -399,6 +411,7 @@ export default function AddDebtScreen({ navigation }: AddDebtScreenProps) {
                     shadowOpacity: 0.05,
                     shadowRadius: 4,
                     elevation: 2,
+                    borderColor: QredColors.border.light,
                   }}
                 >
                   <HStack className="items-center px-4">
@@ -437,6 +450,7 @@ export default function AddDebtScreen({ navigation }: AddDebtScreenProps) {
                     shadowOpacity: 0.05,
                     shadowRadius: 4,
                     elevation: 2,
+                    borderColor: QredColors.border.light,
                   }}
                 >
                   <HStack className="items-center px-4">
@@ -486,6 +500,7 @@ export default function AddDebtScreen({ navigation }: AddDebtScreenProps) {
                     shadowOpacity: 0.05,
                     shadowRadius: 4,
                     elevation: 2,
+                    borderColor: QredColors.border.light,
                   }}
                 >
                   <HStack className="items-center px-4">
@@ -526,6 +541,7 @@ export default function AddDebtScreen({ navigation }: AddDebtScreenProps) {
                     shadowOpacity: 0.05,
                     shadowRadius: 4,
                     elevation: 2,
+                    borderColor: QredColors.border.light,
                   }}
                 >
                   <HStack className="items-center px-4">
@@ -559,14 +575,14 @@ export default function AddDebtScreen({ navigation }: AddDebtScreenProps) {
 
               {Number.parseFloat(formData.principal) > 0 && (
                 <LinearGradient
-                  colors={["#E8F5E9", "#F1F8F4"]}
+                  colors={["#F0FFF7", "#E8FFF3"]}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
                   style={{
                     padding: 20,
                     borderRadius: 16,
-                    borderWidth: 2,
-                    borderColor: "#00E676",
+                    borderWidth: 0.7,
+                    borderColor: QredColors.border.accent,
                   }}
                 >
                   <VStack space="sm">
@@ -596,10 +612,10 @@ export default function AddDebtScreen({ navigation }: AddDebtScreenProps) {
 
                     <Box className="border-t-2 border-success-300 pt-3 mt-2">
                       <HStack className="justify-between items-center">
-                        <Text size="md" className="font-bold text-success-800">
+                        <Text size="lg" className="font-bold text-success-800">
                           Total Amount:
                         </Text>
-                        <Text size="xl" className="font-bold text-success-900">
+                        <Text size="2xl" className="font-bold text-success-900">
                           ₦{calculateTotal().toLocaleString()}
                         </Text>
                       </HStack>
@@ -622,6 +638,7 @@ export default function AddDebtScreen({ navigation }: AddDebtScreenProps) {
                     shadowOpacity: 0.05,
                     shadowRadius: 4,
                     elevation: 2,
+                    borderColor: QredColors.border.light,
                   }}
                 >
                   <HStack className="items-center justify-between">
@@ -657,6 +674,7 @@ export default function AddDebtScreen({ navigation }: AddDebtScreenProps) {
                   shadowOpacity: 0.05,
                   shadowRadius: 4,
                   elevation: 2,
+                  borderColor: QredColors.border.subtle,
                 }}
               >
                 <Input variant="outline" size="lg" className="border-0">

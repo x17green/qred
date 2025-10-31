@@ -11,7 +11,7 @@
   "show_whitespaces": "none",
   "show_wrap_guides": true,
   "wrap_guides": [80, 120],
-  "soft_wrap": "editor_width",
+  "soft_wrap": "none",
   "tab_size": 2,
   "hard_tabs": false,
   "auto_install_extensions": {
@@ -136,7 +136,11 @@
       "arguments": ["--stdin-filepath", "{buffer_path}"]
     }
   },
-  "autosave": "on_focus_change",
+  "autosave": {
+    "after_delay": {
+      "milliseconds": 1000
+    }
+  },
   "format_on_save": "on",
   "code_actions_on_format": {
     "source.organizeImports": true,
